@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Page</title>
+</head>
+<body>
+    <h1>Your Data</h1>
+    {% if person_list %}
+    <ul>
+        {% for person in person_list %}
+            <a href="{% url 'persons' %}"> Persons</a>
+            <li>{{ person.id }} {{ person.name }} {{ person.age }}</li> 
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>There are no persons in the database</p>
+    {% endif %}
+</body>
+</html>

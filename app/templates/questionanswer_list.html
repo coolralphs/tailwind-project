@@ -1,0 +1,104 @@
+{% extends "master.html" %}
+{% load filters %}
+
+{% block title %}
+    Questions
+{% endblock %}
+
+{% block content %}
+    <h1>Questions</h1>
+    <a href="{% url 'create_question_w_answers' %}"> Create New</a>
+    {% if grouped_data %}    
+        <table style="margin-top:0.25rem !important;">
+            {% comment %} <thead>
+                <th>#</th>                
+                <th>Questions</th>
+                <th></th>
+            </thead> {% endcomment %}
+            <tbody>
+                {% for item, answers in grouped_data.items %}
+                    <tr>
+                        <td>
+                            {{ forloop.counter}})
+                        </td>
+                        <td>
+                            {{ item }}
+                        </td>
+                        <td>
+                            <a href="{% url 'update_question' pk=item.id %}">Edit</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>                            
+                        </td>
+                        <td colspan="2" >
+                            <table>
+                                {% comment %} <thead>
+                                    <th>
+                                        Answers
+                                    </th>
+                                    <th>
+                                </thead> {% endcomment %}
+                                <tbody>
+                                    {% for i in answers %}
+                                        <tr>
+                                            <td>
+                                                {{ forloop.counter|alphabet_counter }}) {{ i.answer }}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'update_answer' pk=i.answer_id %}">Edit</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table> 
+                        </td>
+                    </tr>
+                {% endfor %} 
+            </tbody>
+            
+
+                <!-- question -->
+                {% comment %} <li>{{ key }}
+                    <ul>
+                        {% for value in values %}
+                            <!-- answer -->
+                            <li>{{ value }}</li> 
+                        {% endfor %}
+                    </ul>
+                </li> {% endcomment %}
+            
+        </table>
+    </ol>
+    {% else %}
+    <p>There are no answers in the database</p>
+    {% endif %}
+{% endblock %}
+
+{% comment %} {% extends "master.html" %}
+
+{% block title %}
+    Question-Answer Assignments
+{% endblock %}
+
+{% block content %}
+    <h1>Question-Answer Assignments</h1>
+    <a href="{% url 'app:create_questionanswer' %}"> Create New</a>
+    {% if grouped_data %}
+    <ol>
+        {% for key, values in grouped_data.items %}
+            <!-- question -->
+            <li>{{ key }}
+                <ul>
+                    {% for value in values %}
+                        <!-- answer -->
+                        <li>{{ value }}</li> 
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %} 
+    </ol>
+    {% else %}
+    <p>There are no answers in the database</p>
+    {% endif %}
+{% endblock %} {% endcomment %}

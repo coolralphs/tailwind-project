@@ -1,0 +1,19 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Answers
+{% endblock %}
+
+{% block content %}
+    <h1>Answers</h1>
+    <a href="{% url 'create_answer' %}"> Create New</a>
+    {% if answer_list %}
+    <ul>
+        {% for answer in answer_list %}            
+            <li>{{ answer.description }}</li> 
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>There are no answers in the database</p>
+    {% endif %}
+{% endblock %}

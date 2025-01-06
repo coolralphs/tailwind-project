@@ -1,0 +1,14 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Update Itinarary
+{% endblock %}
+
+{% block content %}
+    <h2>Update Itinarary</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success btn-sm" type="submit">Save</button>
+    </form>
+{% endblock %}

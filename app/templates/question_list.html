@@ -1,0 +1,56 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Questions
+{% endblock %}
+
+{% block content %}
+    <h1>Questions</h1>
+    <a href="{% url 'create_question' %}"> Create New</a>
+    {% if question_list %}  
+        <table style="margin-top:0.25rem !important;">
+            <thead>
+                <th>#</th>                
+                <th>Questions</th>
+                <th></th>
+            </thead>
+            <tbody>
+                {% for sq in question_list %} 
+                    <tr>
+                        <td>
+                            {{ forloop.counter}})
+                        </td>
+                        <td>
+                            <em>{{ sq.title }}</em> - {{ sq.question_text }}
+                        </td>
+                        <td>
+                            <a href="{% url 'update_question' pk=sq.pk %}">Edit</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>                            
+                        </td>
+                        <td colspan="2" >
+                            {% comment %} <table>
+                                <thead>
+                                    <th>
+                                        Answers
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            stuff
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table> {% endcomment %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+    <p>There are no survey questions in the database</p>
+    {% endif %}
+{% endblock %}

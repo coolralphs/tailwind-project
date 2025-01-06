@@ -1,0 +1,68 @@
+{% extends "master.html" %}
+{% load filters %}
+
+{% block title %}
+    Survey
+{% endblock %}
+
+{% block content %}
+    <h1>Survey Question</h1>
+    {% if grouped_data %}
+        <form method="post">
+            {% csrf_token %}
+            <table style="margin-top:0.25rem !important;">
+                <tbody>
+                    {% for question, answers in grouped_data.items %}           
+                    <tr>
+                        <td>
+                            {{ question.pk|add:"-1" }})
+                        </td>
+                        <td>
+                            {{ question }}
+                            {% if question.is_multiple_choice %}
+                                (Select all that apply)
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>                        
+                            <table>
+                                <tbody>
+                                    {% for i in answers %}
+                                        <tr>
+                                            <td>
+                                                {% comment %} {{ forloop.counter|alphabet_counter }}) {{ i.answer }} {% endcomment %}
+                                                <input name="answer" type="checkbox" id={{ i.pk }} value={{ i.pk}}> {{ i.answer }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            {% if question.pk > first_pk %}
+                                <a href="{% url 'survey_question' id=question.pk|add:"-1" %}">
+                                    <button class="btn btn-success">Previous</button>
+                                </a>
+                            {% endif %}                        
+                            {% if question.pk == last_pk %}
+                                <a href="{% url 'survey_complete' %}">
+                                    <button class="btn btn-success" type="submit">Complete</button>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'survey_question_save' id=question.pk %}">
+                                    <button class="btn btn-success" type="submit">Next</button>
+                                </a>
+                            {% endif %}
+                        <td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    {% endif %}
+{% endblock %}

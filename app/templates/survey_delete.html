@@ -1,0 +1,19 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Trip Helper - Delete
+{% endblock %}
+
+{% block content %}
+    <h2>Trip Helper - Delete</h2>
+    <p>Are you sure you want to delete the following? 
+    <p><b>{{ object.description }}</b></p>
+    <form method="post">
+        {% csrf_token %}
+        <p><b>{{ form.description }}</b></p>
+        <a class="btn btn-secondary btn-sm" href="{% url 'itineraries' %}">
+            Cancel
+        </a>
+        <input class="btn btn-danger btn-sm" type="submit" value="Delete">
+    </form>
+{% endblock %}

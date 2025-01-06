@@ -1,0 +1,301 @@
+{% extends "master.html" %}
+{% load filters %}
+{% load static %}
+
+{% block title %}
+    Itinerary
+{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+
+    <form id="form_update_itinerary" method="post" style="margin-bottom:10px;">
+        {% csrf_token %}
+        <input id="id_user_survey" name="user_survey" value="{{ user_survey_id }}" hidden>
+        {{ form_update_itinerary.name }}
+        <button type="button" id="btn_itinerary_edit" class="btn btn-outline-primary btn-sm" style="margin-top: -5px;">
+            Edit <i class="bi bi-pencil" ></i>
+        </button>
+        <button type="submit" id="btn_itinerary_save" name="btn_itinerary_save" class="btn btn-outline-success btn-sm" style="margin-top: -5px;" hidden>
+            Save <i class="bi bi-pencil" ></i>
+        </button>
+    </form>
+
+    <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+        Add Activity
+    </button>
+
+    {% comment %} <a class="mt-3" href="{% url 'add_itinerary_destination' itinerary_id=itinerary_id %}"> Add Destination</a> |
+    <a href="{% url 'update_itinerary' pk=itinerary_id %}"> Edit</a> {% endcomment %}
+    {% if grouped_dates %}        
+        <div class="accordion mt-2" id="accordion">    
+            {% for date, destinations in grouped_dates.items %}   
+                <div class="accordion-item">                    
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ date|date:"m-d-Y" }}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
+                            <div>{{ date }} - {{ date|date:"l" }}</div>
+                        </button>
+                    </h2>
+                    <div id="collapse_{{ date|date:"m-d-Y" }}" name="{{ date|date:"m-d-Y" }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
+                        <div class="accordion-body">           
+                            
+                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                Add Activity
+                            </button>
+
+                            {% comment %} <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Add New
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                            Activity
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Destination" aria-controls="offcanvasRight_Destination">
+                                            Destination
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div> {% endcomment %}
+
+                            <table class="mt-2">
+                                <thead class="table-head">
+                                    <th>Time</th>
+                                    <th></th>
+                                    <th>Activity</th>
+                                    <th>City</th>
+                                    <th>Booked</th>
+                                    <th>Paid</th>
+                                    <th></th>
+                                </thead>
+                                <tbody>
+                                    {% for i in destinations|dictsort:"start_time" %}
+                                        <tr>
+                                            <td class="time-highlight">{{ i.start_time }}</td>
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <i class="fas fa-{{ i.icon1 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
+                                                <i class="fas fa-{{ i.icon2 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i>
+                                            </td>
+                                            <td>{{ i.place_name }}</td>
+                                            <td class="special">{{ i.itinerary_destination.city }}</td>
+                                            <td class="td-center">
+                                                {% if i.booking_required %} 
+                                                    {% if i.is_booked %}
+                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                    {% else %}
+                                                        <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if i.is_booked %}
+                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                            <td class="td-center">
+                                                {% if i.pre_payment_required %} 
+                                                    {% if i.is_paid %} 
+                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                    {% else %}                                                                
+                                                        <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if i.is_paid %} 
+                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                    {% endif %}
+                                                {% endif %}
+                                            </td>
+                                            <td><a href="#">Details</a></td>
+                                        </tr>
+                                    {% endfor %}                                            
+                                </tbody>
+                            </table>
+                        </div> 
+                    </div>
+                </div>    
+            {% endfor %}
+        </div>            
+    {% else %}
+    <div class="accordion mt-2">There are no destinations on this itinerary.</div>
+    {% endif %}
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel">Add New Activity</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form method="post" class="small-form-width">
+                {% csrf_token %} 
+                    <!-- Management data of formset -->
+                {% comment %} {{ formset }} {% endcomment %}
+                {{ form.media }}
+                {{ form.destination }}
+                {{ form.as_p }}
+                <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
+                <button name="form_submit" class="btn btn-success btn-sm" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Destination" aria-labelledby="offcanvasRightLabel_Destination">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel_Destination">Add New Destination</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form method="post" class="small-form-width">
+                {% csrf_token %}
+
+                <label>Country:</label>
+
+                <div>
+                    <label><input type="radio" id="existing" name="country_selection" value="existing" checked /> Existing</label>
+                </div>
+                <div>
+                    <label><input type="radio" id="new" name="country_selection" value="new" /> New</label>
+                </div>
+
+                {{ form_destination.media }}
+                {{ form_destination.as_p }}
+                <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
+                
+                <button class="btn btn-success btn-sm" type="submit">Add</button>
+                    </form>
+                </div>
+    </div> {% endcomment %}
+
+    <script>
+        $( function() {
+            $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+            });
+            try {
+                //initialize date pickers
+                $('#id_start_date').datepicker();
+                $('#id_end_date').datepicker(); 
+
+                //make sure date is a real date and exists
+                try {
+                    //expand if passed
+                    var expand_date = $("#id_expand_item").val();
+                    $("#collapse_"+expand_date).collapse("show");  
+                    var date = $("#collapse_"+expand_date).attr('name');
+
+                    var parts = date.split('-');
+                    var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
+                    $('#id_start_date').datepicker("setDate", dateObj);
+                    $('#id_end_date').datepicker("setDate", dateObj);
+                    //$('#id_start_time').val('12:00');
+                }
+                catch (error)
+                {
+
+                }
+
+                //code for create activity
+                $("#id_country").hide();
+                $("#id_city").hide();
+                $("label[for='id_country']").css("margin-top", "10px");
+                $("label[for='id_city']").css("margin-top", "10px");
+                $("label[for='id_itinerary_destination']").css("margin-top", "10px");
+                $("label[for='id_country']").hide();
+                $("label[for='id_city']").hide();
+                $("#id_itinerary_destination").prop('required',true);
+            } catch (error) {
+                console.log(error)
+            }     
+        } );
+        $('#accordion').on('show.bs.collapse', function (e) {
+            var date = e.target.getAttribute('name');
+            SetDatePickers(date);
+            SetExpandItem(date);
+        });        
+        function SetDatePickers(date){
+            var parts = date.split('-');
+            var dateObj = new Date(parts[2], parts[0] - 1, parts[1]); 
+            $('#id_start_date').datepicker("setDate", dateObj);
+            $('#id_end_date').datepicker("setDate", dateObj);
+        }
+        function SetExpandItem(date){
+            $("#id_expand_item").val(date);
+        }
+        $('input[type="radio"]').change(function() {
+            var selectedValue = $(this).val(); 
+            if (selectedValue == 'existing')
+            {
+                $("#id_country").hide();
+                $("#id_city").hide();
+                $("label[for='id_country']").hide();
+                $("label[for='id_city']").hide();
+                $("label[for='id_itinerary_destination']").show();
+                $("#id_itinerary_destination").show();
+                $("#id_itinerary_destination").prop('required',true);
+                $("#id_country").prop('required',false);
+                $("#id_city").prop('required',false);
+            }
+            else{
+                $("#id_country").show();
+                $("#id_city").show();
+                $("label[for='id_country']").show();
+                $("label[for='id_city']").show();
+                $("label[for='id_itinerary_destination']").hide();
+                $("#id_itinerary_destination").hide();
+                $("#id_itinerary_destination").prop('required',false);
+                $("#id_country").prop('required',true);
+                $("#id_city").prop('required',true);
+            }            
+        });
+        $("#id_existing_countries").change(function() {
+            var selectedValue = $(this).val(); 
+            $("#id_country").val(selectedValue).change();   
+        });
+
+        $("#btn_itinerary_edit").click(function() {
+            $(this).attr("hidden", true);       
+            $("#btn_itinerary_save").removeAttr('hidden');
+
+            $("#id_name").prop("disabled", false);
+            $("#id_name").focus();
+        });
+
+        $("#form_update_itinerary").submit(function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            $.ajax({
+                url: $(this).attr("action"),
+                type: $(this).attr("method"),
+                data: $(this).serialize(),
+            success: function(response) {
+                console.log(response.message);
+                $("#btn_itinerary_save").attr("hidden", true);       
+                $("#btn_itinerary_edit").removeAttr('hidden');
+                $("#id_name").prop("disabled", true);
+            },
+            error: function(error) {
+                console.error("Error submitting form:", error);
+            }
+            });
+        });
+
+        $("input").on("focus", function() {
+            var input = $(this);
+            if (input.attr("id") == "id_name")
+            {
+                console.log(input.attr("id"))
+                var len = input.val().length;
+
+                // Set timeout to allow the focus to take effect first
+                setTimeout(function() {
+                input[0].setSelectionRange(len, len);
+                }, 0);
+            }
+        });
+    </script>
+{% endblock %}
+

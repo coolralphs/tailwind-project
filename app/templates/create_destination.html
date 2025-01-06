@@ -1,0 +1,55 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Add Destination
+{% endblock %}
+
+{% block content %}
+    <h1>Add Destination</h1>
+    <form method="post" class="small-form-width">
+        {% csrf_token %}
+        
+        {% comment %} <label>Country:</label>
+
+        <div>
+            <label><input type="radio" id="existing" name="country_selection" value="existing" checked /> Existing</label>
+        </div>
+        <div>
+            <label><input type="radio" id="new" name="country_selection" value="new" /> New</label>
+        </div> {% endcomment %}
+
+        {{ form.as_p }}
+        <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
+        
+        <button class="btn btn-success btn-sm" type="submit">Add</button>
+    </form>
+
+    <script>
+        $(function() {
+            $("label[for='id_country']").hide();
+            $("label[for='id_existing_countries']").hide();
+            $("#id_country").hide();
+            var existingCountryCode = $("#id_existing_countries option:selected").val();
+            $("#id_country").val(existingCountryCode).change();
+        });
+        $('input[type="radio"]').change(function() {
+            var selectedValue = $(this).val(); 
+            if (selectedValue == 'existing')
+            {
+                $("#id_country").hide();
+                $("#id_existing_countries").show();
+                var existingCountryCode = $("#id_existing_countries option:selected").val();
+                $("#id_country").val(existingCountryCode).change();  
+            }
+            else{
+                $("#id_country").show();
+                $("#id_existing_countries").hide();
+            }            
+        });
+        $("#id_existing_countries").change(function() {
+            var selectedValue = $(this).val(); 
+            $("#id_country").val(selectedValue).change();   
+        });
+    </script>
+
+{% endblock %}

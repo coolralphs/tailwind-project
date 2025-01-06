@@ -1,0 +1,50 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Signup
+{% endblock %}
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/registration.css' %}">
+    <h1 style="text-align: center;">Signup</h1> 
+    <form class="form-with-validation" method="post">
+        {% csrf_token %}
+        {{ form }}
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        {% endif %}
+        <div>
+        <button class="btn btn-success btn-sm">Submit</button>       
+        </div>
+    </form>
+
+        {% comment %} {{ form }}
+        <button class="btn btn-success btn-sm">Submit</button>
+        {% if form.username.errors %}
+            <ul class="errorlist">
+                {% for error in form.username.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div> {% endcomment %}
+
+    {% comment %} <form method="post">
+        {% csrf_token %}
+        {{ form }}
+
+        <button class="btn btn-success btn-sm">Submit</button>
+
+        <div class="text-danger">
+            {% if form.errors %}
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+           {% endif %}
+        </div> 
+    </form> {% endcomment %}
+{% endblock %}

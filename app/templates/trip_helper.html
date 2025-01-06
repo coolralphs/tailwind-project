@@ -1,0 +1,137 @@
+{% extends "master.html" %}
+{% load filters %}
+
+{% block title %}
+    Trip Helper
+{% endblock %}
+
+{% block content %}
+    <h2>Trip Helper</h2>
+    <a href="{% url 'survey_start' %}"> Request New</a>
+    {% comment %} {% if new_list %} {% endcomment %}
+    {% comment %} <ul>
+        {% for item in itineraries %}            
+            <li>{{ item.description }}</li> 
+        {% endfor %}
+    </ul> {% endcomment %}
+
+        <div class="accordion mt-2" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePending" aria-expanded="true" aria-controls="collapsePending">
+                        New Requests
+                    </button>
+                </h2>
+                <div id="collapsePending" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        {% if new_list %}                        
+                            <table>
+                                <th>Trip Name</th>
+                                <th></th>
+                                <th>Completed</th>
+                                <th></th>
+                                {% for item, trip in new_list.items %}            
+                                    <tr>                            
+                                        <td>
+                                            {{ item.description }}
+                                        </td>
+                                        <td>
+                                        </td>                                    
+                                        <td>
+                                            {{ item.is_complete }}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'survey_start' survey_id=item.id %}">Edit</a> |
+                                            <a href="{% url 'survey_delete' survey_id=item.id %}">Delete</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {% else %}
+                            <div class="accordion mt-2">You have no new trips.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>           
+            
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Itinerary Suggestions
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                    {% if suggested_list %}
+                        <table>
+                            <th>Trip Name</th>
+                            <th></th>
+                            <th></th>
+                            {% for itin, trips in suggested_list.items %}            
+                                <tr>                                
+                                    <td>
+                                        {{ itin.name }}
+                                    </td>
+                                    <td>                                            
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Itineraries
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                {% for trip in trips %}
+                                                    <li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="{% url 'itinerary' itinerary_id=trip.id %}">{{ trip.name }}</a>
+                                                        </li>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'survey_start' survey_id=itin.id %}">Edit</a> |
+                                        <a href="{% url 'survey_delete' survey_id=itin.id %}">Delete</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    {% else %}
+                        <div class="accordion mt-2">You have no itinerary suggestions.</div>
+                    {% endif %}                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApproved" aria-expanded="false" aria-controls="collapseApproved">
+                        Approved Itineraries
+                    </button>
+                </h2>
+                <div id="collapseApproved" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                </div>
+            </div>
+
+            {% comment %} <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOther" aria-expanded="false" aria-controls="collapseOther">
+                        Other
+                    </button>
+                </h2>
+                <div id="collapseOther" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                </div>
+            </div> {% endcomment %}
+
+            
+        </div>
+
+    {% comment %} {% else %}
+    <div class="accordion mt-2">You have not created any trips.</div>
+    {% endif %} {% endcomment %}
+{% endblock %}

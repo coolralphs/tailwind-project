@@ -1,0 +1,58 @@
+{% extends "master.html" %}
+{% load filters %}
+
+{% block title %}
+    Trip Helper
+{% endblock %}
+
+{% block content %}
+    <h2>Trip Helper</h2>
+    <form method="post">
+        {% csrf_token %}
+        
+        {% comment %} <input type="hidden" name="user_survey_id" value="{{ user_survey_id }}"> {% endcomment %}
+
+        <div class="mb-2">
+            <b>{{ question.title }} - </b> {{ question.question_text }}
+        </div>
+        
+        {{ form.answers }}
+        {% comment %} {{ form.as_p }} {% endcomment %}
+
+        {% if error %}
+            <em><p class="text-danger">{{ error }}</p></em>
+        {% endif %}
+
+        {% if current_id == first_id %}
+            <a class="btn btn-success btn-sm mt-2" href="{% url 'survey_start' survey_id=survey_id %}">
+                Previous
+            </a>
+        {% endif %} 
+        {% if current_id > first_id %}
+            <a class="btn btn-success btn-sm mt-2" href="{% url 'survey_question' survey_id=survey_id question_id=current_id|add:"-1" %}">
+                Previous
+            </a>
+        {% endif %}      
+        
+        {% if current_id == last_id %}
+            <button class="mt-2 btn btn-success btn-sm" type="submit">Complete</button>
+            {% comment %} <a class="btn btn-success btn-sm mt-2" href="{% url 'survey_complete' %}">
+                Complete
+            </a> {% endcomment %}
+        {% else %}
+            {% comment %} <a href="{% url 'survey_question' survey_id=survey_id question_id=current_id %}"> {% endcomment %}
+                <button class="mt-2 btn btn-success btn-sm" type="submit">Next</button>
+            {% comment %} </a> {% endcomment %}
+        {% endif %}
+
+        {% if form.errors %}
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </form>
+{% endblock %}

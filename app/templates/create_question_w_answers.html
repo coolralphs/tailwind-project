@@ -1,0 +1,31 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Assign Answer to a Question
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Title">
+    <textarea name="question_text" placeholder="Question"></textarea>
+
+    <div id="answers-container">
+        <input type="text" name="answer" placeholder="Answer">
+    </div>
+
+    <button type="button" id="add-answer">Add Answer</button>
+    <button type="submit">Create</button>
+</form>
+
+<script>
+    document.getElementById('add-answer').addEventListener('click', function() {
+        const container = document.getElementById('answers-container');
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.name = 'answer';
+        newInput.placeholder = 'Answer';
+        container.appendChild(newInput);
+    });
+</script>
+{% endblock %}

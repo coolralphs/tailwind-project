@@ -1,0 +1,17 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+    Create Activity
+{% endblock %}
+
+{% block content %}
+{% comment %} <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}"> {% endcomment %}
+    <h1>Create Activity</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <button class="btn btn-success btn-sm" type="submit">Save</button>
+    </form>
+{% endblock %}

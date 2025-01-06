@@ -1,0 +1,14 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Create Itinarary
+{% endblock %}
+
+{% block content %}
+    <h2>Create Itinarary</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success btn-sm" type="submit">Create</button>
+    </form>
+{% endblock %}

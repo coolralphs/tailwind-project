@@ -1,0 +1,18 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Trip Helper
+{% endblock %}
+
+{% block content %}
+    <h2>Trip Helper</h2>
+    <p>Welcome! To create a personalized itinerary that perfectly matches your vacation needs, please take a moment to complete our quick survey.
+    <div class="mb-2">
+        <b>Travel Date - </b> My best estimate of when I plan to travel is:
+    </div>
+    <form method="post">
+        {% csrf_token %}        
+        {{ form.as_p }}        
+        <button class="btn btn-success btn-sm" type="submit">Next</button>
+    </form>
+{% endblock %}

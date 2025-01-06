@@ -1,0 +1,17 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Assign Answer to a Question
+{% endblock %}
+
+{% block content %}
+    <h1>Assign Answer to a Question</h1>
+
+    <ul>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Save">
+        </form>
+    </ul>
+{% endblock %}

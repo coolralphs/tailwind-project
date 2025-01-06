@@ -1,0 +1,52 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Trip Helper
+{% endblock %}
+
+{% block content %}
+    <h2>Trip Helper</h2>
+    <div class="mb-2">
+        <b>Travel Date - </b> My best estimate of when I plan to travel is:
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="id_trip_name_chk">
+            <label class="form-check-label" for="id_trip_name_chk">Check to use custom name</label>
+        </div>
+
+        <button class="btn btn-success btn-sm mt-2" type="submit">Next</button>
+    </form>
+
+    <script>
+    const monthElement = document.getElementById('id_travel_month');
+    const yearElement = document.getElementById('id_travel_year');
+    const nameElement = document.getElementById('id_description');
+    const chkElement = document.getElementById('id_trip_name_chk');
+
+    let selectedMonthName = monthElement.options[monthElement.selectedIndex].text;
+    let selectedYear = yearElement.value;
+
+    monthElement.addEventListener('change', function() {
+        const selectedOption = monthElement.options[monthElement.selectedIndex];
+        selectedMonthName = selectedOption.text;
+        nameElement.value = `${selectedMonthName} ${selectedYear} Trip`;
+    });
+    yearElement.addEventListener('change', function() {
+        selectedYear = yearElement.value;
+        nameElement.value = `${selectedMonthName} ${selectedYear} Trip`;
+    });
+    chkElement.addEventListener('change', function() {
+        if (this.checked) {
+            nameElement.readOnly = false;
+        } else {
+            nameElement.readOnly = true;
+            nameElement.value = `${selectedMonthName} ${selectedYear} Trip`;
+        }
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Itineraries
+{% endblock %}
+
+{% block content %}
+    <h2>Itineraries</h2>
+    <a href="{% url 'create_itinerary' %}"> Create New</a>
+    
+        {% if itinerary_list %}
+            <div class="mt-2 container">
+                {% for item in itinerary_list %}   
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-grid gap-2 mt-1">
+                                <a class="btn btn-success" href="{% url 'itinerary' itinerary_id=item.id %}">
+                                    {% comment %} {{ item.user_survey.description }} {% endcomment %}
+                                    {{ item.name }}
+                                </a>
+                                {% comment %} <button class="btn btn-success">{{ item.user_survey.description }}</button> {% endcomment %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>       
+
+        {% else %}
+            <div class="mt-2">There are no existing itineraries</div>
+        {% endif %}
+{% endblock %}
