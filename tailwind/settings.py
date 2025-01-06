@@ -83,16 +83,21 @@ WSGI_APPLICATION = 'tailwind.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        'NAME': 'tailwind',  # Your database name
-        'USER': 'rafael',  # Your database user
-        'PASSWORD': '#Tailwind956',  # Your database password
-        'HOST': 'localhost',  # Usually localhost
-        'PORT': '5432',  # Default PostgreSQL port
-    }
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://postgres:postgres@localhost:5432/tailwind',
+        conn_max_age=600
+    )
+    # 'default': {
+    #     # 'ENGINE': 'django.db.backends.sqlite3',
+    #     # 'NAME': BASE_DIR / 'db.sqlite3',
+    #     "ENGINE": "django.db.backends.postgresql_psycopg2",
+    #     'NAME': 'tailwind',  # Your database name
+    #     'USER': 'rafael',  # Your database user
+    #     'PASSWORD': '#Tailwind956',  # Your database password
+    #     'HOST': 'localhost',  # Usually localhost
+    #     'PORT': '5432',  # Default PostgreSQL port
+    # }
 }
 
 
