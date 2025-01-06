@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,13 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-e8h-yh7a!=)udp7c&yhccn+29($dfw80s)tf)%e!+rgf79@xd='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+# RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+# if RENDER_EXTERNAL_HOSTNAME:
+#     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -85,12 +86,24 @@ WSGI_APPLICATION = 'tailwind.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default='postgresql://rafael:#Tailwind956@localhost:5432/tailwind',
-        conn_max_age=600
-    )
+if DEBUG:
+    DATABASES = {       
+        'default': {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            'NAME': 'tailwind',  # Your database name
+            'USER': 'rafael',  # Your database user
+            'PASSWORD': '#Tailwind956',  # Your database password
+            'HOST': 'localhost',  # Usually localhost
+            'PORT': '5432',  # Default PostgreSQL port
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            # Replace this value with your local database's connection string.
+            default='postgresql://rafael:#Tailwind956@localhost:5432/tailwind',
+            conn_max_age=600
+        )
     # 'default': {
     #     # 'ENGINE': 'django.db.backends.sqlite3',
     #     # 'NAME': BASE_DIR / 'db.sqlite3',
@@ -101,7 +114,7 @@ DATABASES = {
     #     'HOST': 'localhost',  # Usually localhost
     #     'PORT': '5432',  # Default PostgreSQL port
     # }
-}
+    }
 
 
 # Password validation
