@@ -22,16 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e8h-yh7a!=)udp7c&yhccn+29($dfw80s)tf)%e!+rgf79@xd='
+SECRET_KEY = config('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
-# RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-# if RENDER_EXTERNAL_HOSTNAME:
-#     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -87,12 +89,18 @@ WSGI_APPLICATION = 'tailwind.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 if DEBUG:
+    # DATABASES = {
+    #     'default': dj_database_url.config(
+    #         default='postgresql://user:password@server.com/databasename',
+    #         conn_max_age=600
+    #     )
+    # }
     DATABASES = {       
         'default': {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
-            'NAME': 'tailwind',  # Your database name
-            'USER': 'rafael',  # Your database user
-            'PASSWORD': '#Tailwind956',  # Your database password
+            'NAME': config('DB_NAME', ''),  # Your database name
+            'USER': config('DB_USER', ''),  # Your database user
+            'PASSWORD': config('DB_PASSWORD', ''),  # Your database password
             'HOST': 'localhost',  # Usually localhost
             'PORT': '5432',  # Default PostgreSQL port
         }
@@ -100,20 +108,9 @@ if DEBUG:
 else:
     DATABASES = {
         'default': dj_database_url.config(
-            # Replace this value with your local database's connection string.
-            default='postgresql://rafael:#Tailwind956@localhost:5432/tailwind',
+            default='postgresql://user:password@server.com/databasename',
             conn_max_age=600
         )
-    # 'default': {
-    #     # 'ENGINE': 'django.db.backends.sqlite3',
-    #     # 'NAME': BASE_DIR / 'db.sqlite3',
-    #     "ENGINE": "django.db.backends.postgresql_psycopg2",
-    #     'NAME': 'tailwind',  # Your database name
-    #     'USER': 'rafael',  # Your database user
-    #     'PASSWORD': '#Tailwind956',  # Your database password
-    #     'HOST': 'localhost',  # Usually localhost
-    #     'PORT': '5432',  # Default PostgreSQL port
-    # }
     }
 
 

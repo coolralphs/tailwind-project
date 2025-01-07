@@ -284,6 +284,7 @@ def TripHelperListView(request):
     if q_first:
         pass
     else:
+        context = {"message": "No questions are set up to start itinerary helper."}
         return render(request, "trip_helper.html", context)
         pass
 
@@ -476,8 +477,14 @@ def SurveyStartView(request, survey_id=None):
             })
             return render(request, "survey_update.html", {'form': form})
         else:
-            form = UserSurveyForm()
-            return render(request, "survey_update.html", {'form': form})
+            exist = QuestionAnswer.objects.first()
+            if exist:
+                form = UserSurveyForm()
+                return render(request, "survey_update.html", {'form': form})
+            else:
+                context = {"message": "There are no questions set up in this survey!"}
+                return render(request, "survey_update.html", context)
+            
 
 
 def SurveyDeleteView(request, survey_id):
