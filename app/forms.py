@@ -39,7 +39,7 @@ class ItineraryForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['name'].widget.attrs['disabled'] = True
+        # self.fields['name'].widget.attrs['disabled'] = True
         self.fields['name'].widget.attrs['autocomplete'] = 'off'
 
 class ItineraryDestinationForm(forms.ModelForm):
