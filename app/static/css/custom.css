@@ -39,9 +39,22 @@ input[readonly] {
     color: white;
 }
 
-table th,tr,td {
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #ddd;
     padding:10px;
 }
+
+th, td {
+text-align: left;
+padding: 10px;
+}
+
+/* table th,tr,td {
+    padding:10px;
+} */
 
 /* .form-group {
     display: flex;

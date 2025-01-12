@@ -92,12 +92,20 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         else:
             pass
 
-        form = ItineraryItemForm(request.POST)
+        form = ItineraryItemForm(data=request.POST)
         
+        op = 'create'
         if form.is_valid():
+            op = request.POST.get('operation')
+            #cd = form.cleaned_data['operation']
             pass
         else:
             print('not valid')
+            errors = form.errors
+            for i in errors:
+                print (i)
+                
+            print(request.POST.getlist('start_time'))
             destinations = ItineraryDestination.objects.filter(itinerary_id=itinerary_id).order_by("country", "city")
             itinerary = Itinerary.objects.filter(id=itinerary_id).first()
 
@@ -139,19 +147,47 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         form_dest = ItineraryDestinationForm(request.POST)
 
         if form_dest.is_valid():
-            radio_selection = form_dest.cleaned_data['destination']
-            if radio_selection == 'new':
-                city = form_dest.cleaned_data['city']
-                country = form_dest.cleaned_data['country']
-                itinerary = Itinerary.objects.get(id = itinerary_id)
-                #save to db, then pass new itinerary_destination below
-                itin_dest = ItineraryDestination.objects.create(itinerary=itinerary, city=city, country=country)
-                action = form.save(commit=False)
-                action.itinerary_destination = itin_dest
-                action.save()
-                pass
+            if op == 'create':
+                print('enter create')
+                radio_selection = form_dest.cleaned_data['destination']
+                if radio_selection == 'new':
+                    city = form_dest.cleaned_data['city']
+                    country = form_dest.cleaned_data['country']
+                    itinerary = Itinerary.objects.get(id=itinerary_id)
+                    #save to db, then pass new itinerary_destination below
+                    itin_dest = ItineraryDestination.objects.create(itinerary=itinerary, city=city, country=country)
+                    action = form.save(commit=False)
+                    action.itinerary_destination = itin_dest
+                    action.save()
+                    pass
+                else:                
+                    form.save()
             else:
-                form.save()
+                print('enter update')
+                #update
+                id = form.cleaned_data['id']                
+                item = ItineraryItem.objects.get(id=id)
+                item.itinerary_destination = form.cleaned_data['itinerary_destination']
+                item.type = form.cleaned_data['type']
+                item.place_name = form.cleaned_data['place_name']
+                item.description = form.cleaned_data['description']
+                item.start_date = form.cleaned_data['start_date']
+                item.end_date = form.cleaned_data['end_date']
+                item.start_time = form.cleaned_data['start_time']
+                item.end_time = form.cleaned_data['end_time']     
+                item.number_bought = form.cleaned_data['number_bought']
+                item.total_cost = form.cleaned_data['total_cost']
+                item.is_skip = form.cleaned_data['is_skip']
+                print(form.cleaned_data['is_skip'])
+                item.is_booked = form.cleaned_data['is_booked']
+                item.booking_required = form.cleaned_data['booking_required']
+                item.pre_payment_required = form.cleaned_data['pre_payment_required']
+                item.is_paid = form.cleaned_data['is_paid']
+                item.url = form.cleaned_data['url']
+                item.rating = form.cleaned_data['rating']
+                item.notes = form.cleaned_data['notes']               
+
+                item.save()
                 pass
         else:
             print('form_dest NOT valid')
@@ -198,7 +234,8 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             "distinct_cities": distinct_cities,
             "itinerary_id": itinerary_id,
             "user_survey_id" : itinerary.user_survey.id,
-            "itinerary_name": itinerary.name
+            "itinerary_name": itinerary.name,
+            "itinerary": itinerary,
         }
     return render(request, "itinerary.html", context)
 
@@ -222,6 +259,16 @@ class ItineraryItemCreateView(CreateView):
     #     form = super().get_form(form_class)
     #     form.fields['itinerary_destination'].choices = CHOICES
     #     return form
+
+
+@method_decorator(login_required, name='dispatch')
+class ItineraryItemUpdateView(UpdateView):
+    model = ItineraryItem
+    form_class = ItineraryItemForm
+    template_name = "update_itinerary_activity.html"
+
+    def get_success_url(self):
+        return reverse_lazy('itinerary', kwargs={'itinerary_id': self.kwargs['itinerary_id']})
 
 class ItineraryCreateView(CreateView):
     model = Itinerary    
@@ -540,7 +587,7 @@ def register_view(request):
 
 def login_view(request):
     if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
             if 'next' in request.POST:
@@ -550,6 +597,8 @@ def login_view(request):
             else:
                 print(request.POST.get('next'))
                 return HttpResponseRedirect("/")
+        else:
+            return render(request, "login.html", { "form": form})
     else:
         form = AuthenticationForm()
         return render(request, "login.html", { "form": form})

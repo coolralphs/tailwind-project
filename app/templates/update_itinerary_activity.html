@@ -1,0 +1,16 @@
+{% extends "master.html" %}
+{% load static %}
+
+{% block title %}
+    Update Activity
+{% endblock %}
+
+{% block content %}
+    <h1>Update Activity</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <button class="btn btn-success btn-sm" type="submit">Save</button>
+    </form>
+{% endblock %}

@@ -7,6 +7,7 @@ from datetime import date, datetime
 from django_flatpickr.widgets import DatePickerInput, TimePickerInput, DateTimePickerInput
 from django.forms import formset_factory
 from django.forms import inlineformset_factory
+from asgiref.sync import sync_to_async
 
 class TwelveHourTimeInput(forms.TimeInput):
     input_type = 'time'
@@ -42,6 +43,12 @@ class ItineraryForm(forms.ModelForm):
         # self.fields['name'].widget.attrs['disabled'] = True
         self.fields['name'].widget.attrs['autocomplete'] = 'off'
 
+
+@sync_to_async
+def get_itinerary(itinerary_id):
+    return Itinerary.objects.get(id=itinerary_id)
+
+
 class ItineraryDestinationForm(forms.ModelForm):
     destination = forms.ChoiceField(
         choices=[('existing', 'Existing'), ('new', 'New')],
@@ -58,10 +65,6 @@ class ItineraryDestinationForm(forms.ModelForm):
             'country': forms.Select(attrs={'class': 'form-control'}),
             'city': forms.TextInput(attrs={'class': 'form-control'}),
         }
-        # labels = {
-        #     'country': '',  # Set an empty string to hide
-        #     'city': '',  # Set an empty string to hide
-        # }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)   
@@ -71,12 +74,18 @@ class ItineraryDestinationForm(forms.ModelForm):
                 pass     
         # itinerary = Itinerary.objects.filter(id=kwargs.pop('itinerary_id', None)).first()
         # self.fields['itinerary'].initial=itinerary
+        # itinerary = await get_itinerary(kwargs.pop('itinerary_id'))
+        # self.fields['itinerary'].initial=itinerary
         self.fields['country'].required = False
         self.fields['city'].required = False
 
+    async def async_init(self, *args, **kwargs):
+        self.fields['itinerary'].initial = await get_itinerary(kwargs.pop('itinerary_id'))
 
 
 class ItineraryItemForm(forms.ModelForm):
+    id = forms.CharField(widget=forms.HiddenInput())
+    operation = forms.CharField(widget=forms.HiddenInput())
     expand_item = forms.CharField(widget=forms.HiddenInput())
     destination = ItineraryDestinationForm()
     class Meta:
@@ -86,8 +95,10 @@ class ItineraryItemForm(forms.ModelForm):
             'itinerary_destination': forms.Select(attrs={'class': 'form-control','style':'margin-top: 10px'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
             'rating': forms.Select(attrs={'class': 'form-control'}),
-            'start_time': TimePickerInput(attrs={'value': 12}),
-            'end_time': TimePickerInput(attrs={'value': 13}),
+            # 'start_time': TimePickerInput(attrs={'class': 'flatpickr_id_start_time'}), #attrs={'value': 12}
+            # 'end_time': TimePickerInput(attrs={'class': 'flatpickr_id_end_time'}), #attrs={'value': 13}
+            'start_time': forms.TextInput(attrs={'class': 'form-control'}),
+            'end_time': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -104,6 +115,10 @@ class ItineraryItemForm(forms.ModelForm):
         self.fields['itinerary_destination'].choices = sorted(self.fields['itinerary_destination'].choices, key=lambda x: x[1])
         # self.fields['itinerary_destination'].label = '' # Set an empty string to hide
         self.fields['itinerary_destination'].required = False
+        self.fields['expand_item'].required = False
+
+        # self.fields['operation'].required = False
+        # self.fields['id'].required = False
 
 # MyFormSet = formset_factory(ItineraryItemForm, extra=2)
 # ItineraryItemFormSet = inlineformset_factory(ItineraryDestination,ItineraryItem, 

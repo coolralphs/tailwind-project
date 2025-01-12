@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/monim67/django-flatpickr@2.0.0/src/django_flatpickr/static/django_flatpickr/js/django-flatpickr.js"></script>
+    
+
+
+    
 
     <form id="form_update_itinerary" method="post" style="margin-bottom:10px;">
         {% csrf_token %}
@@ -24,7 +31,7 @@
         </button>
     </form>
 
-    <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+    <button class="btn btn-outline-primary btn-activity-create" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
         Add Activity
     </button>
 
@@ -32,7 +39,7 @@
     <a href="{% url 'update_itinerary' pk=itinerary_id %}"> Edit</a> {% endcomment %}
     {% if grouped_dates %}        
         <div class="accordion mt-2" id="accordion">    
-            {% for date, destinations in grouped_dates.items %}   
+            {% for date, activities in grouped_dates.items %}   
                 <div class="accordion-item">                    
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ date|date:"m-d-Y" }}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
@@ -42,7 +49,7 @@
                     <div id="collapse_{{ date|date:"m-d-Y" }}" name="{{ date|date:"m-d-Y" }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
                         <div class="accordion-body">           
                             
-                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            <button class="btn btn-outline-primary btn-activity-create" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 Add Activity
                             </button>
 
@@ -63,58 +70,76 @@
                                     </li>
                                 </ul>
                             </div> {% endcomment %}
-
-                            <table class="mt-2">
-                                <thead class="table-head">
-                                    <th>Time</th>
-                                    <th></th>
-                                    <th>Activity</th>
-                                    <th>City</th>
-                                    <th>Booked</th>
-                                    <th>Paid</th>
-                                    <th></th>
-                                </thead>
-                                <tbody>
-                                    {% for i in destinations|dictsort:"start_time" %}
-                                        <tr>
-                                            <td class="time-highlight">{{ i.start_time }}</td>
-                                            <td style="text-align: center; vertical-align: middle;">
-                                                <i class="fas fa-{{ i.icon1 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
-                                                <i class="fas fa-{{ i.icon2 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i>
-                                            </td>
-                                            <td>{{ i.place_name }}</td>
-                                            <td class="special">{{ i.itinerary_destination.city }}</td>
-                                            <td class="td-center">
-                                                {% if i.booking_required %} 
-                                                    {% if i.is_booked %}
-                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
+                            <div style="overflow-x:auto;">
+                                <table class="mt-2">
+                                    <thead class="table-head">
+                                        <th>Time</th>
+                                        <th></th>
+                                        <th>Activity</th>
+                                        <th>City</th>
+                                        <th>Booked</th>
+                                        <th>Paid</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in activities|dictsort:"start_time" %}
+                                            <tr>   
+                                                <td class="time-highlight">{{ i.start_time }}</td>
+                                                <td style="text-align: center; vertical-align: middle;">
+                                                    <i class="fas fa-{{ i.icon1 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
+                                                    <i class="fas fa-{{ i.icon2 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i>
+                                                </td>
+                                                <td>{{ i.place_name }}</td>
+                                                <td class="special">{{ i.itinerary_destination.city }}</td>
+                                                <td class="td-center">
+                                                    {% if i.booking_required %} 
+                                                        {% if i.is_booked %}
+                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                        {% else %}
+                                                            <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                        {% endif %}
                                                     {% else %}
-                                                        <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                        {% if i.is_booked %}
+                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                        {% endif %}
                                                     {% endif %}
-                                                {% else %}
-                                                    {% if i.is_booked %}
-                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                </td>
+                                                <td class="td-center">
+                                                    {% if i.pre_payment_required %} 
+                                                        {% if i.is_paid %} 
+                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                        {% else %}                                                                
+                                                            <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if i.is_paid %} 
+                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                        {% endif %}
                                                     {% endif %}
-                                                {% endif %}
-                                            </td>
-                                            <td class="td-center">
-                                                {% if i.pre_payment_required %} 
-                                                    {% if i.is_paid %} 
-                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
-                                                    {% else %}                                                                
-                                                        <i class="bi bi-x-circle-fill" style="color:red;"></i> 
-                                                    {% endif %}
-                                                {% else %}
-                                                    {% if i.is_paid %} 
-                                                        <i class="bi bi-check-circle" style="color:green;"></i> 
-                                                    {% endif %}
-                                                {% endif %}
-                                            </td>
-                                            <td><a href="#">Details</a></td>
-                                        </tr>
-                                    {% endfor %}                                            
-                                </tbody>
-                            </table>
+                                                </td>
+                                                <td>
+                                                {% comment %} <a href="#">Details</a> {% endcomment %}
+                                                <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                    Update
+                                                </button>
+                                                {% for key, val in i|get_fields %}
+                                                <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
+                                                {% endfor %}
+
+                                                {% comment %} {% for k,v in activities|get_fields %}
+                                                    <div> {{k}} - {{v}} </div>
+                                                {% endfor %} {% endcomment %}
+                                                {% comment %} {{ i.id }}
+                                                {{ i.itinerary_destination }}
+                                                {{ i.type }}
+                                                {{ i.place_name }}
+                                                {{ i.description }} {% endcomment %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}                                            
+                                    </tbody>
+                                </table>
+                            </div>
                         </div> 
                     </div>
                 </div>    
@@ -171,14 +196,41 @@
     </div> {% endcomment %}
 
     <script>
+        config_start_time = {
+            altInput: true,
+            enableTime: true,
+            noCalendar: true,
+            time_24hr: false,
+            dateFormat: "H:i:S",
+            defaultDate: "12:00"
+        }
+        config_end_time = {
+            altInput: true,
+            enableTime: true,
+            noCalendar: true,
+            time_24hr: false,
+            dateFormat: "H:i:S",
+            defaultDate: "13:00"
+        }
+        //initialize time inputs
+        let st = flatpickr("#id_start_time", config_start_time);
+        let et = flatpickr("#id_end_time", config_end_time); 
         $( function() {
             $.ajaxSetup({
             headers: { "X-CSRFToken": '{{csrf_token}}' }
             });
-            try {
+            try {      
                 //initialize date pickers
-                $('#id_start_date').datepicker();
-                $('#id_end_date').datepicker(); 
+                $( "#id_start_date" ).datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true
+                });
+                $( "#id_end_date" ).datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true
+                });
 
                 //make sure date is a real date and exists
                 try {
@@ -191,11 +243,11 @@
                     var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
                     $('#id_start_date').datepicker("setDate", dateObj);
                     $('#id_end_date').datepicker("setDate", dateObj);
-                    //$('#id_start_time').val('12:00');
                 }
                 catch (error)
                 {
-
+                    $('#id_start_date').datepicker("setDate", "today");
+                    $('#id_end_date').datepicker("setDate", "today");
                 }
 
                 //code for create activity
@@ -287,7 +339,7 @@
             var input = $(this);
             if (input.attr("id") == "id_name")
             {
-                console.log(input.attr("id"))
+                console.log(input.attr("id"));
                 var len = input.val().length;
 
                 // Set timeout to allow the focus to take effect first
@@ -295,6 +347,60 @@
                 input[0].setSelectionRange(len, len);
                 }, 0);
             }
+        });
+
+        $(".btn-activity-update").click(function() {
+            var itinerary_item_id = $(this).attr('name');
+            //var activity_id = $(this).attr("id").replace('btn_update_','');
+            $("#id_operation").val('update');
+
+            var inputs = $(".activity-update-input-" + itinerary_item_id);
+            //values
+            for(var i = 0; i < inputs.length; i++){
+                var val = $(inputs[i]).val();
+                var name = $(inputs[i]).attr('name');
+
+                if (val === 'None')
+                {
+                    val = '';
+                }
+                
+                switch(name) {
+                case "id_start_date":
+                case "id_end_date":
+                    var date_parts = val.split('-');
+                    var newDateObj = new Date(date_parts[0], date_parts[1] - 1, date_parts[2]); 
+                    $('#'+name).datepicker("setDate", newDateObj);
+                    break;
+                case "id_start_time":
+                    st.setDate(val)
+                    break;
+                case "id_end_time":        
+                    et.setDate(val);
+                    break;
+                case "id_is_skip":                    
+                case "id_is_booked":
+                case "id_booking_required":
+                case "id_pre_payment_required":
+                case "id_is_paid":
+                    var isTrueSet = (val.toLowerCase() === 'true');
+                    $("#"+name).prop('checked', isTrueSet);
+                    break;
+                case "id_id":
+                    console.log(val);
+                default:                   
+                    $("#"+name).val(val);
+                }                
+            }
+        });
+        $(".btn-activity-create").click(function() {
+            $("#id_operation").val('create');
+            console.log($("#id_operation").val());
+        });
+        $('input[type=checkbox]').change(function () {
+            //console.log($(this).val());
+            //this.setAttribute("checked", "checked");
+            //this.checked = true;
         });
     </script>
 {% endblock %}

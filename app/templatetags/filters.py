@@ -20,3 +20,7 @@ def unique_by(queryset, field_name):
 @register.filter
 def dictsorttwo(value, key):
     return dict(sorted(value.items(), key=lambda item: item[key]))
+
+@register.filter
+def get_fields(obj):
+    return [(field.name, field.value_to_string(obj)) for field in obj._meta.fields]

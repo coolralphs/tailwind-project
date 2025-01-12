@@ -11,9 +11,15 @@
     <form class="form-with-validation" method="post">
         {% csrf_token %}
         {{ form }}
+        {% for error in form.username.errors %}
+            <div style="color:red;">{{ error }}</div>
+        {% endfor %}
+        {% for error in form.password.errors %}
+            <div style="color:red;">{{ error }}</div>
+        {% endfor %}
         {% if request.GET.next %}
             <input type="hidden" name="next" value="{{ request.GET.next }}" />
         {% endif %}
-        <button class="btn btn-success btn-sm">Submit</button>       
+        <button class="btn btn-success btn-sm mt-2">Submit</button>       
     </form>
 {% endblock %}

@@ -20,12 +20,13 @@ urlpatterns = [
     path("create_question_w_answers/", create_question_w_answers, name="create_question_w_answers"),
 
     path("itinerary/<int:itinerary_id>/expand/<str:expand_item>/", ItineraryView, name="itinerary"),
+    path("itinerary/<int:itinerary_id>/expand/", ItineraryView, name="itinerary"),
     path("itinerary/<int:itinerary_id>/", ItineraryView, name="itinerary"),
     path("itineraries/", ItineraryListView.as_view(), name="itineraries"),
     path("itinerary/<int:itinerary_id>/add_destination/", ItineraryDestinationCreateView.as_view(), name="add_itinerary_destination"),
-    # path("itinerary/<int:itinerary_id>/", ItineraryDestinationCreateView.as_view(), name="add_itinerary_destination"),
     path("create_itinerary/", ItineraryCreateView.as_view(), name="create_itinerary"),
     path("itinerary/<int:itinerary_id>/create_activity", ItineraryItemCreateView.as_view(), name="create_itinerary_activity"),
+    path("itinerary/<int:itinerary_id>/update_activity/<int:pk>/", ItineraryItemUpdateView.as_view(), name="update_itinerary_activity"),
     path("create_destination", ItineraryDestinationCreateView.as_view(), name="create_destination"),
     path("itinerary/<int:pk>/update/", ItineraryUpdateView.as_view(), name="update_itinerary"),
 
