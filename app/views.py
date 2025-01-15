@@ -12,6 +12,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.forms import inlineformset_factory
+from django.db import IntegrityError
 import calendar
 
 def index(request):
@@ -171,7 +172,15 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                     itin_dest = ItineraryDestination.objects.create(itinerary=itinerary, city=city, country=country)
                     action = form.save(commit=False)
                     action.itinerary_destination = itin_dest
-                    action.save()
+                    try:
+                        action.save()
+                    except IntegrityError as e:
+                        # Handle the integrity error (e.g., duplicate key, etc.)
+                        print("IntegrityError:", e)
+                    except Exception as e:
+                        # Handle other potential exceptions
+                        print("Error saving model:", e)
+
                     pass
                 else:                
                     form.save()

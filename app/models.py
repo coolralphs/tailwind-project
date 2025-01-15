@@ -88,7 +88,7 @@ class Itinerary(models.Model):
     is_user_generated = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user_survey.description
+        return self.name
 
 def get_country_name(country):
         return countries.name(country)
