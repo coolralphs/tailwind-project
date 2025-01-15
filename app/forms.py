@@ -1,5 +1,5 @@
 from django import forms
-from .models import Answer, Itinerary, ItineraryDestination, ItineraryItem, Question, QuestionAnswer, UserSurvey
+from .models import Answer, Activity, Itinerary, ItineraryDestination, ItineraryItem, Question, QuestionAnswer, UserSurvey
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -8,6 +8,10 @@ from django_flatpickr.widgets import DatePickerInput, TimePickerInput, DateTimeP
 from django.forms import formset_factory
 from django.forms import inlineformset_factory
 from asgiref.sync import sync_to_async
+from django.core import serializers
+from django.http import JsonResponse
+from django.db.models import Case, When, Value, IntegerField
+import json
 
 class TwelveHourTimeInput(forms.TimeInput):
     input_type = 'time'
@@ -35,12 +39,11 @@ class ItineraryForm(forms.ModelForm):
             'name': 'Itinerary Name',
         }
         widgets = {
-            'name': forms.TextInput(attrs={'style': 'width: 300px;'}),
+            'name': forms.TextInput(attrs={'class': 'form-control left-control ', 'disabled': True}),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['name'].widget.attrs['disabled'] = True
         self.fields['name'].widget.attrs['autocomplete'] = 'off'
 
 
@@ -72,10 +75,6 @@ class ItineraryDestinationForm(forms.ModelForm):
             if isinstance(field, forms.CharField) or isinstance(field, forms.IntegerField): 
                 field.widget.attrs['class'] = 'form-control'
                 pass     
-        # itinerary = Itinerary.objects.filter(id=kwargs.pop('itinerary_id', None)).first()
-        # self.fields['itinerary'].initial=itinerary
-        # itinerary = await get_itinerary(kwargs.pop('itinerary_id'))
-        # self.fields['itinerary'].initial=itinerary
         self.fields['country'].required = False
         self.fields['city'].required = False
 
@@ -87,38 +86,55 @@ class ItineraryItemForm(forms.ModelForm):
     id = forms.CharField(widget=forms.HiddenInput())
     operation = forms.CharField(widget=forms.HiddenInput())
     expand_item = forms.CharField(widget=forms.HiddenInput())
+    activity_array = forms.CharField( 
+        widget=forms.HiddenInput(),
+        required=False,
+    )
     destination = ItineraryDestinationForm()
     class Meta:
         model = ItineraryItem
         fields = '__all__'
         widgets = {
             'itinerary_destination': forms.Select(attrs={'class': 'form-control','style':'margin-top: 10px'}),
-            'type': forms.Select(attrs={'class': 'form-control'}),
+            'activity_type': forms.Select(attrs={'class': 'form-control'}),
+            'activity': forms.Select(attrs={'class': 'form-control'}),
             'rating': forms.Select(attrs={'class': 'form-control'}),
-            # 'start_time': TimePickerInput(attrs={'class': 'flatpickr_id_start_time'}), #attrs={'value': 12}
-            # 'end_time': TimePickerInput(attrs={'class': 'flatpickr_id_end_time'}), #attrs={'value': 13}
-            'start_time': forms.TextInput(attrs={'class': 'form-control'}),
-            'end_time': forms.TextInput(attrs={'class': 'form-control'}),
+            'start_date': forms.TextInput(attrs={'class': 'form-control updatable'}),
+            'end_date': forms.TextInput(attrs={'class': 'form-control updatable'}),
+            'start_time': forms.TextInput(attrs={'class': 'form-control updatable'}),
+            'end_time': forms.TextInput(attrs={'class': 'form-control updatable'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             if isinstance(field, forms.CharField) or isinstance(field, forms.IntegerField): 
-                field.widget.attrs['class'] = 'form-control'
+                field.widget.attrs['class'] = 'form-control updatable'
                 pass
             if isinstance(field, forms.BooleanField): 
                 field.widget.attrs['class'] = 'form-check'
                 pass
         self.fields['start_date'].widget.attrs['autocomplete'] = 'off'
         self.fields['end_date'].widget.attrs['autocomplete'] = 'off'
+        self.fields['place_name'].widget.attrs['autocomplete'] = 'off'
+        self.fields['description'].widget.attrs['autocomplete'] = 'off'
         self.fields['itinerary_destination'].choices = sorted(self.fields['itinerary_destination'].choices, key=lambda x: x[1])
-        # self.fields['itinerary_destination'].label = '' # Set an empty string to hide
         self.fields['itinerary_destination'].required = False
         self.fields['expand_item'].required = False
+        
+        self.fields['operation'].required = False
+        self.fields['id'].required = False
 
-        # self.fields['operation'].required = False
-        # self.fields['id'].required = False
+        data = Activity.objects.all()
+        data_list = data.values_list('activity_type_id', 'id', 'name').annotate(
+            custom_order=Case(
+                When(name="Other", then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        ).order_by('custom_order','name')
+        activity_array = json.dumps(list(data_list))
+        self.fields['activity_array'].initial = activity_array
 
 # MyFormSet = formset_factory(ItineraryItemForm, extra=2)
 # ItineraryItemFormSet = inlineformset_factory(ItineraryDestination,ItineraryItem, 

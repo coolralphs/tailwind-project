@@ -8,6 +8,8 @@ urlpatterns = [
     path("", index, name="index"),
     path("stuff/", stuff, name="stuff"),
 
+    path("activities/", ActivityListView.as_view(), name="activities"),
+
     path("answers/", AnswerListView.as_view(), name="answers"),
     path("answers/<int:pk>/update/", AnswerUpdateView.as_view(), name="update_answer"),
     path("create_answer/", AnswerCreateView.as_view(), name="create_answer"),

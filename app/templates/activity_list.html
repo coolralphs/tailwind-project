@@ -1,0 +1,18 @@
+{% extends "master.html" %}
+
+{% block title %}
+    Activities
+{% endblock %}
+
+{% block content %}
+    <h1>Activities</h1>
+    {% if activity_list %}
+    <ul>
+        {% for activity in activity_list %}            
+            <li><i class="fas fa-{{ activity.icon }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> {{ activity.icon }}</li> 
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>There are no activities in the database</p>
+    {% endif %}
+{% endblock %}

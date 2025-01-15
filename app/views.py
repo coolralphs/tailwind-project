@@ -37,6 +37,11 @@ def survey_complete(request):
     return render(request, "survey_complete.html", context)
 
 
+class ActivityListView(ListView):
+    model = Activity
+    template_name = "activity_list.html"
+
+
 class AnswerCreateView(CreateView):
     model = Answer
     form_class = AnswerForm
@@ -168,7 +173,8 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 id = form.cleaned_data['id']                
                 item = ItineraryItem.objects.get(id=id)
                 item.itinerary_destination = form.cleaned_data['itinerary_destination']
-                item.type = form.cleaned_data['type']
+                item.activity_type = form.cleaned_data['activity_type']
+                item.activity = form.cleaned_data['activity']
                 item.place_name = form.cleaned_data['place_name']
                 item.description = form.cleaned_data['description']
                 item.start_date = form.cleaned_data['start_date']

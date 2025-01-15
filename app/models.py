@@ -109,7 +109,20 @@ class ItineraryDestination(models.Model):
     @property
     def country_name(self):
         return get_country_name(self.country)
-    
+
+
+class ActivityType(models.Model):
+    name = models.CharField(max_length=150)
+    def __str__(self):
+        return self.name
+
+class Activity(models.Model):
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150)
+    icon = models.CharField(max_length=150)
+    def __str__(self):
+        return self.name
+
 class ItineraryItem(models.Model):
     RATING_CHOICES = [
     (None, 'Not Rated'),
@@ -127,7 +140,9 @@ class ItineraryItem(models.Model):
     (5, 'Other'),
     ]
     itinerary_destination = models.ForeignKey(ItineraryDestination, on_delete=models.CASCADE)
-    type = models.IntegerField(choices=TYPE_CHOICES)
+    # type = models.IntegerField(choices=TYPE_CHOICES)
+    activity_type = models.ForeignKey(ActivityType, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     place_name = models.CharField(max_length=150)
     description = models.CharField(max_length=150, null=True, blank=True)
     start_date = models.DateField()
@@ -176,6 +191,7 @@ class ItineraryItem(models.Model):
             return "star"
         else:
             return "warning"
+
 
 class UserSurveyQuestionAnswer(models.Model):
     user_survey = models.ForeignKey(UserSurvey, on_delete=models.CASCADE)

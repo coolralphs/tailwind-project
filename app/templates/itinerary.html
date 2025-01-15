@@ -14,21 +14,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/monim67/django-flatpickr@2.0.0/src/django_flatpickr/static/django_flatpickr/js/django-flatpickr.js"></script>
-    
-
-
-    
 
     <form id="form_update_itinerary" method="post" style="margin-bottom:10px;">
         {% csrf_token %}
         <input id="id_user_survey" name="user_survey" value="{{ user_survey_id }}" hidden>
-        {{ form_update_itinerary.name }}
-        <button type="button" id="btn_itinerary_edit" class="btn btn-outline-primary btn-sm" style="margin-top: -5px;">
-            Edit <i class="bi bi-pencil" ></i>
-        </button>
-        <button type="submit" id="btn_itinerary_save" name="btn_itinerary_save" class="btn btn-outline-success btn-sm" style="margin-top: -5px;" hidden>
-            Save <i class="bi bi-pencil" ></i>
-        </button>
+        <div class="nowrap-container">
+            {{ form_update_itinerary.name }}
+            <button type="button" id="btn_itinerary_edit" class="btn btn-outline-primary">
+                Edit <i class="bi bi-pencil" ></i>
+            </button>
+            <button type="submit" id="btn_itinerary_save" name="btn_itinerary_save" class="btn btn-outline-success" hidden>
+                Save <i class="bi bi-pencil" ></i>
+            </button>
+        </div>
     </form>
 
     <button class="btn btn-outline-primary btn-activity-create" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
@@ -49,49 +47,45 @@
                     <div id="collapse_{{ date|date:"m-d-Y" }}" name="{{ date|date:"m-d-Y" }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
                         <div class="accordion-body">           
                             
-                            <button class="btn btn-outline-primary btn-activity-create" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            <button class="btn btn-outline-primary btn-activity-create activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 Add Activity
                             </button>
 
-                            {% comment %} <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Add New
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                            Activity
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Destination" aria-controls="offcanvasRight_Destination">
-                                            Destination
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div> {% endcomment %}
                             <div style="overflow-x:auto;">
                                 <table class="mt-2">
                                     <thead class="table-head">
                                         <th>Time</th>
                                         <th></th>
                                         <th>Activity</th>
-                                        <th>City</th>
-                                        <th>Booked</th>
-                                        <th>Paid</th>
-                                        <th></th>
+                                        <th class="narrow-hidden">City</th>
+                                        <th class="narrow-hidden td-center">Booked</th>
+                                        <th class="narrow-hidden td-center">Paid</th>
                                     </thead>
                                     <tbody>
                                         {% for i in activities|dictsort:"start_time" %}
+                                            {% for key, val in i|get_fields %}
+                                                {% comment %} {% if key != 'activity' %}
+                                                <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="" hidden/>
+                                                {% else %} {% endcomment %}
+                                                <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
+                                                {% comment %} {% endif %} {% endcomment %}
+                                            {% endfor %}
                                             <tr>   
-                                                <td class="time-highlight">{{ i.start_time }}</td>
-                                                <td style="text-align: center; vertical-align: middle;">
-                                                    <i class="fas fa-{{ i.icon1 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
-                                                    <i class="fas fa-{{ i.icon2 }}" style="text-shadow: 0px 0px 3px black; color: white;"></i>
+                                                <td class="time-highlight">{{ i.start_time|date:"g:i A" }}</td>
+                                                <td class="no-padding" style="text-align: center; vertical-align: middle; width:1px;">
+                                                    <i class="fas fa-{{ i.activity.icon }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
                                                 </td>
-                                                <td>{{ i.place_name }}</td>
-                                                <td class="special">{{ i.itinerary_destination.city }}</td>
-                                                <td class="td-center">
+                                                <td>
+                                                    {% comment %} {{ i.place_name }}   {% endcomment %}
+                                                    {% comment %} <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                        Update
+                                                    </button>  {% endcomment %}
+                                                    <a class="btn-activity-update" style="color: blue;" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                        {{ i.place_name }}  
+                                                    </a> 
+                                                </td>
+                                                <td class="special narrow-hidden">{{ i.itinerary_destination.city }}</td>
+                                                <td class="td-center narrow-hidden">
                                                     {% if i.booking_required %} 
                                                         {% if i.is_booked %}
                                                             <i class="bi bi-check-circle" style="color:green;"></i> 
@@ -104,7 +98,7 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
-                                                <td class="td-center">
+                                                <td class="td-center narrow-hidden">
                                                     {% if i.pre_payment_required %} 
                                                         {% if i.is_paid %} 
                                                             <i class="bi bi-check-circle" style="color:green;"></i> 
@@ -117,14 +111,12 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
-                                                <td>
+                                                {% comment %} <td> {% endcomment %}
                                                 {% comment %} <a href="#">Details</a> {% endcomment %}
-                                                <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                {% comment %} <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                     Update
-                                                </button>
-                                                {% for key, val in i|get_fields %}
-                                                <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
-                                                {% endfor %}
+                                                </button> {% endcomment %}
+                                               
 
                                                 {% comment %} {% for k,v in activities|get_fields %}
                                                     <div> {{k}} - {{v}} </div>
@@ -134,7 +126,7 @@
                                                 {{ i.type }}
                                                 {{ i.place_name }}
                                                 {{ i.description }} {% endcomment %}
-                                                </td>
+                                                {% comment %} </td> {% endcomment %}
                                             </tr>
                                         {% endfor %}                                            
                                     </tbody>
@@ -215,11 +207,17 @@
         //initialize time inputs
         let st = flatpickr("#id_start_time", config_start_time);
         let et = flatpickr("#id_end_time", config_end_time); 
+
+        let activity_array = [];
+
         $( function() {
             $.ajaxSetup({
             headers: { "X-CSRFToken": '{{csrf_token}}' }
             });
             try {      
+                let inputString = $("#id_activity_array").val();
+                activity_array = JSON.parse(inputString);
+
                 //initialize date pickers
                 $( "#id_start_date" ).datepicker({
                     changeMonth: true,
@@ -278,7 +276,8 @@
             $("#id_expand_item").val(date);
         }
         $('input[type="radio"]').change(function() {
-            var selectedValue = $(this).val(); 
+            var selectedValue = $(this).val();
+            console.log(selectedValue);
             if (selectedValue == 'existing')
             {
                 $("#id_country").hide();
@@ -351,11 +350,10 @@
 
         $(".btn-activity-update").click(function() {
             var itinerary_item_id = $(this).attr('name');
-            //var activity_id = $(this).attr("id").replace('btn_update_','');
             $("#id_operation").val('update');
 
             var inputs = $(".activity-update-input-" + itinerary_item_id);
-            //values
+            //set values
             for(var i = 0; i < inputs.length; i++){
                 var val = $(inputs[i]).val();
                 var name = $(inputs[i]).attr('name');
@@ -373,6 +371,7 @@
                     $('#'+name).datepicker("setDate", newDateObj);
                     break;
                 case "id_start_time":
+                    console.log(val);
                     st.setDate(val)
                     break;
                 case "id_end_time":        
@@ -387,20 +386,73 @@
                     $("#"+name).prop('checked', isTrueSet);
                     break;
                 case "id_id":
-                    console.log(val);
+                    //console.log(val);
+                case "id_activity":
+                    var selectedTypeId = $('#id_activity_type').find(":selected").val();
+                    var select = $("#"+name);
+                    select.empty();
+                    $.each(activity_array, function(index, item) {                        
+                        if (parseInt(item[0]) === parseInt(selectedTypeId)) {
+                            select.append($("<option></option>")
+                            .attr("value", item[1])
+                            .text(item[2]));
+                        }
+                    });
+                    select.val(val);
+                    break;
                 default:                   
                     $("#"+name).val(val);
+                    break;
                 }                
             }
         });
         $(".btn-activity-create").click(function() {
             $("#id_operation").val('create');
-            console.log($("#id_operation").val());
+            //empty activities
+            $("#id_activity").empty();
+            //deselect all selects
+            $('select').each(function() {
+                $(this).val(''); // Set the value to an empty string
+            });
+            //clear all updatable inputs
+            $(".updatable:visible").each(function() {
+                $(this).val("");
+            });
+            //unckeck all checkboxes
+            $('input[type=checkbox]').each( 
+                function (index, checkbox) { 
+                if (index != 0) { 
+                    checkbox.checked = false; 
+                } 
+            }); 
+            //reinitialize dates/times
+            st.setDate('12:00');
+            et.setDate('13:00');
+            if ($(this).hasClass("activity-exising-date")){
+                console.log($(this).attr('name'));
+                var date = $(this).attr('name')
+                var parts = date.split('-');
+                var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
+                $('#id_start_date').datepicker("setDate", dateObj);
+                $('#id_end_date').datepicker("setDate", dateObj);
+            }
+            else
+            {
+                $('#id_start_date').datepicker("setDate", "today");
+                $('#id_end_date').datepicker("setDate", "today");
+            }
         });
-        $('input[type=checkbox]').change(function () {
-            //console.log($(this).val());
-            //this.setAttribute("checked", "checked");
-            //this.checked = true;
+        $("#id_activity_type").change(function() {
+            var selectedTypeId = $(this).val();
+            var select = $("#id_activity");
+            select.empty();
+            $.each(activity_array, function(index, item) {                        
+                if (parseInt(item[0]) === parseInt(selectedTypeId)) {
+                    select.append($("<option></option>")
+                        .attr("value", item[1])
+                        .text(item[2]));
+                }
+            });
         });
     </script>
 {% endblock %}
