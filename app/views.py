@@ -87,11 +87,16 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             print('ajax')
             form = ItineraryForm(request.POST)
             if form.is_valid():
+                print('valid ajax')
                 itinerary = Itinerary.objects.get(id = itinerary_id)
                 itinerary.name = request.POST.get('name')
                 itinerary.save()
                 return JsonResponse({'message': 'Itinerary name successfully updated.'})
             else:
+                print('invalid ajax')
+                errors = form.errors
+                for i in errors:
+                    print (i)
                 return JsonResponse({'message': 'Itinerary name change was unsuccessful.'})
             
         else:
@@ -137,6 +142,9 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             form_destination = ItineraryDestinationForm()
             form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
 
+            user_survey_id = 0
+            if itinerary.user_survey:
+                user_survey_id = itinerary.user_survey.id
             context = {                
                 "form": form,
                 "form_destination": form_destination,
@@ -144,7 +152,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 "grouped_dates": dict(sorted_dict),
                 "distinct_cities": distinct_cities,
                 "itinerary_id": itinerary_id,
-                "user_survey_id" : itinerary.user_survey.id,
+                "user_survey_id" : user_survey_id,
                 "itinerary_name": itinerary.name
             }
             return render(request, "itinerary.html", context)
@@ -230,6 +238,9 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         form_destination = ItineraryDestinationForm()
         form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
 
+        user_survey_id = 0
+        if itinerary.user_survey:
+            user_survey_id = itinerary.user_survey.id
         # formset = ItineraryItemFormSet()
         context = {
             # "formset": formset,
@@ -239,7 +250,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             "grouped_dates": dict(sorted_dict),
             "distinct_cities": distinct_cities,
             "itinerary_id": itinerary_id,
-            "user_survey_id" : itinerary.user_survey.id,
+            "user_survey_id" : user_survey_id,
             "itinerary_name": itinerary.name,
             "itinerary": itinerary,
         }

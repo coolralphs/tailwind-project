@@ -41,12 +41,15 @@ class ItineraryForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control left-control '}),
         }
-    
+        exclude = ['user_survey'] 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs['autocomplete'] = 'off'
         if self.initial.get('name'):  # Check if 'name' has initial data
             self.fields['name'].widget.attrs['disabled'] = True
+            pass
+        # self.fields['user_survey'].required = False
 
 @sync_to_async
 def get_itinerary(itinerary_id):

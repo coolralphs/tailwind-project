@@ -83,7 +83,7 @@ class UserSurvey(models.Model):
 
 class Itinerary(models.Model):
     name = models.CharField(max_length=150)
-    user_survey = models.ForeignKey(UserSurvey, on_delete=models.CASCADE)
+    user_survey = models.ForeignKey(UserSurvey, on_delete=models.CASCADE, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
     is_user_generated = models.BooleanField(default=False)
 
