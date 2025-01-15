@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'tailwind.wsgi.application'
 if DEBUG:
     DATABASES = {
         'default': dj_database_url.config(
-            default='postgresql://rafael:9fXx0YDD29kPJqq05Ji2QFWIdyElFYL4@dpg-cttkhhjv2p9s738jdlr0-a.oregon-postgres.render.com/tailwind_g2hg',
+            default='postgresql://user:password@server.com/databasename',
             conn_max_age=6001
         )
     }
