@@ -20,23 +20,26 @@
         <input id="id_user_survey" name="user_survey" value="{{ user_survey_id }}" hidden>
         <div class="nowrap-container">
             {{ form_update_itinerary.name }}
-            <button type="button" id="btn_itinerary_edit" class="btn btn-outline-primary">
-                Edit <i class="bi bi-pencil" ></i>
-            </button>
-            <button type="submit" id="btn_itinerary_save" name="btn_itinerary_save" class="btn btn-outline-success" hidden>
-                Save <i class="bi bi-pencil" ></i>
-            </button>
+            <div class="buttons-right">
+                <button class="btn btn-outline-primary btn-activity-create btn-round-primary" type="button" id="btn_itinerary_edit">
+                    <i class="fas fa-pencil" ></i>
+                </button>
+                <button class="btn btn-outline-success btn-activity-create btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
+                    <i class="bi bi-pencil" ></i>
+                </button>
+                <button class="btn btn-outline-primary btn-activity-create btn-round-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                    <i class="fas fa-plus"></i> 
+                </button>
+            </div>
         </div>
     </form>
 
-    <button class="btn btn-outline-primary btn-activity-create" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-        Add Activity
-    </button>
+   
 
     {% comment %} <a class="mt-3" href="{% url 'add_itinerary_destination' itinerary_id=itinerary_id %}"> Add Destination</a> |
     <a href="{% url 'update_itinerary' pk=itinerary_id %}"> Edit</a> {% endcomment %}
     {% if grouped_dates %}        
-        <div class="accordion mt-2" id="accordion">    
+        <div class="accordion next-line" id="accordion">    
             {% for date, activities in grouped_dates.items %}   
                 <div class="accordion-item">                    
                     <h2 class="accordion-header">
@@ -45,21 +48,22 @@
                         </button>
                     </h2>
                     <div id="collapse_{{ date|date:"m-d-Y" }}" name="{{ date|date:"m-d-Y" }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
-                        <div class="accordion-body">           
+                        <div class="">           
                             
-                            <button class="btn btn-outline-primary btn-activity-create activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                Add Activity
+                            <button class="btn btn-outline-primary btn-round-primary btn-activity-create btn-round activity-exising-date mt-2" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                <i class="fas fa-plus"></i> 
                             </button>
 
-                            <div style="overflow-x:auto;">
-                                <table class="mt-2">
+                            <div class="next-line" style="overflow-x:auto;">
+                                <table class="">
                                     <thead class="table-head">
                                         <th>Time</th>
                                         <th></th>
-                                        <th>Activity</th>
+                                        <th class="text-ellipsis">Activity</th>
                                         <th class="narrow-hidden">City</th>
                                         <th class="narrow-hidden td-center">Booked</th>
                                         <th class="narrow-hidden td-center">Paid</th>
+                                        <th class="right-cell"></th>
                                     </thead>
                                     <tbody>
                                         {% for i in activities|dictsort:"start_time" %}
@@ -71,11 +75,11 @@
                                                 {% comment %} {% endif %} {% endcomment %}
                                             {% endfor %}
                                             <tr>   
-                                                <td class="time-highlight">{{ i.start_time|date:"g:i A" }}</td>
-                                                <td class="no-padding" style="text-align: center; vertical-align: middle; width:1px;">
+                                                <td class="time-highlight fit-text-cell">{{ i.start_time|date:"g:i A" }}</td>
+                                                <td class="icon-cell">
                                                     <i class="fas fa-{{ i.activity.icon }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
                                                 </td>
-                                                <td>
+                                                <td class="text-ellipsis">
                                                     {% comment %} {{ i.place_name }}   {% endcomment %}
                                                     {% comment %} <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                         Update
@@ -84,8 +88,8 @@
                                                         {{ i.place_name }}  
                                                     </a> 
                                                 </td>
-                                                <td class="special narrow-hidden">{{ i.itinerary_destination.city }}</td>
-                                                <td class="td-center narrow-hidden">
+                                                <td class="special narrow-hidden right-cell">{{ i.itinerary_destination.city }}</td>
+                                                <td class="td-center narrow-hidden right-cell">
                                                     {% if i.booking_required %} 
                                                         {% if i.is_booked %}
                                                             <i class="bi bi-check-circle" style="color:green;"></i> 
@@ -98,7 +102,7 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
-                                                <td class="td-center narrow-hidden">
+                                                <td class="td-center narrow-hidden right-cell">
                                                     {% if i.pre_payment_required %} 
                                                         {% if i.is_paid %} 
                                                             <i class="bi bi-check-circle" style="color:green;"></i> 
@@ -111,22 +115,9 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
-                                                {% comment %} <td> {% endcomment %}
-                                                {% comment %} <a href="#">Details</a> {% endcomment %}
-                                                {% comment %} <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                    Update
-                                                </button> {% endcomment %}
-                                               
-
-                                                {% comment %} {% for k,v in activities|get_fields %}
-                                                    <div> {{k}} - {{v}} </div>
-                                                {% endfor %} {% endcomment %}
-                                                {% comment %} {{ i.id }}
-                                                {{ i.itinerary_destination }}
-                                                {{ i.type }}
-                                                {{ i.place_name }}
-                                                {{ i.description }} {% endcomment %}
-                                                {% comment %} </td> {% endcomment %}
+                                                <td class="right-cell">
+                                                    <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
+                                                </td>
                                             </tr>
                                         {% endfor %}                                            
                                     </tbody>
@@ -159,6 +150,19 @@
             </form>
         </div>
     </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Directions" aria-labelledby="offcanvasRightLabel_Directions">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel_Directions">Open Directions With:</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <button class="open-map btn btn-outline-primary" type="button">
+                Google Maps
+            </button>
+        </div>
+    </div>
+
 
     {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Destination" aria-labelledby="offcanvasRightLabel_Destination">
         <div class="offcanvas-header">
@@ -254,12 +258,12 @@
                 $("label[for='id_country']").css("margin-top", "10px");
                 $("label[for='id_city']").css("margin-top", "10px");
                 $("label[for='id_itinerary_destination']").css("margin-top", "10px");
-                $("label[for='id_country']").hide();
-                $("label[for='id_city']").hide();
-                $("#id_itinerary_destination").prop('required',true);
-            } catch (error) {
+                $("label[for='id_country']").hide();                                                                                 
+            }
+            catch (error)
+            {
                 console.log(error)
-            }     
+            }
         } );
         $('#accordion').on('show.bs.collapse', function (e) {
             var date = e.target.getAttribute('name');
@@ -277,7 +281,7 @@
         }
         $('input[type="radio"]').change(function() {
             var selectedValue = $(this).val();
-            console.log(selectedValue);
+            //console.log(selectedValue);
             if (selectedValue == 'existing')
             {
                 $("#id_country").hide();
@@ -323,7 +327,7 @@
                 type: $(this).attr("method"),
                 data: $(this).serialize(),
             success: function(response) {
-                console.log(response.message);
+                //console.log(response.message);
                 $("#btn_itinerary_save").attr("hidden", true);       
                 $("#btn_itinerary_edit").removeAttr('hidden');
                 $("#id_name").prop("disabled", true);
@@ -338,7 +342,7 @@
             var input = $(this);
             if (input.attr("id") == "id_name")
             {
-                console.log(input.attr("id"));
+                //console.log(input.attr("id"));
                 var len = input.val().length;
 
                 // Set timeout to allow the focus to take effect first
@@ -371,7 +375,7 @@
                     $('#'+name).datepicker("setDate", newDateObj);
                     break;
                 case "id_start_time":
-                    console.log(val);
+                    //console.log(val);
                     st.setDate(val)
                     break;
                 case "id_end_time":        
@@ -429,7 +433,7 @@
             st.setDate('12:00');
             et.setDate('13:00');
             if ($(this).hasClass("activity-exising-date")){
-                console.log($(this).attr('name'));
+                //console.log($(this).attr('name'));
                 var date = $(this).attr('name')
                 var parts = date.split('-');
                 var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
@@ -453,6 +457,20 @@
                         .text(item[2]));
                 }
             });
+        });
+        $('#id_start_date').change(function() {
+            var selectedDate = $(this).val();
+            var parts = selectedDate.split('/');
+            var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
+            $('#id_end_date').datepicker("setDate", dateObj);
+        });
+        $(".open-map").click(function() {
+            var street = "Zion Park Blvd.".replace(/\s/g, "+");
+            var city = "Springdale".replace(/\s/g, "+");
+            var state = "UT".replace(/\s/g, "+");
+            var zip = "84767";
+            var fullAddress = `${street},+${city},+${state}+${zip}`;
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${fullAddress}`, "_blank");
         });
     </script>
 {% endblock %}

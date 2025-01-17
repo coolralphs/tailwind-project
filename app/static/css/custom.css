@@ -44,11 +44,6 @@ input[readonly] {
     color: white;
 }
 
-.nowrap-container {
-    display:flex;
-    align-items: center;
-}
-
 .left-control {
     flex: 1;
     max-width: 350px;
@@ -66,6 +61,34 @@ table {
 th, td {
 text-align: left;
 padding: 10px;
+}
+
+.fit-text-cell {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.icon-cell {
+    padding-left:20px;
+    text-align: center; 
+    vertical-align: middle; 
+    width:1px;
+}
+
+.right-cell {
+    text-align: center;
+    white-space: nowrap;
+    /* max-width: 1px; */
+    width: 1%;
+    /* padding: 4px; */
+}
+
+.text-ellipsis {
+    padding-left: 0px !important;
+    max-width: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .accordion-body {
@@ -91,4 +114,44 @@ form label {
 .no-padding {
     padding-left:0px !important; 
     padding-right:0px !important;
+}
+
+.next-line {
+    clear: both;
+}
+
+.nowrap-container {
+    display:flex;
+    align-items: center;
+}
+
+.buttons-right{
+    display: flex;
+    justify-content: flex-end;
+    gap: 3px;
+}
+
+/* .btn-activity-create {    
+    margin-bottom:8px;    
+} */
+
+.btn-round-primary {
+    float: right;
+    border-radius: 50%;  
+    border: 0.1px solid #0d6efd;
+}
+
+.btn-round-success {
+    float: right;
+    border-radius: 50%;  
+    border: 0.1px solid #198754;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.accordion-button:not(.collapsed){
+    box-shadow: none;
 }
