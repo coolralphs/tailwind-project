@@ -3,8 +3,6 @@
 {% load static %}
 {% load leaflet_tags %}
 
-
-
 {% block title %}
     Itinerary
 {% endblock %}
@@ -17,8 +15,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/monim67/django-flatpickr@2.0.0/src/django_flatpickr/static/django_flatpickr/js/django-flatpickr.js"></script>
-    {% leaflet_js %}
-    {% leaflet_css %}
+    {% comment %} {% leaflet_js %}
+    {% leaflet_css %} {% endcomment %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <form id="form_update_itinerary" method="post" style="margin-bottom:10px;">
         {% csrf_token %}
