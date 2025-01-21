@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_flatpickr',
     'bootstrap3_datetime',
     'fontawesomefree',
+    'leaflet',
 ]
 
 MIDDLEWARE = [
@@ -92,7 +93,7 @@ if DEBUG:
     DATABASES = {
         'default': dj_database_url.config(
             default='postgresql://user:password@server.com/databasename',
-            conn_max_age=6001
+            conn_max_age=600
         )
     }
     # DATABASES = {       

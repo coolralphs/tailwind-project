@@ -250,7 +250,10 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         user_survey_id = 0
         if itinerary.user_survey:
             user_survey_id = itinerary.user_survey.id
-        # formset = ItineraryItemFormSet()
+
+        map_center = (40.7128, -74.0060)
+        map_zoom = 12
+
         context = {
             # "formset": formset,
             "form": form,
@@ -262,6 +265,8 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             "user_survey_id" : user_survey_id,
             "itinerary_name": itinerary.name,
             "itinerary": itinerary,
+            "map_center": map_center,
+            "map_zoom": map_zoom,
         }
     return render(request, "itinerary.html", context)
 

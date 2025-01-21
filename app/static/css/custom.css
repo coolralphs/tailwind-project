@@ -155,3 +155,49 @@ form label {
 .accordion-button:not(.collapsed){
     box-shadow: none;
 }
+
+/* .my-leaflet-map-container img {
+    max-height: none;
+} */
+
+#map {
+    /* max-width: 600px; */
+    height: 400px;
+    margin-bottom: 10px;
+}
+
+/* #search-container {
+    margin: 10px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index:1000;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+} */
+
+#place-input {
+    width:300px;
+    padding 5px;
+}
+
+#suggestions {
+    max-height: 150 px;
+    /* overflow-y: auto; */
+    margin-top: 5px;
+}
+
+.suggestion {
+    padding: 5px;
+    cursor: pointer;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    margin-bottom: 2px;    
+}
+
+.suggestion-hover {
+    background-color: #ddd;;
+}
