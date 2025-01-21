@@ -4,6 +4,7 @@ beautifulsoup4==4.12.3
 Brotli==1.1.0
 click==8.1.8
 Cython==3.0.11
+distlib==0.3.9
 dj-database-url==2.3.0
 Django==4.2.16
 django-bootstrap-datetimepicker==1.5
@@ -14,12 +15,17 @@ django-datetime-widget==0.9.3
 django-flatpickr==2.0.3
 django-fontawesome==1.0
 django-formset==1.5.5
+django-leaflet==0.31.0
 django-tempus-dominus==5.1.2.17
+filelock==3.16.1
 fontawesome-free==5.15.4
 fontawesomefree==6.6.0
+geographiclib==2.0
+geopy==2.4.1
 gunicorn==23.0.0
 h11==0.14.0
 packaging==24.2
+platformdirs==4.3.6
 psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pydantic==2.10.4
@@ -33,4 +39,5 @@ soupsieve==2.6
 sqlparse==0.5.2
 typing_extensions==4.12.2
 uvicorn==0.34.0
+virtualenv==20.29.1
 whitenoise==6.8.2
