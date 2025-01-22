@@ -20,37 +20,50 @@
     {% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script> {% endcomment %}
 
-    <form id="form_update_itinerary" method="post" style="margin-bottom:10px;">
-        {% csrf_token %}
-        <input id="id_user_survey" name="user_survey" value="{{ user_survey_id }}" hidden>
-        <div class="nowrap-container">
-            {{ form_update_itinerary.name }}
-            <div class="buttons-right">
-                <button class="btn btn-outline-primary btn-activity-create btn-round-primary" type="button" id="btn_itinerary_edit">
-                    <i class="fas fa-pencil" ></i>
-                </button>
-                <button class="btn btn-outline-success btn-activity-create btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
-                    <i class="bi bi-pencil" ></i>
-                </button>
-                <button class="btn btn-outline-primary btn-activity-create btn-round-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                    <i class="fas fa-plus"></i> 
-                </button>
+    <div class="container-padding">
+        <form id="form_update_itinerary" method="post" style="margin-bottom:10px;margin-top:10px;">
+            {% csrf_token %}
+            <input id="id_user_survey" name="user_survey" value="{{ user_survey_id }}" hidden>
+            <div class="nowrap-container">
+                {{ form_update_itinerary.name }}
+                <div class="buttons-right">
+                    <button class="btn-activity-create btn-round-black" type="button" id="btn_itinerary_edit">
+                        <i class="fas fa-pencil" ></i>
+                    </button>
+                    <button class="btn-activity-create btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
+                        <i class="bi bi-pencil" style="color:#198754;"></i>
+                    </button>
+                    <button id="btn_map" class="btn-round-black" type="button">
+                        <i class="fas fa-map-location-dot"></i> 
+                    </button>
+                    {% comment %} <button class="btn btn-outline-primary btn-activity-create btn-round-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                        <i class="fas fa-plus"></i> 
+                    </button> {% endcomment %}
+                </div>
             </div>
-        </div>
-    </form>
-
-    
+        </form>    
+    </div>  
 
     <div id="map"></div>
-    <div id="search-container">
+
+    <div class="container-padding">
+        <div id="search-container">
+            <div class="icon-input">
+                <input type="text" id="place-input" placeholder="Add a place" />
+                <i class="fas fa-magnifying-glass"></i>
+            </div>
+            <div id="suggestions"></div>
+        </div>
+    </div>
+    {% comment %} <div id="search-container">
         <i class="fas fa-location-dot" style="margin-right:2px;"></i><input type="text" id="place-input" placeholder="Add a place" />
         <div id="suggestions"></div>
-    </div>
+    </div> {% endcomment %}
 
     {% comment %} <a class="mt-3" href="{% url 'add_itinerary_destination' itinerary_id=itinerary_id %}"> Add Destination</a> |
     <a href="{% url 'update_itinerary' pk=itinerary_id %}"> Edit</a> {% endcomment %}
     {% if grouped_dates %}        
-        <div class="accordion next-line" id="accordion">    
+        <div class="accordion next-line" id="accordion" style="margin-top:10px;">    
             {% for date, activities in grouped_dates.items %}   
                 <div class="accordion-item">                    
                     <h2 class="accordion-header">
@@ -158,6 +171,7 @@
                 {{ form.as_p }}
                 <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
                 <button name="form_submit" class="btn btn-success btn-sm" type="submit">Save</button>
+                <button id="id_remove_marker" class="btn btn-danger btn-sm">Remove</button>
             </form>
         </div>
     </div>
@@ -203,6 +217,8 @@
     </div> {% endcomment %}
 
     <script>
+        var offcanvas = new bootstrap.Offcanvas($('#offcanvasRight'));
+
         const markerIcon = L.icon({
             iconUrl: "{% static 'leaflet/images/marker-icon.png' %}",
             shadowUrl: "{% static 'leaflet/images/marker-shadow.png' %}",
@@ -323,13 +339,7 @@
                     .bindPopup(`<b>${name}</b><br>${city} ${country}`)
                     .openPopup();
                     $('#place-input').val('');
-
-                    var offcanvasElement = $('#offcanvasRight');
-                    // Create a Bootstrap Offcanvas instance
-                    var offcanvas = new bootstrap.Offcanvas(offcanvasElement);
-                    // Show the offcanvas
-                    offcanvas.show();
-
+                    offcanvas.show();                    
                 });                
 
                 let exists = false;
@@ -633,6 +643,19 @@
             var fullAddress = `${street},+${city},+${state}+${zip}`;
             window.open(`https://www.google.com/maps/dir/?api=1&destination=${fullAddress}`, "_blank");
         });
+        $("#id_remove_marker").click(function() {
+            map.removeLayer(searchMarker);
+
+            //zoom-to-fit
+            map.fitBounds(bounds);    
+
+            //ajax delete from db if exists
+            //close offcanvas
+            offcanvas.hide();
+        });
+        $("#btn_map").click(function() {
+            $("#map").toggle();
+        });                              
     </script>
 {% endblock %}
 

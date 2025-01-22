@@ -143,8 +143,20 @@ form label {
 
 .btn-round-success {
     float: right;
-    border-radius: 50%;  
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    background-color: none;
     border: 0.1px solid #198754;
+}
+
+.btn-round-black {
+    float: right;
+    border-radius: 50%;  
+    width: 38px;
+    height: 38px;
+    /* background-color: lightgray; */
+    border: 0px solid lightgray;
 }
 
 .btn:focus {
@@ -181,11 +193,11 @@ form label {
 
 #place-input {
     width:300px;
-    padding 5px;
+    padding: 5px;
 }
 
 #suggestions {
-    max-height: 150 px;
+    max-height: 150px;
     /* overflow-y: auto; */
     margin-top: 5px;
 }
@@ -200,4 +212,28 @@ form label {
 
 .suggestion-hover {
     background-color: #ddd;;
+}
+
+.icon-input {
+    position: relative;
+}
+
+.icon-input  i{
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    color: gray;
+}
+
+#place-input {
+    width: 100%;
+    padding-left: 25px; 
+    /* margin: 8px 0;  */
+    display: inline-block; 
+}
+
+.container-padding
+{
+    margin-left: 5px;
+    margin-right: 5px;
 }
