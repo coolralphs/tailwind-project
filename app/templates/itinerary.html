@@ -15,10 +15,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/monim67/django-flatpickr@2.0.0/src/django_flatpickr/static/django_flatpickr/js/django-flatpickr.js"></script>
-    {% comment %} {% leaflet_js %}
-    {% leaflet_css %} {% endcomment %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% leaflet_js %}
+    {% leaflet_css %}
+    {% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script> {% endcomment %}
 
     <form id="form_update_itinerary" method="post" style="margin-bottom:10px;">
         {% csrf_token %}
@@ -203,6 +203,14 @@
     </div> {% endcomment %}
 
     <script>
+        const markerIcon = L.icon({
+            iconUrl: "{% static 'leaflet/images/marker-icon.png' %}",
+            shadowUrl: "{% static 'leaflet/images/marker-shadow.png' %}",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        })
         var map = L.map('map');
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -229,7 +237,7 @@
             var fullAddress = `${name},+${city},+${state}+${zip}`;
 
             bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
-            marker = new L.marker([locations[i][5], locations[i][6]]) //{draggable:'true'}
+            marker = new L.marker([locations[i][5], locations[i][6]], { icon: markerIcon }) //{draggable:'true'}
             .bindPopup(`<b>${locations[i][4]}</b>
                 <br>${locations[i][0]}, ${locations[i][2]}
                 <br><a href="#">Edit</a> | <a href="https://www.google.com/maps/dir/?api=1&destination=${fullAddress}" target="_blank">Directions</a>
@@ -286,6 +294,9 @@
                 if (city.trim() != "") {
                     city += ',';
                 }
+                if (state.trim() != "") {
+                    state += ',';
+                }
                 const osm_value = feature.properties.osm_value || '';
                 const lat = feature.geometry.coordinates[1];
                 const lon = feature.geometry.coordinates[0];
@@ -298,7 +309,7 @@
                 //    return true;
                //}
 
-                const suggestion = $(`<div class="suggestion"><i class="fas fa-location-dot" ></i> ${name}, ${city} ${state}, ${postcode}, ${country}</div>`);
+                const suggestion = $(`<div class="suggestion"><i class="fas fa-location-dot" ></i> ${name}, ${city} ${state} ${country}</div>`);
                 
                 // On click, update the map and input field
                 suggestion.on('click', function () {
@@ -312,6 +323,13 @@
                     .bindPopup(`<b>${name}</b><br>${city} ${country}`)
                     .openPopup();
                     $('#place-input').val('');
+
+                    var offcanvasElement = $('#offcanvasRight');
+                    // Create a Bootstrap Offcanvas instance
+                    var offcanvas = new bootstrap.Offcanvas(offcanvasElement);
+                    // Show the offcanvas
+                    offcanvas.show();
+
                 });                
 
                 let exists = false;

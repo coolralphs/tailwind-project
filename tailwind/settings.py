@@ -89,23 +89,27 @@ WSGI_APPLICATION = 'tailwind.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DEBUG_USE_PROD_DB=False
+
 if DEBUG:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default='postgresql://user:password@server.com/databasename',
-            conn_max_age=600
-        )
-    }
-    # DATABASES = {       
-    #     'default': {
-    #         "ENGINE": "django.db.backends.postgresql_psycopg2",
-    #         'NAME': config('DB_NAME', ''),  # Your database name
-    #         'USER': config('DB_USER', ''),  # Your database user
-    #         'PASSWORD': config('DB_PASSWORD', ''),  # Your database password
-    #         'HOST': 'localhost',  # Usually localhost
-    #         'PORT': '5432',  # Default PostgreSQL port
-    #     }
-    # }
+    if DEBUG_USE_PROD_DB:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=config('PROD_DB_URL', ''),
+                conn_max_age=600
+            )
+        }
+    else:
+        DATABASES = {       
+            'default': {
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                'NAME': config('DB_NAME', ''),  # Your database name
+                'USER': config('DB_USER', ''),  # Your database user
+                'PASSWORD': config('DB_PASSWORD', ''),  # Your database password
+                'HOST': 'localhost',  # Usually localhost
+                'PORT': '5432',  # Default PostgreSQL port
+            }
+        }
 else:
     DATABASES = {
         'default': dj_database_url.config(
