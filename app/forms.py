@@ -1,5 +1,5 @@
 from django import forms
-from .models import Answer, Activity, Itinerary, ItineraryDestination, ItineraryItem, Question, QuestionAnswer, UserSurvey
+from .models import Answer, Activity, Itinerary, ItineraryItem, Question, QuestionAnswer, UserSurvey
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -56,34 +56,34 @@ def get_itinerary(itinerary_id):
     return Itinerary.objects.get(id=itinerary_id)
 
 
-class ItineraryDestinationForm(forms.ModelForm):
-    destination = forms.ChoiceField(
-        choices=[('existing', 'Existing'), ('new', 'New')],
-        initial='existing',
-        widget=forms.RadioSelect(),
-        required=True
-    )
-    class Meta:
-        model = ItineraryDestination
-        fields = ['destination', 'itinerary', 'country', 'city',] 
-        widgets = {
-            'itinerary': forms.Select(attrs={'class': 'my-select-class'}),
-            'itinerary': forms.HiddenInput(),
-            'country': forms.Select(attrs={'class': 'form-control'}),
-            'city': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+# class ItineraryDestinationForm(forms.ModelForm):
+#     destination = forms.ChoiceField(
+#         choices=[('existing', 'Existing'), ('new', 'New')],
+#         initial='existing',
+#         widget=forms.RadioSelect(),
+#         required=True
+#     )
+#     class Meta:
+#         # model = ItineraryDestination
+#         fields = ['destination', 'itinerary', 'country', 'city',] 
+#         widgets = {
+#             'itinerary': forms.Select(attrs={'class': 'my-select-class'}),
+#             'itinerary': forms.HiddenInput(),
+#             'country': forms.Select(attrs={'class': 'form-control'}),
+#             'city': forms.TextInput(attrs={'class': 'form-control'}),
+#         }
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)   
-        for field_name, field in self.fields.items():
-            if isinstance(field, forms.CharField) or isinstance(field, forms.IntegerField): 
-                field.widget.attrs['class'] = 'form-control'
-                pass     
-        self.fields['country'].required = False
-        self.fields['city'].required = False
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)   
+#         for field_name, field in self.fields.items():
+#             if isinstance(field, forms.CharField) or isinstance(field, forms.IntegerField): 
+#                 field.widget.attrs['class'] = 'form-control'
+#                 pass     
+#         self.fields['country'].required = False
+#         self.fields['city'].required = False
 
-    async def async_init(self, *args, **kwargs):
-        self.fields['itinerary'].initial = await get_itinerary(kwargs.pop('itinerary_id'))
+#     async def async_init(self, *args, **kwargs):
+#         self.fields['itinerary'].initial = await get_itinerary(kwargs.pop('itinerary_id'))
 
 
 class ItineraryItemForm(forms.ModelForm):
@@ -94,12 +94,12 @@ class ItineraryItemForm(forms.ModelForm):
         widget=forms.HiddenInput(),
         required=False,
     )
-    destination = ItineraryDestinationForm()
+    # destination = ItineraryDestinationForm()
     class Meta:
         model = ItineraryItem
         fields = '__all__'
         widgets = {
-            'itinerary_destination': forms.Select(attrs={'class': 'form-control','style':'margin-top: 10px'}),
+            # 'itinerary_destination': forms.Select(attrs={'class': 'form-control','style':'margin-top: 10px'}),
             'activity_type': forms.Select(attrs={'class': 'form-control'}),
             'activity': forms.Select(attrs={'class': 'form-control'}),
             'rating': forms.Select(attrs={'class': 'form-control'}),
@@ -122,8 +122,8 @@ class ItineraryItemForm(forms.ModelForm):
         self.fields['end_date'].widget.attrs['autocomplete'] = 'off'
         self.fields['place_name'].widget.attrs['autocomplete'] = 'off'
         self.fields['description'].widget.attrs['autocomplete'] = 'off'
-        self.fields['itinerary_destination'].choices = sorted(self.fields['itinerary_destination'].choices, key=lambda x: x[1])
-        self.fields['itinerary_destination'].required = False
+        # self.fields['itinerary_destination'].choices = sorted(self.fields['itinerary_destination'].choices, key=lambda x: x[1])
+        # self.fields['itinerary_destination'].required = False
         self.fields['expand_item'].required = False
         
         self.fields['operation'].required = False

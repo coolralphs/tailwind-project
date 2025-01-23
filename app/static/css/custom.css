@@ -50,6 +50,11 @@ input[readonly] {
     margin-right: 5px; 
 }
 
+/* .left-control-max {
+    flex: 1;
+    margin-right: 5px; 
+} */
+
 table {
     border-collapse: collapse;
     border-spacing: 0;
@@ -191,14 +196,14 @@ form label {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 } */
 
-#place-input {
+/* #place-input {
     width:300px;
     padding: 5px;
-}
+} */
 
 #suggestions {
-    max-height: 150px;
-    /* overflow-y: auto; */
+    /* max-height: 200px; */
+    overflow-y: auto;
     margin-top: 5px;
 }
 
@@ -216,6 +221,8 @@ form label {
 
 .icon-input {
     position: relative;
+    margin-right: 5px;
+    flex: 1;
 }
 
 .icon-input  i{
@@ -223,10 +230,12 @@ form label {
     left: 6px;
     top: 10px;
     color: gray;
-}
+} 
 
 #place-input {
     width: 100%;
+    margin-right: 5px; 
+    /* flex: 1; */
     padding-left: 25px; 
     /* margin: 8px 0;  */
     display: inline-block; 

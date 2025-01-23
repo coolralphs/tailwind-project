@@ -139,7 +139,7 @@ class ItineraryItem(models.Model):
     (4, 'Activities & Tourism'),
     (5, 'Other'),
     ]
-    itinerary_destination = models.ForeignKey(ItineraryDestination, on_delete=models.CASCADE)
+    # itinerary_destination = models.ForeignKey(ItineraryDestination, on_delete=models.CASCADE, null=True, blank=True)
     # type = models.IntegerField(choices=TYPE_CHOICES)
     activity_type = models.ForeignKey(ActivityType, on_delete=models.CASCADE)
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE)

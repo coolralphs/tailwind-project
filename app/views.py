@@ -4,7 +4,7 @@ from django.urls import reverse_lazy, reverse
 from collections import defaultdict
 from app.models import *
 from django.views.generic import ListView, CreateView, UpdateView
-from .forms import AnswerForm, ItineraryForm, ItineraryDestinationForm, ItineraryItemForm, QuestionForm, SurveyForm, RegisterForm, UserSurveyForm
+from .forms import AnswerForm, ItineraryForm, ItineraryItemForm, QuestionForm, SurveyForm, RegisterForm, UserSurveyForm
 from django.http import HttpResponseRedirect, JsonResponse
 import json
 from django.contrib.auth.forms import AuthenticationForm
@@ -140,7 +140,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
 
             sorted_dict = dict(sorted(grouped_dates.items()))
             form = ItineraryItemForm(initial= {'expand_item': expand_item})
-            form_destination = ItineraryDestinationForm()
+            # form_destination = ItineraryDestinationForm()
             form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
 
             user_survey_id = 0
@@ -148,7 +148,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 user_survey_id = itinerary.user_survey.id
             context = {                
                 "form": form,
-                "form_destination": form_destination,
+                # "form_destination": form_destination,
                 "form_update_itinerary": form_update_itinerary,
                 "grouped_dates": dict(sorted_dict),
                 "distinct_cities": distinct_cities,
@@ -158,64 +158,64 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             }
             return render(request, "itinerary.html", context)
 
-        form_dest = ItineraryDestinationForm(request.POST)
+        # form_dest = ItineraryDestinationForm(request.POST)
 
-        if form_dest.is_valid():
-            if op == 'create':
-                print('enter create')
-                radio_selection = form_dest.cleaned_data['destination']
-                if radio_selection == 'new':
-                    city = form_dest.cleaned_data['city']
-                    country = form_dest.cleaned_data['country']
-                    itinerary = Itinerary.objects.get(id=itinerary_id)
-                    #save to db, then pass new itinerary_destination below
-                    itin_dest = ItineraryDestination.objects.create(itinerary=itinerary, city=city, country=country)
-                    action = form.save(commit=False)
-                    action.itinerary_destination = itin_dest
-                    try:
-                        action.save()
-                    except IntegrityError as e:
-                        # Handle the integrity error (e.g., duplicate key, etc.)
-                        print("IntegrityError:", e)
-                    except Exception as e:
-                        # Handle other potential exceptions
-                        print("Error saving model:", e)
+        # if form_dest.is_valid():
+        #     if op == 'create':
+        #         print('enter create')
+        #         radio_selection = form_dest.cleaned_data['destination']
+        #         if radio_selection == 'new':
+        #             city = form_dest.cleaned_data['city']
+        #             country = form_dest.cleaned_data['country']
+        #             itinerary = Itinerary.objects.get(id=itinerary_id)
+        #             #save to db, then pass new itinerary_destination below
+        #             itin_dest = ItineraryDestination.objects.create(itinerary=itinerary, city=city, country=country)
+        #             action = form.save(commit=False)
+        #             action.itinerary_destination = itin_dest
+        #             try:
+        #                 action.save()
+        #             except IntegrityError as e:
+        #                 # Handle the integrity error (e.g., duplicate key, etc.)
+        #                 print("IntegrityError:", e)
+        #             except Exception as e:
+        #                 # Handle other potential exceptions
+        #                 print("Error saving model:", e)
 
-                    pass
-                else:                
-                    form.save()
-            else:
-                print('enter update')
-                #update
-                id = form.cleaned_data['id']                
-                item = ItineraryItem.objects.get(id=id)
-                item.itinerary_destination = form.cleaned_data['itinerary_destination']
-                item.activity_type = form.cleaned_data['activity_type']
-                item.activity = form.cleaned_data['activity']
-                item.place_name = form.cleaned_data['place_name']
-                item.description = form.cleaned_data['description']
-                item.start_date = form.cleaned_data['start_date']
-                item.end_date = form.cleaned_data['end_date']
-                item.start_time = form.cleaned_data['start_time']
-                item.end_time = form.cleaned_data['end_time']     
-                item.number_bought = form.cleaned_data['number_bought']
-                item.total_cost = form.cleaned_data['total_cost']
-                item.is_skip = form.cleaned_data['is_skip']
-                print(form.cleaned_data['is_skip'])
-                item.is_booked = form.cleaned_data['is_booked']
-                item.booking_required = form.cleaned_data['booking_required']
-                item.pre_payment_required = form.cleaned_data['pre_payment_required']
-                item.is_paid = form.cleaned_data['is_paid']
-                item.url = form.cleaned_data['url']
-                item.rating = form.cleaned_data['rating']
-                item.notes = form.cleaned_data['notes']               
+        #             pass
+        #         else:                
+        #             form.save()
+        #     else:
+        #         print('enter update')
+        #         #update
+        #         id = form.cleaned_data['id']                
+        #         item = ItineraryItem.objects.get(id=id)
+        #         item.itinerary_destination = form.cleaned_data['itinerary_destination']
+        #         item.activity_type = form.cleaned_data['activity_type']
+        #         item.activity = form.cleaned_data['activity']
+        #         item.place_name = form.cleaned_data['place_name']
+        #         item.description = form.cleaned_data['description']
+        #         item.start_date = form.cleaned_data['start_date']
+        #         item.end_date = form.cleaned_data['end_date']
+        #         item.start_time = form.cleaned_data['start_time']
+        #         item.end_time = form.cleaned_data['end_time']     
+        #         item.number_bought = form.cleaned_data['number_bought']
+        #         item.total_cost = form.cleaned_data['total_cost']
+        #         item.is_skip = form.cleaned_data['is_skip']
+        #         print(form.cleaned_data['is_skip'])
+        #         item.is_booked = form.cleaned_data['is_booked']
+        #         item.booking_required = form.cleaned_data['booking_required']
+        #         item.pre_payment_required = form.cleaned_data['pre_payment_required']
+        #         item.is_paid = form.cleaned_data['is_paid']
+        #         item.url = form.cleaned_data['url']
+        #         item.rating = form.cleaned_data['rating']
+        #         item.notes = form.cleaned_data['notes']               
 
-                item.save()
-                pass
-        else:
-            print('form_dest NOT valid')
-            # return
-            pass
+        #         item.save()
+        #         pass
+        # else:
+        #     print('form_dest NOT valid')
+        #     # return
+        #     pass
         
         date = form.cleaned_data['expand_item']
         return HttpResponseRedirect(f"/itinerary/{itinerary_id}/expand/{date}")
@@ -244,7 +244,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
 
         sorted_dict = dict(sorted(grouped_dates.items()))
         form = ItineraryItemForm(initial= {'expand_item': expand_item})
-        form_destination = ItineraryDestinationForm()
+        # form_destination = ItineraryDestinationForm()
         form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
 
         user_survey_id = 0
@@ -257,7 +257,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         context = {
             # "formset": formset,
             "form": form,
-            "form_destination": form_destination,
+            # "form_destination": form_destination,
             "form_update_itinerary": form_update_itinerary,
             "grouped_dates": dict(sorted_dict),
             "distinct_cities": distinct_cities,
@@ -322,20 +322,20 @@ def custom_sort_key(product):
     # Define your custom sorting logic here
     return product.price * 2
 
-class ItineraryDestinationCreateView(CreateView):
-    model = ItineraryDestination
-    form_class = ItineraryDestinationForm
-    template_name = "create_destination.html"
+# class ItineraryDestinationCreateView(CreateView):
+#     model = ItineraryDestination
+#     form_class = ItineraryDestinationForm
+#     template_name = "create_destination.html"
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        itinerary_id = self.kwargs['itinerary_id']
-        context['itinerary_id'] = itinerary_id
-        # itinerary = Itinerary.objects.get(id=itinerary_id)
-        return context 
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         itinerary_id = self.kwargs['itinerary_id']
+#         context['itinerary_id'] = itinerary_id
+#         # itinerary = Itinerary.objects.get(id=itinerary_id)
+#         return context 
 
-    def get_success_url(self):
-        return reverse_lazy('itinerary', kwargs={'itinerary_id': self.kwargs['itinerary_id']})
+#     def get_success_url(self):
+#         return reverse_lazy('itinerary', kwargs={'itinerary_id': self.kwargs['itinerary_id']})
 
 
 class Itin:

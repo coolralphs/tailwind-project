@@ -47,13 +47,19 @@
     <div id="map"></div>
 
     <div class="container-padding">
-        <div id="search-container">
+        <div class="nowrap-container">
             <div class="icon-input">
-                <input type="text" id="place-input" placeholder="Add a place" />
-                <i class="fas fa-magnifying-glass"></i>
+                <input class="form-control" type="search" id="place-input" placeholder="Add a place" autocomplete="off"/>
+                <i class="fas fa-magnifying-glass"></i> 
             </div>
-            <div id="suggestions"></div>
+            <div class="buttons-right">
+                <button class="btn-round-black" type="button" id="btn_close_search" style="display: none;">
+                    <i class="fas fa-xmark"></i>
+                </button>                    
+            </div>
+            
         </div>
+        <div id="suggestions"></div>
     </div>
     {% comment %} <div id="search-container">
         <i class="fas fa-location-dot" style="margin-right:2px;"></i><input type="text" id="place-input" placeholder="Add a place" />
@@ -112,7 +118,7 @@
                                                         {{ i.place_name }}  
                                                     </a> 
                                                 </td>
-                                                <td class="special narrow-hidden right-cell">{{ i.itinerary_destination.city }}</td>
+                                                {% comment %} <td class="special narrow-hidden right-cell">{{ i.itinerary_destination.city }}</td> {% endcomment %}
                                                 <td class="td-center narrow-hidden right-cell">
                                                     {% if i.booking_required %} 
                                                         {% if i.is_booked %}
@@ -167,7 +173,7 @@
                     <!-- Management data of formset -->
                 {% comment %} {{ formset }} {% endcomment %}
                 {{ form.media }}
-                {{ form.destination }}
+                {% comment %} {{ form.destination }} {% endcomment %}
                 {{ form.as_p }}
                 <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
                 <button name="form_submit" class="btn btn-success btn-sm" type="submit">Save</button>
@@ -231,7 +237,7 @@
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
-            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+            attribution: ' <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
         }).addTo(map);              
 
         var bounds = L.latLngBounds(); 
@@ -294,13 +300,17 @@
             $('#suggestions').empty(); // Clear old suggestions
 
             if (features.length === 0) {
-            $('#suggestions').append('<div>No results found</div>');
+            $('#suggestions').append('<div>No results found.</div>');
             return;
             }
             
             featuresAdded = [];
 
             features.forEach(function (feature) {
+                if (placeInputIsEmpty) {
+                    console.log('F');
+                    return false;
+                }
                 var name = feature.properties.name || 'Unnamed location';
                 //var street = feature.address.street || '';
                 var city = feature.properties.city || '';
@@ -329,6 +339,7 @@
                 
                 // On click, update the map and input field
                 suggestion.on('click', function () {
+                    
                     //$('#place-input').val(`${name}, ${city} ${country}`);
                     $('#suggestions').empty(); // Clear suggestions
 
@@ -428,7 +439,7 @@
                 $("#id_city").hide();
                 $("label[for='id_country']").css("margin-top", "10px");
                 $("label[for='id_city']").css("margin-top", "10px");
-                $("label[for='id_itinerary_destination']").css("margin-top", "10px");
+                //$("label[for='id_itinerary_destination']").css("margin-top", "10px");
                 $("label[for='id_country']").hide();                                                                                 
             }
             catch (error)
@@ -459,9 +470,9 @@
                 $("#id_city").hide();
                 $("label[for='id_country']").hide();
                 $("label[for='id_city']").hide();
-                $("label[for='id_itinerary_destination']").show();
-                $("#id_itinerary_destination").show();
-                $("#id_itinerary_destination").prop('required',true);
+                //$("label[for='id_itinerary_destination']").show();
+                //$("#id_itinerary_destination").show();
+                //$("#id_itinerary_destination").prop('required',true);
                 $("#id_country").prop('required',false);
                 $("#id_city").prop('required',false);
             }
@@ -470,9 +481,9 @@
                 $("#id_city").show();
                 $("label[for='id_country']").show();
                 $("label[for='id_city']").show();
-                $("label[for='id_itinerary_destination']").hide();
-                $("#id_itinerary_destination").hide();
-                $("#id_itinerary_destination").prop('required',false);
+                //$("label[for='id_itinerary_destination']").hide();
+                //$("#id_itinerary_destination").hide();
+                //$("#id_itinerary_destination").prop('required',false);
                 $("#id_country").prop('required',true);
                 $("#id_city").prop('required',true);
             }            
@@ -652,10 +663,46 @@
             //ajax delete from db if exists
             //close offcanvas
             offcanvas.hide();
+            $("#map").slideDown();
         });
         $("#btn_map").click(function() {
-            $("#map").toggle();
+            //$("#map").toggle();
+            $("#map").slideToggle();
         });                              
+        $('input[type="search"]').on('search', function(e) {
+            $('#suggestions').empty();
+            $("#map").slideDown();
+        });
+        let debounceTimeout;
+        $('input[type="search"]').on('input', function() {
+            if ($.trim($('#place-input').val()) != '') {
+                placeInputIsEmpty = false;
+            }
+            checkAndClear();
+        }).on('keyup', function(e) {
+            if (e.key === 'Backspace' || e.keyCode === 8) {
+                checkAndClear();
+            }
+        });
+        let placeInputIsEmpty = false;
+        function checkAndClear() {
+            if ($.trim($('#place-input').val()) === '') {
+                placeInputIsEmpty = true;
+                $('#suggestions').empty();
+            }
+        }
+        $('input[type="search"]').on('focus', function() {
+            $("#btn_close_search").show();
+            $("#map").slideUp();
+        });
+        $("#btn_close_search").click(function() {
+            $("#btn_close_search").hide();
+            $("#map").slideDown();
+        });
+        var myOffcanvas = document.getElementById('offcanvasRight')
+        myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
+            $("#map").slideDown();
+        })
     </script>
 {% endblock %}
 
