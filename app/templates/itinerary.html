@@ -691,6 +691,9 @@
                 $('#suggestions').empty();
             }
         }
+        $('input[type="search"]').on("focusin", function() {
+            document.body.style.position = "fixed";
+        });
         $('input[type="search"]').on('focus', function() {
             document.body.style.position = "fixed";
             $("#btn_close_search").show();
