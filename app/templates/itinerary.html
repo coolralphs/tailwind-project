@@ -693,9 +693,9 @@
         }
         $('input[type="search"]').on('focus', function() {
             $("#btn_close_search").show();
-            $("#map").slideUp(300, function() {
+            $("#map").slideUp(function() {
                 console.log("scroll");
-                $("html, body").animate({scrollTop:0}, 500);
+                $("html, body").animate({scrollTop:0}, 200);
             });
         });
         $("#btn_close_search").click(function() {
