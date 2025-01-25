@@ -692,8 +692,10 @@
             }
         }
         $('input[type="search"]').on('focus', function() {
+            document.body.style.position = "fixed";
             $("#btn_close_search").show();
-            $("#map").hide();
+            $("#map").slideUp();
+            document.body.style.position = "";
         });
         $("#btn_close_search").click(function() {
             $("#btn_close_search").hide();
