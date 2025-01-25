@@ -691,14 +691,12 @@
                 $('#suggestions').empty();
             }
         }
-        $('input[type="search"]').on("focusin", function() {
-            document.body.style.position = "fixed";
-        });
         $('input[type="search"]').on('focus', function() {
-            document.body.style.position = "fixed";
             $("#btn_close_search").show();
-            $("#map").slideUp();
-            document.body.style.position = "";
+            $("#map").slideUp(300, function() {
+                console.log("scroll");
+                $("html, body").animate({scrollTop:0}, 500);
+            });
         });
         $("#btn_close_search").click(function() {
             $("#btn_close_search").hide();
@@ -708,25 +706,6 @@
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
             $("#map").slideDown();
         })
-
-        function adjustNavbarOnKeyboard() {
-            const navbar = document.querySelector(".navbar");
-            const initialHeight = window.innerHeight; // Save the initial height
-
-            window.addEventListener("resize", () => {
-                const currentHeight = window.innerHeight;
-
-                if (currentHeight < initialHeight) {
-                    // Keyboard is likely open
-                    navbar.style.position = "absolute";
-                } else {
-                    // Keyboard is closed
-                    navbar.style.position = "fixed";
-                }
-            });
-        }
-
-adjustNavbarOnKeyboard();
     </script>
 {% endblock %}
 
