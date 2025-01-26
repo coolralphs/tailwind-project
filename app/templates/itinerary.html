@@ -49,7 +49,7 @@
     <div class="container-padding">
         <div class="nowrap-container">
             <div class="icon-input">
-                <input class="form-control" type="search" id="place-input" placeholder="Add a place" autocomplete="off"/>
+                <input class="form-control place-input" type="search" id="place-input" placeholder="Add a place" autocomplete="off"/>
                 <i class="fas fa-magnifying-glass"></i> 
             </div>
             <div class="buttons-right">
@@ -693,6 +693,7 @@
         }
         $('input[type="search"]').on('focus', function() {
             $("#btn_close_search").show();
+            $("#map").slideUp();
             //$("#map").slideUp(function() {
             //    console.log("scroll");
             //    $("html, body").animate({scrollTop:0}, 200);
@@ -706,7 +707,8 @@
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
             $("#map").slideDown();
         })
-        document.querySElector('input').addEventListener('focus', function(e) {
+        document.querySelector('.place-input').addEventListener('focus', function(e) {
+            console.log('focus');
             e.preventDefault();
         })
     </script>
