@@ -44,7 +44,7 @@
         </form>    
     </div>  
 
-    <div id="map"></div>
+    <div class="slide active" id="map"></div>
 
     <div class="container-padding">
         <div class="nowrap-container">
@@ -394,6 +394,7 @@
         let activity_array = [];
 
         $( function() {
+
             setTimeout(function () {
                 window.dispatchEvent(new Event('resize'));
             }, 1000);
@@ -663,27 +664,28 @@
             //ajax delete from db if exists
             //close offcanvas
             offcanvas.hide();
-            $("#map").slideDown(400, function (){
-                setTimeout(() => {
-                    $("#map").invalidateSize();
-                }, 50);
-            });
+            //$("#map").slideDown(400, function (){
+            //    setTimeout(() => {
+            //        $("#map").invalidateSize();
+            //    }, 50);
+            //});
         });
+        const mapDiv = document.getElementById('map');
         $("#btn_map").click(function() {
-            //$("#map").toggle();
-            $("#map").slideToggle(400, function (){
-                setTimeout(() => {
-                    $("#map").invalidateSize();
-                }, 50);
-            });
+            mapDiv.classList.toggle('active');
+            //$("#map").slideToggle(400, function (){
+            //    setTimeout(() => {
+            //        $("#map").invalidateSize();
+            //    }, 50);
+            //});
         });                              
         $('input[type="search"]').on('search', function(e) {
             $('#suggestions').empty();
-            $("#map").slideDown(400, function (){
-                setTimeout(() => {
-                    $("#map").invalidateSize();
-                }, 50);
-            });
+            //$("#map").slideDown(400, function (){
+            //    setTimeout(() => {
+            //        $("#map").invalidateSize();
+            //    }, 50);
+            //});
         });
         let debounceTimeout;
         $('input[type="search"]').on('input', function() {
@@ -704,30 +706,26 @@
             }
         }
         $('input[type="search"]').on('focus', function() {
-            $("#btn_close_search").show();
-            $("html, body").animate({scrollTop:0}, 500);
-            $("#map").slideUp(500);
-            //$("#map").slideUp(function() {
-            //    console.log("scroll");
-            //    $("html, body").animate({scrollTop:0}, 200);
-            //});
+            //$("#btn_close_search").show();
+            //$("html, body").animate({scrollTop:0}, 500);
+            //$("#map").slideUp(500);
         });
         $("#btn_close_search").click(function() {
-            $("#btn_close_search").hide();
-            $("#map").slideDown(400, function (){
-                setTimeout(() => {
-                    $("#map").invalidateSize();
-                }, 50);
-            });
+            //$("#btn_close_search").hide();
+            //$("#map").slideDown(400, function (){
+            //    setTimeout(() => {
+            //        $("#map").invalidateSize();
+            //    }, 50);
+            //});
         });
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
-            $("#map").slideDown(400, function (){
-                setTimeout(() => {
-                    $("#map").invalidateSize();
-                }, 50);
-            });
-        })
+            //$("#map").slideDown(400, function (){
+            //    setTimeout(() => {
+            //       $("#map").invalidateSize();
+            //    }, 50);
+            //});
+        });
     </script>
 {% endblock %}
 
