@@ -711,6 +711,14 @@
             console.log('focus');
             e.preventDefault();
         })
+        const input = document.querySelector('.place-input');
+        const body = document.body;
+        input.addEventListener('focus', () => {
+            body.style.overflow = 'hidden';
+        });
+        input.addEventListener('blur', () => {
+            body.style.overflow = '';
+        });
     </script>
 {% endblock %}
 
