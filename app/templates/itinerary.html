@@ -703,6 +703,9 @@
         $("#btn_close_search").click(function() {
             $("#btn_close_search").hide();
             $("#map").slideDown();
+            setTimeout(() => {
+                $("#map").invalidateSize();
+            }, 0);
         });
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
