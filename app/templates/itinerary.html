@@ -664,6 +664,7 @@
             //ajax delete from db if exists
             //close offcanvas
             offcanvas.hide();
+            mapDiv.classList.add('active');
             //$("#map").slideDown(400, function (){
             //    setTimeout(() => {
             //        $("#map").invalidateSize();
@@ -681,6 +682,7 @@
         });                              
         $('input[type="search"]').on('search', function(e) {
             $('#suggestions').empty();
+            mapDiv.classList.toggle('active');
             //$("#map").slideDown(400, function (){
             //    setTimeout(() => {
             //        $("#map").invalidateSize();
@@ -706,12 +708,14 @@
             }
         }
         $('input[type="search"]').on('focus', function() {
-            //$("#btn_close_search").show();
+            $("#btn_close_search").show();
+            mapDiv.classList.remove('active');
             //$("html, body").animate({scrollTop:0}, 500);
             //$("#map").slideUp(500);
         });
         $("#btn_close_search").click(function() {
-            //$("#btn_close_search").hide();
+            $("#btn_close_search").hide();
+            mapDiv.classList.add('active');
             //$("#map").slideDown(400, function (){
             //    setTimeout(() => {
             //        $("#map").invalidateSize();
@@ -720,6 +724,7 @@
         });
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
+            mapDiv.classList.add('active');
             //$("#map").slideDown(400, function (){
             //    setTimeout(() => {
             //       $("#map").invalidateSize();
