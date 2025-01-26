@@ -339,10 +339,10 @@
                 
                 // On click, update the map and input field
                 suggestion.on('click', function () {
-                    
+                    mapDiv.classList.toggle('active');
                     //$('#place-input').val(`${name}, ${city} ${country}`);
                     $('#suggestions').empty(); // Clear suggestions
-
+    
                     // Center the map and add a marker
                     if (searchMarker) map.removeLayer(searchMarker);
                     map.setView([lat, lon], 15);
@@ -709,8 +709,8 @@
         }
         $('input[type="search"]').on('focus', function() {
             $("#btn_close_search").show();
+            $("html, body").animate({scrollTop:0}, 500);
             mapDiv.classList.remove('active');
-            //$("html, body").animate({scrollTop:0}, 500);
             //$("#map").slideUp(500);
         });
         $("#btn_close_search").click(function() {
@@ -724,7 +724,7 @@
         });
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
-            mapDiv.classList.add('active');
+            //mapDiv.classList.add('active');
             //$("#map").slideDown(400, function (){
             //    setTimeout(() => {
             //       $("#map").invalidateSize();
