@@ -28,10 +28,10 @@
                 {{ form_update_itinerary.name }}
                 <div class="buttons-right">
                     <button class="btn-activity-create btn-round-black" type="button" id="btn_itinerary_edit">
-                        <i class="fas fa-pencil" style="color:black;"></i>
+                        <i class="fas fa-pencil"></i>
                     </button>
                     <button class="btn-activity-create btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
-                        <i class="bi bi-pencil" style="color:#198754;"></i>
+                        <i class="fas fa-pencil" style="color:#198754;"></i>
                     </button>
                     <button id="btn_map" class="btn-round-black" type="button">
                         <i class="fas fa-map-location-dot" style="color:black;"></i> 
@@ -54,7 +54,7 @@
             </div>
             <div class="buttons-right">
                 <button class="btn-round-black" type="button" id="btn_close_search" style="display: none;">
-                    <i class="fas fa-xmark"></i>
+                    <i class="fas fa-xmark" style="color:black;"></i>
                 </button>                    
             </div>
             
@@ -702,10 +702,9 @@
         });
         $("#btn_close_search").click(function() {
             $("#btn_close_search").hide();
-            $("#map").slideDown();
-            setTimeout(() => {
+            $("#map").slideDown(400, function (){
                 $("#map").invalidateSize();
-            }, 0);
+            });
         });
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
