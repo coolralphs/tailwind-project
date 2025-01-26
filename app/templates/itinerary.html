@@ -350,7 +350,7 @@
                     .bindPopup(`<b>${name}</b><br>${city} ${country}`)
                     .openPopup();
                     $('#place-input').val('');
-                    offcanvas.show();                    
+                    //offcanvas.show();                    
                 });                
 
                 let exists = false;
@@ -724,6 +724,7 @@
         });
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
+            $("#btn_close_search").hide();
             //mapDiv.classList.add('active');
             //$("#map").slideDown(400, function (){
             //    setTimeout(() => {
