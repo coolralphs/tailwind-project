@@ -693,10 +693,10 @@
         }
         $('input[type="search"]').on('focus', function() {
             $("#btn_close_search").show();
-            $("#map").slideUp(function() {
-                console.log("scroll");
-                $("html, body").animate({scrollTop:0}, 200);
-            });
+            //$("#map").slideUp(function() {
+            //    console.log("scroll");
+            //    $("html, body").animate({scrollTop:0}, 200);
+            //});
         });
         $("#btn_close_search").click(function() {
             $("#btn_close_search").hide();
@@ -705,6 +705,9 @@
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
             $("#map").slideDown();
+        })
+        document.querySElector('input').addEventListener('focus', function(e) {
+            e.preventDefault();
         })
     </script>
 {% endblock %}
