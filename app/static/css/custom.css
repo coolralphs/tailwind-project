@@ -143,7 +143,13 @@ form label {
 .btn-round-primary {
     float: right;
     border-radius: 50%;  
+    width: 38px;
+    height: 38px;
     border: 0.1px solid #0d6efd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .btn-round-success {
@@ -153,6 +159,10 @@ form label {
     height: 38px;
     background-color: none;
     border: 0.1px solid #198754;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .btn-round-black {
@@ -160,8 +170,11 @@ form label {
     border-radius: 50%;  
     width: 38px;
     height: 38px;
-    /* background-color: lightgray; */
     border: 0px solid lightgray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .btn:focus {

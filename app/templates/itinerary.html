@@ -28,13 +28,13 @@
                 {{ form_update_itinerary.name }}
                 <div class="buttons-right">
                     <button class="btn-activity-create btn-round-black" type="button" id="btn_itinerary_edit">
-                        <i class="fas fa-pencil" ></i>
+                        <i class="fas fa-pencil" style="color:black;"></i>
                     </button>
                     <button class="btn-activity-create btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
                         <i class="bi bi-pencil" style="color:#198754;"></i>
                     </button>
                     <button id="btn_map" class="btn-round-black" type="button">
-                        <i class="fas fa-map-location-dot"></i> 
+                        <i class="fas fa-map-location-dot" style="color:black;"></i> 
                     </button>
                     {% comment %} <button class="btn btn-outline-primary btn-activity-create btn-round-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                         <i class="fas fa-plus"></i> 
@@ -693,7 +693,8 @@
         }
         $('input[type="search"]').on('focus', function() {
             $("#btn_close_search").show();
-            $("#map").slideUp();
+            $("html, body").animate({scrollTop:0}, 500);
+            $("#map").slideUp(500);
             //$("#map").slideUp(function() {
             //    console.log("scroll");
             //    $("html, body").animate({scrollTop:0}, 200);
@@ -707,18 +708,6 @@
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
             $("#map").slideDown();
         })
-        document.querySelector('.place-input').addEventListener('focus', function(e) {
-            console.log('focus');
-            e.preventDefault();
-        })
-        const input = document.querySelector('.place-input');
-        const body = document.body;
-        input.addEventListener('focus', () => {
-            body.style.overflow = 'hidden';
-        });
-        input.addEventListener('blur', () => {
-            body.style.overflow = '';
-        });
     </script>
 {% endblock %}
 
