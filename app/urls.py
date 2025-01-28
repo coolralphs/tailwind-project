@@ -7,6 +7,7 @@ from app.views import *
 urlpatterns = [
     path("", index, name="index"),
     path("stuff/", stuff, name="stuff"),
+    path("test/", test, name="test"),
 
     path("activities/", ActivityListView.as_view(), name="activities"),
 

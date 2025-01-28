@@ -114,6 +114,7 @@ form p {
 form label {
     display: block;
     font-weight: bold;
+    margin-top: 10px;
 }
 
 .no-padding {
@@ -158,6 +159,19 @@ form label {
     width: 38px;
     height: 38px;
     /* background-color: none; */
+    border: 0.1px solid #198754;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-round-success-color {
+    float: right;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    background-color: #198754;
     border: 0.1px solid #198754;
     display: flex;
     align-items: center;
@@ -268,3 +282,70 @@ form label {
 .slide.active {
     max-height: 400px;
 }
+
+.accordion-button-sm {
+    padding: .5rem .75rem !important;
+}
+
+#scroll-up {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: 25px;
+    padding: 5px;
+    border: 1px solid #333;
+    background: none;
+    color: #333;
+    text-align: center;
+    cursor: pointer;
+    display: none;
+    z-index:1000;
+}
+
+.leaflet-control-simplebutton {
+    background: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+    display: block;
+    overflow: hidden;
+    width: 30px;
+    height: 30px;
+    padding: 2px;
+  }
+  
+  .leaflet-control-simplebutton a {
+    color: #000;
+    cursor: pointer;
+    line-height: 150%;
+    white-space: nowrap;
+    text-align: center;
+    display: block;
+    width: 100%;
+    height: 100%;
+    font-size: 18px;
+    text-decoration: none;
+    background: transparent;
+    opacity: 0.75;
+  }
+  
+  .leaflet-control-simplebutton a:hover {
+    opacity: 1;
+    text-decoration: none;
+  }
+  
+  .leaflet-control-simplebutton a i {
+    pointer-events: none;
+    font-size: inherit;
+  }
+  
+  /* TOUCH */
+  
+  .leaflet-touch .leaflet-control-simplebutton {
+    width: 35px;
+    height: 35px
+  }
+  
+  .leaflet-touch .leaflet-control-simplebutton a {
+    font-size: 22px;
+  }

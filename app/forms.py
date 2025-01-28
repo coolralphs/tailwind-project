@@ -90,23 +90,49 @@ class ItineraryItemForm(forms.ModelForm):
     id = forms.CharField(widget=forms.HiddenInput())
     operation = forms.CharField(widget=forms.HiddenInput())
     expand_item = forms.CharField(widget=forms.HiddenInput())
-    activity_array = forms.CharField( 
-        widget=forms.HiddenInput(),
-        required=False,
-    )
+    # activity_array = forms.CharField( 
+    #     widget=forms.HiddenInput(),
+    #     required=False,
+    # )
     # destination = ItineraryDestinationForm()
     class Meta:
         model = ItineraryItem
         fields = '__all__'
         widgets = {
+            'itinerary': forms.HiddenInput(),
             # 'itinerary_destination': forms.Select(attrs={'class': 'form-control','style':'margin-top: 10px'}),
-            'activity_type': forms.Select(attrs={'class': 'form-control'}),
-            'activity': forms.Select(attrs={'class': 'form-control'}),
+            'place_name': forms.Textarea(attrs={'rows': 2}),
+            # 'activity_type': forms.Select(attrs={'class': 'form-control'}),
+            # 'activity': forms.Select(attrs={'class': 'form-control'}),
+            'house_number': forms.TextInput(attrs={'placeholder': 'optional'}),
+            'description': forms.TextInput(attrs={'placeholder': 'optional'}),
             'rating': forms.Select(attrs={'class': 'form-control'}),
             'start_date': forms.TextInput(attrs={'class': 'form-control updatable'}),
             'end_date': forms.TextInput(attrs={'class': 'form-control updatable'}),
             'start_time': forms.TextInput(attrs={'class': 'form-control updatable'}),
             'end_time': forms.TextInput(attrs={'class': 'form-control updatable'}),
+
+            'number_bought': forms.HiddenInput(),
+            'total_cost': forms.HiddenInput(),
+            'is_skip': forms.HiddenInput(),
+            'is_booked': forms.HiddenInput(),
+            'booking_required': forms.HiddenInput(),
+            'pre_payment_required': forms.HiddenInput(),
+            'total_cost': forms.HiddenInput(),
+            'is_paid': forms.HiddenInput(),
+            'url': forms.HiddenInput(),
+            'total_cost': forms.HiddenInput(),
+            'rating': forms.HiddenInput(),
+            'notes': forms.HiddenInput(),
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
+            'osm_key': forms.HiddenInput(),
+            'osm_value': forms.HiddenInput(),
+            # 'activity_type': forms.HiddenInput(),
+            # 'activity': forms.HiddenInput(),
+        }
+        labels = {
+            'house_number': "Building Number",
         }
 
     def __init__(self, *args, **kwargs):
@@ -129,16 +155,16 @@ class ItineraryItemForm(forms.ModelForm):
         self.fields['operation'].required = False
         self.fields['id'].required = False
 
-        data = Activity.objects.all()
-        data_list = data.values_list('activity_type_id', 'id', 'name').annotate(
-            custom_order=Case(
-                When(name="Other", then=Value(1)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-        ).order_by('custom_order','name')
-        activity_array = json.dumps(list(data_list))
-        self.fields['activity_array'].initial = activity_array
+        # data = Activity.objects.all()
+        # data_list = data.values_list('activity_type_id', 'id', 'name').annotate(
+        #     custom_order=Case(
+        #         When(name="Other", then=Value(1)),
+        #         default=Value(0),
+        #         output_field=IntegerField(),
+        #     )
+        # ).order_by('custom_order','name')
+        # activity_array = json.dumps(list(data_list))
+        # self.fields['activity_array'].initial = activity_array
 
 # MyFormSet = formset_factory(ItineraryItemForm, extra=2)
 # ItineraryItemFormSet = inlineformset_factory(ItineraryDestination,ItineraryItem, 

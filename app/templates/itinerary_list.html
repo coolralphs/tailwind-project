@@ -5,9 +5,11 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Itineraries</h2>
-    <a href="{% url 'create_itinerary' %}"> Create New</a>
+    <div class="container-padding">
+        <h2>Itineraries</h2>
+        <a href="{% url 'create_itinerary' %}"> Create New</a>
     
+    </div>
         {% if itinerary_list %}
             <div class="mt-2 container">
                 {% for item in itinerary_list %}   
@@ -26,6 +28,6 @@
             </div>       
 
         {% else %}
-            <div class="mt-2">There are no existing itineraries</div>
+            <div class="mt-2 container-padding">There are no existing itineraries</div>
         {% endif %}
 {% endblock %}

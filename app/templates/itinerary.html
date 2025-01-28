@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/monim67/django-flatpickr@2.0.0/src/django_flatpickr/static/django_flatpickr/js/django-flatpickr.js"></script>
+    <script src="https://github.com/jerroydmoore/leaflet-button/blob/master/L.Control.Button.js"></script>
     {% leaflet_js %}
     {% leaflet_css %}
     {% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -49,12 +50,22 @@
     <div class="container-padding">
         <div class="nowrap-container">
             <div class="icon-input">
+                <input id="h-osm-key" hidden/>
+                <input id="h-osm-value" hidden/>
+                <input id="h-house-number" hidden/>
+                <input id="h-street" hidden/>
+                <input id="h-city" hidden/>
+                <input id="h-state" hidden/>
+                <input id="h-postal-code" hidden/>
+                <input id="h-country" hidden/>
+                <input id="h-latitude" hidden/>
+                <input id="h-longitude" hidden/>
                 <input class="form-control place-input" type="search" id="place-input" placeholder="Add a place" autocomplete="off"/>
                 <i class="fas fa-magnifying-glass"></i> 
             </div>
             <div class="buttons-right">
-                <button class="btn-round-black" type="button" id="btn_close_search" style="display: none;">
-                    <i class="fas fa-xmark" style="color:black;"></i>
+                <button class="btn-round-success-color" type="button" id="btn_add_activity" style="display: none;">
+                    <i class="fas fa-plus" style="color: white;"></i>
                 </button>                    
             </div>
             
@@ -80,9 +91,9 @@
                     <div id="collapse_{{ date|date:"m-d-Y" }}" name="{{ date|date:"m-d-Y" }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
                         <div class="">           
                             
-                            <button class="btn btn-outline-primary btn-round-primary btn-activity-create btn-round activity-exising-date mt-2" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            {% comment %} <button class="btn btn-outline-primary btn-round-primary btn-activity-create btn-round activity-exising-date mt-2" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 <i class="fas fa-plus"></i> 
-                            </button>
+                            </button> {% endcomment %}
 
                             <div class="next-line" style="overflow-x:auto;">
                                 <table class="">
@@ -93,7 +104,11 @@
                                         <th class="narrow-hidden">City</th>
                                         <th class="narrow-hidden td-center">Booked</th>
                                         <th class="narrow-hidden td-center">Paid</th>
-                                        <th class="right-cell"></th>
+                                        <th class="right-cell">
+                                            <button class="btn btn-round-success-color btn-activity-create btn-round activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                <i class="fas fa-plus" style="color:white;"></i> 
+                                            </button>
+                                        </th>
                                     </thead>
                                     <tbody>
                                         {% for i in activities|dictsort:"start_time" %}
@@ -159,7 +174,7 @@
             {% endfor %}
         </div>            
     {% else %}
-    <div class="accordion mt-2">There are no destinations on this itinerary.</div>
+    <div class="accordion mt-2 container-padding">There are no destinations on this itinerary.</div>
     {% endif %}
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -167,17 +182,78 @@
             <h5 id="offcanvasRightLabel">Add New Activity</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">
-            <form method="post" class="small-form-width">
+        <div class="offcanvas-body" style="margin-top:-20px;">
+            <form method="post" >
                 {% csrf_token %} 
-                    <!-- Management data of formset -->
-                {% comment %} {{ formset }} {% endcomment %}
-                {{ form.media }}
-                {% comment %} {{ form.destination }} {% endcomment %}
-                {{ form.as_p }}
+                {{ form.media }}   
+                {% comment %} {{ form.as_p }} {% endcomment %}
+                
+                {% for field in form %}
+                    {% if not field.is_hidden %}
+                        {% if field.name == 'house_number' %}
+                            <label style="margin-bottom: -10px;">Address:</label>
+                            <div class="accordion" id="addressAccordion" style="margin-top:10px;">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading_address">
+                                        <button class="accordion-button collapsed accordion-button-sm" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_address" aria-expanded="false" aria-controls="collapse_address">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse_address" class="accordion-collapse collapse" aria-labelledby="heading_address" data-bs-parent="addressAccordion">
+                                        <div class="accordion-body" style="margin-top:-10px;">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="errorlist">
+                                                    {{ field.errors }}
+                                                </div>
+                                            {% endif %}
+                        {% elif field.name == 'start_date' %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="errorlist">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% elif field.name in address_field_list %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="errorlist">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="errorlist">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                {% endfor %}
+                {% comment %} {% include 'itinerary_item.html' %} {% endcomment %}
+
                 <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
-                <button name="form_submit" class="btn btn-success btn-sm" type="submit">Save</button>
-                <button id="id_remove_marker" class="btn btn-danger btn-sm">Remove</button>
+                <div style="display: flex; margin-top:10px;">
+                    <button name="form_submit" class="btn btn-success btn-sm" type="submit" style="margin-right:3px;">Save</button>
+                    <button id="id_remove_marker" class="btn btn-danger btn-sm">Remove</button>
+                </div>
             </form>
         </div>
     </div>
@@ -194,6 +270,9 @@
         </div>
     </div>
 
+    <div id="scroll-up">
+        <i class="fa-solid fa-angle-up"></i>
+    </div>
 
     {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Destination" aria-labelledby="offcanvasRightLabel_Destination">
         <div class="offcanvas-header">
@@ -222,7 +301,20 @@
                 </div>
     </div> {% endcomment %}
 
-    <script>
+    <script>      
+
+        $(window).scroll(function() {
+            if($(this).scrollTop() != 0) {
+                $('#scroll-up').fadeIn(); 
+            } else {
+                $('#scroll-up').fadeOut();
+            }
+        });
+
+        $('#scroll-up').click(function() {
+            $('body,html').animate({scrollTop:0},"fast");
+        });       
+
         var offcanvas = new bootstrap.Offcanvas($('#offcanvasRight'));
 
         const markerIcon = L.icon({
@@ -234,7 +326,7 @@
             shadowSize: [41, 41]
         })
         var map = L.map('map');
-
+        var markers = [];
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: ' <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
@@ -242,16 +334,14 @@
 
         var bounds = L.latLngBounds(); 
 
-        var locations = [
-            ["London", "SE1 7PB", "England", "United Kingdom", "London Eye", 51.5032, -0.1195],
-            ["London", "SE1 7PB", "England", "United Kingdom", "Tower Bridge", 51.5056, -0.0753],
-            ["London", "SE1 7PB", "England", "United Kingdom", "Big Ben", 51.5007, -0.1246],
-            ["London", "SE1 7PB", "England", "United Kingdom", "Parliament Square Garden", 51.5006, -0.1267],
-            ["London", "SE1 7PB", "England", "United Kingdom", "British Museum", 51.5194, -0.1270]
-        ];  
+        var locations = [];
+        {% for date, activities in grouped_dates.items %}
+            {% for i in activities|dictsort:"start_time" %}
+                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}"]);
+            {% endfor %}
+        {% endfor %}
 
         for (var i = 0; i < locations.length; i++) {
-            //var location = locations[i];
             var name = locations[i][4].replace(/\s/g, "+");
             var city = locations[i][0].replace(/\s/g, "+");
             var state = locations[i][2].replace(/\s/g, "+");
@@ -265,6 +355,7 @@
                 <br><a href="#">Edit</a> | <a href="https://www.google.com/maps/dir/?api=1&destination=${fullAddress}" target="_blank">Directions</a>
                 `)
             .addTo(map);
+            markers.push(marker);
             //marker.on("dragend", function(e) {
             //    var marker = e.target;
             //    var position = marker.getLatLng();
@@ -276,11 +367,16 @@
 
             //});
         }
-
-        var center = bounds.getCenter();
-        map.setView(center, 10);
-        map.fitBounds(bounds);
-
+        try{
+            var center = bounds.getCenter();
+            map.setView(center, 10);
+            map.fitBounds(bounds);
+        }
+        catch(e) {
+            var center = {{ map_center }}; 
+            console.log(center);
+            map.setView([37.092, -95.7129], 3);
+        }
         let searchMarker; // To store the marker
 
         // Search and handle results
@@ -308,24 +404,52 @@
 
             features.forEach(function (feature) {
                 if (placeInputIsEmpty) {
-                    console.log('F');
                     return false;
                 }
                 var name = feature.properties.name || 'Unnamed location';
-                //var street = feature.address.street || '';
+
+                var house_number = '';
+                try {
+                    house_number = feature.properties.housenumber || '';
+                }
+                catch (e)
+                {
+
+                }
+                var street = feature.properties.street || '';
                 var city = feature.properties.city || '';
+                var city_comma = '';
                 var state = feature.properties.state || '';
-                var postcode = feature.properties.postcode || '';
+                var state_comma = '';
+                var postal_code = feature.properties.postcode || '';
                 var country = feature.properties.country || '';
+                
                 if (city.trim() != "") {
-                    city += ',';
+                    city_comma = city + ',';
                 }
                 if (state.trim() != "") {
-                    state += ',';
+                    state_comma = state + ',';
                 }
-                const osm_value = feature.properties.osm_value || '';
-                const lat = feature.geometry.coordinates[1];
-                const lon = feature.geometry.coordinates[0];
+
+                var osm_key  = '';
+                try {
+                    osm_key = feature.properties.osm_key || '';
+                }
+                catch (e)
+                {
+
+                }
+                var osm_value  = '';
+                try {
+                    osm_value = feature.properties.osm_value || '';
+                }
+                catch (e)
+                {
+
+                }
+                
+                var latitude = feature.geometry.coordinates[1];
+                var longitude = feature.geometry.coordinates[0];
                 
                 //const fullAddress = $(`${name}, ${city}, ${country}`);
 
@@ -335,21 +459,46 @@
                 //    return true;
                //}
 
-                const suggestion = $(`<div class="suggestion"><i class="fas fa-location-dot" ></i> ${name}, ${city} ${state} ${country}</div>`);
+                const suggestion = $(`<div class="suggestion"><i class="fas fa-location-dot" ></i> ${name}, ${city_comma} ${state_comma} ${country}</div>`);
                 
                 // On click, update the map and input field
                 suggestion.on('click', function () {
-                    mapDiv.classList.toggle('active');
+                    //console.log(feature);
+                    //mapDiv.classList.toggle('active');
                     //$('#place-input').val(`${name}, ${city} ${country}`);
                     $('#suggestions').empty(); // Clear suggestions
     
+                    //fullValue = `${name}, ${city} ${state} ${country}`;
                     // Center the map and add a marker
                     if (searchMarker) map.removeLayer(searchMarker);
-                    map.setView([lat, lon], 15);
-                    searchMarker = L.marker([lat, lon]).addTo(map)
+                    map.setView([latitude, longitude], 15);
+                    searchMarker = L.marker([latitude, longitude]).addTo(map)
                     .bindPopup(`<b>${name}</b><br>${city} ${country}`)
                     .openPopup();
-                    $('#place-input').val('');
+                    //markers.push(searchMarker);
+                    var h_place_name = document.getElementById('place-input');
+                    var h_osm_key = document.getElementById('h-osm-key');
+                    var h_osm_value = document.getElementById('h-osm-value');
+                    var h_house_number = document.getElementById('h-house-number');
+                    var h_street = document.getElementById('h-street');
+                    var h_city = document.getElementById('h-city');
+                    var h_state = document.getElementById('h-state');
+                    var h_postal_code = document.getElementById('h-postal-code');
+                    var h_country = document.getElementById('h-country');
+                    var h_latitude = document.getElementById('h-latitude');
+                    var h_longitude = document.getElementById('h-longitude');
+                    h_place_name.value = name;
+                    h_place_name.focus();
+                    h_osm_key.value = osm_key;
+                    h_osm_value.value = osm_value;
+                    h_house_number.value = house_number;
+                    h_street.value = street;
+                    h_city.value = city;
+                    h_state.value = state;
+                    h_postal_code.value = postal_code;
+                    h_country.value = country;
+                    h_latitude.value = latitude;
+                    h_longitude.value = longitude;
                     //offcanvas.show();                    
                 });                
 
@@ -394,7 +543,6 @@
         let activity_array = [];
 
         $( function() {
-
             setTimeout(function () {
                 window.dispatchEvent(new Event('resize'));
             }, 1000);
@@ -402,8 +550,8 @@
             headers: { "X-CSRFToken": '{{csrf_token}}' }
             });
             try {      
-                let inputString = $("#id_activity_array").val();
-                activity_array = JSON.parse(inputString);
+                //let inputString = $("#id_activity_array").val();
+                //activity_array = JSON.parse(inputString);
 
                 //initialize date pickers
                 $( "#id_start_date" ).datepicker({
@@ -436,12 +584,12 @@
                 }
 
                 //code for create activity
-                $("#id_country").hide();
-                $("#id_city").hide();
-                $("label[for='id_country']").css("margin-top", "10px");
-                $("label[for='id_city']").css("margin-top", "10px");
+                //$("#id_country").hide();
+                //$("#id_city").hide();
+                //$("label[for='id_country']").css("margin-top", "10px");
+                //$("label[for='id_city']").css("margin-top", "10px");
                 //$("label[for='id_itinerary_destination']").css("margin-top", "10px");
-                $("label[for='id_country']").hide();                                                                                 
+                //$("label[for='id_country']").hide();                                                                                 
             }
             catch (error)
             {
@@ -536,9 +684,10 @@
         });
 
         $(".btn-activity-update").click(function() {
+            console.log('update clicked');
             var itinerary_item_id = $(this).attr('name');
             $("#id_operation").val('update');
-
+            $("#offcanvasRightLabel").text("Update Activity");
             var inputs = $(".activity-update-input-" + itinerary_item_id);
             //set values
             for(var i = 0; i < inputs.length; i++){
@@ -595,6 +744,7 @@
         });
         $(".btn-activity-create").click(function() {
             $("#id_operation").val('create');
+            $("#offcanvasRightLabel").text("Add New Activity");
             //empty activities
             $("#id_activity").empty();
             //deselect all selects
@@ -664,40 +814,33 @@
             //ajax delete from db if exists
             //close offcanvas
             offcanvas.hide();
-            mapDiv.classList.add('active');
-            //$("#map").slideDown(400, function (){
-            //    setTimeout(() => {
-            //        $("#map").invalidateSize();
-            //    }, 50);
-            //});
         });
         const mapDiv = document.getElementById('map');
         $("#btn_map").click(function() {
             mapDiv.classList.toggle('active');
-            //$("#map").slideToggle(400, function (){
-            //    setTimeout(() => {
-            //        $("#map").invalidateSize();
-            //    }, 50);
-            //});
         });                              
         $('input[type="search"]').on('search', function(e) {
             $('#suggestions').empty();
-            mapDiv.classList.toggle('active');
-            //$("#map").slideDown(400, function (){
-            //    setTimeout(() => {
-            //        $("#map").invalidateSize();
-            //    }, 50);
-            //});
         });
         let debounceTimeout;
         $('input[type="search"]').on('input', function() {
             if ($.trim($('#place-input').val()) != '') {
                 placeInputIsEmpty = false;
+                $("#btn_add_activity").show();
+            }
+            else {
+                $("#btn_add_activity").hide();
             }
             checkAndClear();
         }).on('keyup', function(e) {
             if (e.key === 'Backspace' || e.keyCode === 8) {
                 checkAndClear();
+            }
+            if (e.which === 13) {
+                //enter was pressed
+                $("#id_operation").val('create');
+                setOffsetValues()
+                offcanvas.show();
             }
         });
         let placeInputIsEmpty = false;
@@ -708,30 +851,88 @@
             }
         }
         $('input[type="search"]').on('focus', function() {
-            $("#btn_close_search").show();
             $("html, body").animate({scrollTop:0}, 500);
-            mapDiv.classList.remove('active');
-            //$("#map").slideUp(500);
         });
-        $("#btn_close_search").click(function() {
-            $("#btn_close_search").hide();
-            mapDiv.classList.add('active');
-            //$("#map").slideDown(400, function (){
-            //    setTimeout(() => {
-            //        $("#map").invalidateSize();
-            //    }, 50);
-            //});
+        $("#btn_add_activity").click(function() {
+            $("#id_operation").val('create');
+            setOffsetValues()
+            offcanvas.show();
         });
+        function setOffsetValues() {
+            console.log($('#street').val());
+            $("#id_place_name").val($('#place-input').val());
+            $("#id_osm_key").val($('#h-osm-key').val());
+            $("#id_osm_value").val($('#h-osm-value').val());
+            $("#id_house_number").val($('#h-house-number').val());
+            $("#id_street").val($('#h-street').val());
+            $("#id_city").val($('#h-city').val());
+            $("#id_state").val($('#h-state').val());
+            $("#id_postal_code").val($('#h-postal-code').val());
+            $("#id_country").val($('#h-country').val());
+            $("#id_latitude").val($('#h-latitude').val());
+            $("#id_longitude").val($('#h-longitude').val());
+        }
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
-            $("#btn_close_search").hide();
-            //mapDiv.classList.add('active');
-            //$("#map").slideDown(400, function (){
-            //    setTimeout(() => {
-            //       $("#map").invalidateSize();
-            //    }, 50);
-            //});
+
         });
+
+          L.Control.SimpleButton = L.Control.extend({
+  _className: 'leaflet-control-simplebutton',
+  options: {
+    faIcon: 'fa-crosshairs',
+    position: 'topright',
+    text: "",
+    id: "",
+    click: function(){}
+  },
+  initialize: function (options) {
+    L.setOptions(this, options);
+  },
+  onAdd: function (map) {
+    this._map = map;
+    this._container = L.DomUtil.create('div',this._className);
+    this._buildButton();
+    return this._container;
+  },
+  onRemove: function (map) {
+    L.DomEvent.off(this._link, 'click', this.options.click);
+  },
+  _buildButton: function(){
+    this._link = L.DomUtil.create('a','simplebutton-action',this._container);
+    this._link.href = "#";
+    if(this.options.id) {
+      this._link.id = this.options.id;
+    }
+    if(this.options.text) {
+      this._link.innerHTML = this.options.text;
+    }else{
+      L.DomUtil.create('i','fa ' + this.options.faIcon, this._link);
+    }
+    L.DomEvent.on(this._link, 'click', this.options.click, this._link);
+  }
+});
+
+L.control.simplebutton = function (options) {
+  return new L.Control.SimpleButton(options);
+};
+
+        var button = new L.Control.SimpleButton({
+  click: function(evt) {
+    if (markers.length > 0) {
+
+            markers.forEach(function(marker, index) {
+                var latLng = marker.getLatLng();
+                console.log(latLng);
+                bounds.extend(L.latLng([latLng.lat, latLng.lng])); 
+            });
+            //var cntr = bounds.getCenter();
+            //map.setView(cntr, 10);
+            map.fitBounds(bounds);
+        }
+    }
+});
+button.addTo(map);
     </script>
 {% endblock %}
 

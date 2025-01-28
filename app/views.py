@@ -32,6 +32,9 @@ def index(request):
 def stuff(request):
     return HttpResponse("Hello, world. You're at the app stuff.")
 
+def test(request):
+    form = Itinerary.objects.all()
+    return render(request, 'test.html', {'form': form })
 
 def survey_complete(request):
     context = {"message": "Thank you for completing the survey!"}
@@ -80,9 +83,11 @@ class ItineraryListView(ListView):
 
 @login_required(login_url="/login/")
 def ItineraryView(request, itinerary_id, expand_item=None):
-    # ItineraryItemFormSet = inlineformset_factory(ItineraryDestination, ItineraryItem, exclude=('is_skip',), max_num=1)
+
+    address_field_list = ['house_number', 'street', 'city', 'state', 'postal_code', 'country']
+
     if request.method == 'POST':
-        
+
         # ajax call
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             print('ajax')
@@ -107,9 +112,15 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         
         op = 'create'
         if form.is_valid():
+            print('form valid')
             op = request.POST.get('operation')
-            #cd = form.cleaned_data['operation']
-            pass
+            if op == 'create':
+                print('create')
+                form.save() 
+                pass
+            else:
+                print('update')
+                pass
         else:
             print('not valid')
             errors = form.errors
@@ -130,8 +141,8 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 if items:
                     for activity in items:
                         grouped_dates[activity.start_date].append(activity)
-                        if activity.itinerary_destination not in distinct_cities:
-                            distinct_cities.append(activity.itinerary_destination)
+                        # if activity.itinerary_destination not in distinct_cities:
+                        #     distinct_cities.append(activity.itinerary_destination)
                 else:
                     unassigned_list.append(dest)     
 
@@ -154,7 +165,8 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 "distinct_cities": distinct_cities,
                 "itinerary_id": itinerary_id,
                 "user_survey_id" : user_survey_id,
-                "itinerary_name": itinerary.name
+                "itinerary_name": itinerary.name,
+                "address_field_list": address_field_list,
             }
             return render(request, "itinerary.html", context)
 
@@ -222,28 +234,36 @@ def ItineraryView(request, itinerary_id, expand_item=None):
     
     else:
 
-        destinations = ItineraryDestination.objects.filter(itinerary_id=itinerary_id).order_by("country", "city")
-        itinerary = Itinerary.objects.filter(id=itinerary_id).first()
-
+        # destinations = ItineraryDestination.objects.filter(itinerary_id=itinerary_id).order_by("country", "city")
+        itinerary = Itinerary.objects.get(id=itinerary_id)
+        items = ItineraryItem.objects.filter(itinerary=itinerary).order_by('start_date')
         unassigned_list = []
-        distinct_cities = []
+        # distinct_cities = []
         grouped_dates = defaultdict(list)
 
-        for dest in destinations:
-            items = ItineraryItem.objects.filter(itinerary_destination=dest).order_by('start_date')
-            if items:
-                for activity in items:
-                    grouped_dates[activity.start_date].append(activity)
-                    if activity.itinerary_destination not in distinct_cities:
-                        distinct_cities.append(activity.itinerary_destination)
-            else:
-                unassigned_list.append(dest)     
+        if items:
+            for activity in items:
+                grouped_dates[activity.start_date].append(activity)
+                # if activity.itinerary_destination not in distinct_cities:
+                #     distinct_cities.append(activity.itinerary_destination)    
 
-        for u in unassigned_list:
-            distinct_cities.append(u)
+        # for dest in destinations:
+        #     items = ItineraryItem.objects.filter(itinerary_destination=dest).order_by('start_date')
+        #     if items:
+        #         for activity in items:
+        #             grouped_dates[activity.start_date].append(activity)
+        #             if activity.itinerary_destination not in distinct_cities:
+        #                 distinct_cities.append(activity.itinerary_destination)
+        #     else:
+        #         unassigned_list.append(dest)     
+
+        # for u in unassigned_list:
+        #     distinct_cities.append(u)
 
         sorted_dict = dict(sorted(grouped_dates.items()))
-        form = ItineraryItemForm(initial= {'expand_item': expand_item})
+        for i in sorted_dict:
+            print(i)
+        form = ItineraryItemForm(initial= {'expand_item': expand_item, 'itinerary': itinerary})
         # form_destination = ItineraryDestinationForm()
         form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
 
@@ -260,13 +280,14 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             # "form_destination": form_destination,
             "form_update_itinerary": form_update_itinerary,
             "grouped_dates": dict(sorted_dict),
-            "distinct_cities": distinct_cities,
+            # "distinct_cities": distinct_cities,
             "itinerary_id": itinerary_id,
             "user_survey_id" : user_survey_id,
             "itinerary_name": itinerary.name,
             "itinerary": itinerary,
             "map_center": map_center,
             "map_zoom": map_zoom,
+            "address_field_list": address_field_list,
         }
     return render(request, "itinerary.html", context)
 

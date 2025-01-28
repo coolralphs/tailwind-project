@@ -1,0 +1,17 @@
+<form method="post" class="small-form-width">
+    {% csrf_token %}
+    {{ form.description }}
+    {{ form.osm_key }}
+    {{ form.osm_value }}
+    {{ form.house_number }}
+    {{ form.street }}
+    {{ form.city }}
+    {{ form.state }}
+    {{ form.postal_code }}
+    {{ form.country }}
+    {{ form.latitude }}
+    {{ form.longitude }}
+    
+    <button name="form_submit" class="btn btn-success btn-sm" type="submit">Save</button>
+    <button id="id_remove_marker" class="btn btn-danger btn-sm">Remove</button>
+</form>
