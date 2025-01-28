@@ -302,6 +302,10 @@ form label {
     z-index:1000;
 }
 
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: searchfield-cancel-button;
+}
+
 .leaflet-control-simplebutton {
     background: #fff;
     border-radius: 5px;
