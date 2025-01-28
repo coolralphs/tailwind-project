@@ -123,7 +123,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 #update
                 id = form.cleaned_data['id']                
                 item = ItineraryItem.objects.get(id=id)
-                item.itinerary_destination = form.cleaned_data['itinerary_destination']
+                # item.itinerary_destination = form.cleaned_data['itinerary_destination']
                 # item.activity_type = form.cleaned_data['activity_type']
                 # item.activity = form.cleaned_data['activity']
                 item.place_name = form.cleaned_data['place_name']
