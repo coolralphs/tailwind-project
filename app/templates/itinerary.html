@@ -20,8 +20,10 @@
     {% leaflet_css %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
+    
     <div class="container-padding">
+        <div id="image-container"></div>
+        {% comment %} <img id="place-image" style="width:100px; height:100px; object-fit:cover; object-position:center;"> {% endcomment %}
         <form id="form_update_itinerary" method="post" style="margin-bottom:10px;margin-top:10px;">
             {% csrf_token %}
             <input id="id_user_survey" name="user_survey" value="{{ user_survey_id }}" hidden>
@@ -105,6 +107,7 @@
                                         <th class="narrow-hidden">City</th>
                                         <th class="narrow-hidden td-center">Booked</th>
                                         <th class="narrow-hidden td-center">Paid</th>
+                                        <th></th>
                                         <th class="right-cell">
                                             <button class="btn btn-round-success-color btn-activity-create btn-round activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                 <i class="fas fa-plus" style="color:white;"></i> 
@@ -160,6 +163,9 @@
                                                             <i class="bi bi-check-circle" style="color:green;"></i> 
                                                         {% endif %}
                                                     {% endif %}
+                                                </td>
+                                                <td>
+                                                    <img id="place-image-{{ i.id }}" style="width:100px; height:100px; object-fit:cover; object-position:center;">
                                                 </td>
                                                 <td class="right-cell">
                                                     <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
@@ -338,11 +344,13 @@
         var locations = [];
         {% for date, activities in grouped_dates.items %}
             {% for i in activities|dictsort:"start_time" %}
-                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}"]);
+                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}", "{{ i.id }}"]);
+                console.log("{{ i.id }}");
             {% endfor %}
         {% endfor %}
-
+       
         for (var i = 0; i < locations.length; i++) {
+            //console.log(locations[i][7]);
             var name = locations[i][4].replace(/\s/g, "+");
             var city = locations[i][0].replace(/\s/g, "+");
             var state = locations[i][2].replace(/\s/g, "+");
@@ -357,6 +365,7 @@
                 `)
             .addTo(map);
             markers.push(marker);
+
             //marker.on("dragend", function(e) {
             //    var marker = e.target;
             //    var position = marker.getLatLng();
@@ -368,6 +377,7 @@
 
             //});
         }
+
         try{
             var center = bounds.getCenter();
             map.setView(center, 10);
@@ -378,6 +388,53 @@
             console.log(center);
             map.setView([37.092, -95.7129], 3);
         }
+
+        for (var i = 0; i < locations.length; i++) {
+            fetchImageForLocation(locations[i])
+        }
+
+        function fetchImageForLocation(location) {
+            //const placeName = "Eiffel Tower";
+            var locationId = location[7];
+            var placeName = location[4];
+
+            console.log(locationId);
+            console.log(placeName);
+
+            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(placeName)}&prop=pageimages&format=json&pithumbsize=500&origin=*`;
+
+            //$.getJSON(wikiUrl, function (data) {
+            //    const objects = data.features;
+            //});
+            
+            const emUsr = "coolralph_s";
+            const emDmn = "hotmail.com"
+            const request = `TailwindTravel (${emUsr}@${emDmn})`;
+
+            $.ajax({
+                url: wikiUrl,
+                method: 'GET',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('User-Agent', request);
+                },
+                success: function(response) {
+                    const pages = response.query.pages;
+                    for (const pageId in pages) {
+                        const page = pages[pageId];
+                        if (page.thumbnail) {
+                            const imageUrl = page.thumbnail.source;
+                            $("#place-image-" + locationId).attr('src', imageUrl);
+                        } else {
+                            console.log('No image found for this place.');
+                        }
+                    }
+                },
+                error: function(err) {
+                    console.error('Error fetching data:', err);
+                }
+            });
+        }
+
         let searchMarker; // To store the marker
 
         // Search and handle results

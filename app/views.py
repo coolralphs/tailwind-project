@@ -186,6 +186,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 distinct_cities.append(u)
 
             sorted_dict = dict(sorted(grouped_dates.items()))
+
             form = ItineraryItemForm(initial= {'expand_item': expand_item})
             # form_destination = ItineraryDestinationForm()
             form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
