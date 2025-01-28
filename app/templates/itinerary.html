@@ -61,6 +61,7 @@
                 <input id="h-latitude" hidden/>
                 <input id="h-longitude" hidden/>
                 <input class="form-control place-input" type="search" id="place-input" placeholder="Add a place" autocomplete="off"/>
+                <button type="button" id="clear-btn">&times;</button>
                 <i class="fas fa-magnifying-glass"></i> 
             </div>
             <div class="buttons-right">
@@ -819,9 +820,9 @@
         $("#btn_map").click(function() {
             mapDiv.classList.toggle('active');
         });                              
-        $('input[type="search"]').on('search', function(e) {
-            $('#suggestions').empty();
-        });
+        //$('input[type="search"]').on('search', function(e) {
+        //    $('#suggestions').empty();
+        //});
         let debounceTimeout;
         $('input[type="search"]').on('input', function() {
             if ($.trim($('#place-input').val()) != '') {
@@ -875,6 +876,22 @@
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
 
+        });
+
+        const searchInput = document.getElementById('place-input');
+        const clearButton = document.getElementById('clear-btn');
+
+        // Show/hide clear button based on input value
+        searchInput.addEventListener('input', () => {
+            clearButton.style.display = searchInput.value ? 'block' : 'none';
+        });
+
+        // Clear the input when the clear button is clicked
+        clearButton.addEventListener('click', () => {
+            searchInput.value = '';
+            clearButton.style.display = 'none';
+            $('#suggestions').empty();
+            searchInput.focus(); // Optional: return focus to the input
         });
 
           L.Control.SimpleButton = L.Control.extend({

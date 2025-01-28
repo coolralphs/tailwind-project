@@ -119,7 +119,43 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 form.save() 
                 pass
             else:
-                print('update')
+                print('enter update')
+                #update
+                id = form.cleaned_data['id']                
+                item = ItineraryItem.objects.get(id=id)
+                item.itinerary_destination = form.cleaned_data['itinerary_destination']
+                # item.activity_type = form.cleaned_data['activity_type']
+                # item.activity = form.cleaned_data['activity']
+                item.place_name = form.cleaned_data['place_name']
+
+                item.osm_key = form.cleaned_data['osm_key']
+                item.osm_value = form.cleaned_data['osm_value']
+                item.house_number = form.cleaned_data['house_number']
+                item.street = form.cleaned_data['street']
+                item.city = form.cleaned_data['city']
+                item.state = form.cleaned_data['state']
+                item.postal_code = form.cleaned_data['postal_code']
+                item.country = form.cleaned_data['country']
+                item.latitude = form.cleaned_data['latitude']
+                item.longitude = form.cleaned_data['longitude']
+
+                item.description = form.cleaned_data['description']
+                item.start_date = form.cleaned_data['start_date']
+                item.end_date = form.cleaned_data['end_date']
+                item.start_time = form.cleaned_data['start_time']
+                item.end_time = form.cleaned_data['end_time']     
+                item.number_bought = form.cleaned_data['number_bought']
+                item.total_cost = form.cleaned_data['total_cost']
+                item.is_skip = form.cleaned_data['is_skip']
+                item.is_booked = form.cleaned_data['is_booked']
+                item.booking_required = form.cleaned_data['booking_required']
+                item.pre_payment_required = form.cleaned_data['pre_payment_required']
+                item.is_paid = form.cleaned_data['is_paid']
+                item.url = form.cleaned_data['url']
+                item.rating = form.cleaned_data['rating']
+                item.notes = form.cleaned_data['notes']               
+
+                item.save()
                 pass
         else:
             print('not valid')
