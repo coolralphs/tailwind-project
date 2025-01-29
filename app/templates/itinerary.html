@@ -165,7 +165,7 @@
                                                     {% endif %}
                                                 </td>
                                                 <td>
-                                                    <img id="place-image-{{ i.id }}" style="width:100px; height:100px; object-fit:cover; object-position:center;">
+                                                    <img id="place-image-{{ i.id }}" class="item-image">
                                                 </td>
                                                 <td class="right-cell">
                                                     <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
@@ -345,7 +345,7 @@
         {% for date, activities in grouped_dates.items %}
             {% for i in activities|dictsort:"start_time" %}
                 locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}", "{{ i.id }}"]);
-                console.log("{{ i.id }}");
+                //console.log("{{ i.id }}");
             {% endfor %}
         {% endfor %}
        
@@ -388,18 +388,197 @@
             console.log(center);
             map.setView([37.092, -95.7129], 3);
         }
+    
+        var distinctFlags = [];
+        var distinctFlagUrls = [];
 
-        for (var i = 0; i < locations.length; i++) {
-            fetchImageForLocation(locations[i])
+        $.when( setDistinctFlags() )
+            .then( func2 )
+            .then( func3 )
+            .catch(function(error) {
+                console.error("An error occurred:", error);
+        });
+
+        function setDistinctFlags() {
+            for (var i = 0; i < locations.length; i++) {
+                distinctFlags = addIfNotExist(distinctFlags, locations[i], 3);
+            }
+            return $.Deferred().resolve().promise();            
+        }
+
+        function func2() {
+            let apiUrl = "https://commons.wikimedia.org/w/api.php";
+
+            const emUsr = "coolralph_s";
+            const emDmn = "hotmail.com"
+            const request = `TailwindTravel (${emUsr}@${emDmn})`;
+            
+            for (var i = 0; i < distinctFlags.length; i++) {
+                let country = distinctFlags[i];
+                let titleSearch = `File:Flag of ${country}.svg`;
+                $.ajax({
+                    url: apiUrl,
+                    data: {
+                        action: "query",
+                        format: "json",
+                        origin: "*",
+                        titles: titleSearch,
+                        prop: "imageinfo",
+                        iiprop: "url"
+                    },
+                    dataType: "jsonp",
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('User-Agent', request);
+                    },
+                    success: function(data) {
+                        let pages = data.query.pages;
+                        
+                        if (pages) {
+                            let flagUrl = null;
+
+                            // Loop through results to find the most relevant flag image
+                            $.each(pages, function(index, page) {
+                                if (page.imageinfo) {
+                                    flagUrl = page.imageinfo[0].url;
+                                    
+                                    return false; // Exit loop after getting the first valid image
+                                }
+                            });
+
+                            if (flagUrl) {
+                                //console.log(country);
+                                distinctFlagUrls.push([country, flagUrl]);
+                                //console.log(flagUrl);
+                            } else {
+                                console.log("Flag not found.");
+                            }
+                        }
+                    },
+                    error: function(err) {
+                        console.error('Error fetching data:', err);
+                    }
+                    
+                });
+            }
+            return $.Deferred().resolve().promise();    
+        }
+
+        function fetchFlags() {
+            console.log(distinctFlags);
+            return $.Deferred(function(deferred) {     
+                
+                let ajaxCalls = [];
+                for (var i = 0; i < distinctFlags.length; i++) {
+
+                    let apiUrl = "https://commons.wikimedia.org/w/api.php";
+                    let titleSearch = `File:Flag of ${distinctFlags[i]}.svg`;
+
+                    const emUsr = "coolralph_s";
+                    const emDmn = "hotmail.com"
+                    const request = `TailwindTravel (${emUsr}@${emDmn})`;
+                    
+                    ajaxCalls.push(
+                        $.ajax({
+                            url: apiUrl,
+                            data: {
+                                action: "query",
+                                format: "json",
+                                origin: "*",
+                                titles: titleSearch,
+                                prop: "imageinfo",
+                                iiprop: "url"
+                            },
+                            dataType: "jsonp",
+                            beforeSend: function(xhr) {
+                                xhr.setRequestHeader('User-Agent', request);
+                            },
+                            success: function(data) {
+                                let pages = data.query.pages;
+                                
+                                if (pages) {
+                                    let flagUrl = null;
+
+                                    // Loop through results to find the most relevant flag image
+                                    $.each(pages, function(index, page) {
+                                        if (page.imageinfo) {
+                                            flagUrl = page.imageinfo[0].url;
+                                            
+                                            return false; // Exit loop after getting the first valid image
+                                        }
+                                    });
+
+                                    if (flagUrl) {
+                                        //distinctFlagUrls.push([distinctFlags[i], flagUrl]);
+                                        console.log(flagUrl);
+                                    } else {
+                                        console.log("Flag not found.");
+                                    }
+                                }
+                            },
+                            error: function(err) {
+                                console.error('Error fetching data:', err);
+                            }
+                            
+                        })
+                    );
+                    
+                }
+                $.when(...ajaxCalls).done(() => {
+                    console.log('second func done');
+                    deferred.resolve();
+                });
+
+            }).promise();            
+        }
+
+        function func3() {
+
+            for (var i = 0; i < locations.length; i++) {
+                fetchImageForLocation(locations[i]);  
+            }
+            return $.Deferred().resolve().promise();            
+        }
+        
+        
+        //for (var i = 0; i < locations.length; i++) {
+        //    distinctFlags = addIfNotExist(distinctFlags, locations[i], 3);
+        //}
+        
+        //for (var i = 0; i < distinctFlags.length; i++) {
+        //    //console.log(distinctFlags[i]);
+        //    fetchFlags(distinctFlags[i]);
+        //}
+        function addIfNotExist(array, item, fieldIndex) {
+            // Check if the item exists in the array based on the specified field
+            findCountry = item[fieldIndex];
+            const countryExists = array.some(country => country === findCountry);
+            // If the item doesn't exist, add it to the array
+            if (countryExists == false) {
+                array.push(item[fieldIndex]);
+            }
+
+            return array;
+        }
+
+        //for (var i = 0; i < fetchFlags.length; i++) {
+        //    console.log(fetchFlags[i]);
+        //}
+
+        //for (var i = 0; i < locations.length; i++) {
+        //    fetchImageForLocation(locations[i]);
+        //}
+        
+        function fetchFlags(location) {
+            //const flagApiUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${encodeURIComponent(flagSearch)}&gsrlimit=5&prop=imageinfo&iiprop=url`;
+
+            
         }
 
         function fetchImageForLocation(location) {
             //const placeName = "Eiffel Tower";
+
             var locationId = location[7];
             var placeName = location[4];
-
-            console.log(locationId);
-            console.log(placeName);
 
             const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(placeName)}&prop=pageimages&format=json&pithumbsize=500&origin=*`;
 
@@ -413,6 +592,15 @@
 
             $.ajax({
                 url: wikiUrl,
+                data: {
+                    action: "query",
+                    format: "json",
+                    origin: "*",
+                    titles: `${encodeURIComponent(placeName)}`,
+                    prop: "pageimages",
+                    pithumbsize: "500"
+                },
+                dataType: "jsonp",
                 method: 'GET',
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader('User-Agent', request);
@@ -426,6 +614,16 @@
                             $("#place-image-" + locationId).attr('src', imageUrl);
                         } else {
                             console.log('No image found for this place.');
+                            try {
+                                //console.log(location[3]);
+                                //console.log(distinctFlagUrls);
+                                var result = distinctFlagUrls.filter(item => item[0] === location[3]);
+                                console.log(result[0][1]);
+                                $("#place-image-" + locationId).attr('src', result[0][1]);
+                            }
+                            catch (ex) {
+                                console.log('No flag found for this place either.');
+                            }
                         }
                     }
                 },
@@ -951,62 +1149,64 @@
             searchInput.focus(); // Optional: return focus to the input
         });
 
-          L.Control.SimpleButton = L.Control.extend({
-  _className: 'leaflet-control-simplebutton',
-  options: {
-    faIcon: 'fa-crosshairs',
-    position: 'topright',
-    text: "",
-    id: "",
-    click: function(){}
-  },
-  initialize: function (options) {
-    L.setOptions(this, options);
-  },
-  onAdd: function (map) {
-    this._map = map;
-    this._container = L.DomUtil.create('div',this._className);
-    this._buildButton();
-    return this._container;
-  },
-  onRemove: function (map) {
-    L.DomEvent.off(this._link, 'click', this.options.click);
-  },
-  _buildButton: function(){
-    this._link = L.DomUtil.create('a','simplebutton-action',this._container);
-    this._link.href = "#";
-    if(this.options.id) {
-      this._link.id = this.options.id;
-    }
-    if(this.options.text) {
-      this._link.innerHTML = this.options.text;
-    }else{
-      L.DomUtil.create('i','fa ' + this.options.faIcon, this._link);
-    }
-    L.DomEvent.on(this._link, 'click', this.options.click, this._link);
-  }
-});
 
-L.control.simplebutton = function (options) {
-  return new L.Control.SimpleButton(options);
-};
 
-        var button = new L.Control.SimpleButton({
-  click: function(evt) {
-    if (markers.length > 0) {
-
-            markers.forEach(function(marker, index) {
-                var latLng = marker.getLatLng();
-                console.log(latLng);
-                bounds.extend(L.latLng([latLng.lat, latLng.lng])); 
-            });
-            //var cntr = bounds.getCenter();
-            //map.setView(cntr, 10);
-            map.fitBounds(bounds);
+        L.Control.SimpleButton = L.Control.extend({
+        _className: 'leaflet-control-simplebutton',
+        options: {
+            faIcon: 'fa-crosshairs',
+            position: 'topright',
+            text: "",
+            id: "",
+            click: function(){}
+        },
+        initialize: function (options) {
+            L.setOptions(this, options);
+        },
+        onAdd: function (map) {
+            this._map = map;
+            this._container = L.DomUtil.create('div',this._className);
+            this._buildButton();
+            return this._container;
+        },
+        onRemove: function (map) {
+            L.DomEvent.off(this._link, 'click', this.options.click);
+        },
+        _buildButton: function(){
+            this._link = L.DomUtil.create('a','simplebutton-action',this._container);
+            this._link.href = "#";
+            if(this.options.id) {
+            this._link.id = this.options.id;
+            }
+            if(this.options.text) {
+            this._link.innerHTML = this.options.text;
+            }else{
+            L.DomUtil.create('i','fa ' + this.options.faIcon, this._link);
+            }
+            L.DomEvent.on(this._link, 'click', this.options.click, this._link);
         }
-    }
-});
-button.addTo(map);
-    </script>
-{% endblock %}
+        });
+
+        L.control.simplebutton = function (options) {
+        return new L.Control.SimpleButton(options);
+        };
+
+                var button = new L.Control.SimpleButton({
+        click: function(evt) {
+            if (markers.length > 0) {
+
+                    markers.forEach(function(marker, index) {
+                        var latLng = marker.getLatLng();
+                        console.log(latLng);
+                        bounds.extend(L.latLng([latLng.lat, latLng.lng])); 
+                    });
+                    //var cntr = bounds.getCenter();
+                    //map.setView(cntr, 10);
+                    map.fitBounds(bounds);
+                }
+            }
+        });
+        button.addTo(map);
+            </script>
+        {% endblock %}
 

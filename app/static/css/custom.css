@@ -328,6 +328,14 @@ input[type="search"]:not(:placeholder-shown) + #clear-btn {
 display: block; /* Show button when input has text */
 }
 
+.item-image {
+    border-radius:10px;
+    width:100px; 
+    height:100px; 
+    object-fit:cover; 
+    object-position:center;
+}
+
 .leaflet-control-simplebutton {
     background: #fff;
     border-radius: 5px;
