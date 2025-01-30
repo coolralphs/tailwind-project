@@ -334,6 +334,7 @@ display: block; /* Show button when input has text */
     height:100px; 
     object-fit:cover; 
     object-position:center;
+    border: 1px solid black;
 }
 
 .leaflet-control-simplebutton {

@@ -104,15 +104,16 @@
                                         <th>Time</th>
                                         <th></th>
                                         <th class="text-ellipsis">Activity</th>
-                                        <th class="narrow-hidden">City</th>
+                                        {% comment %} <th class="narrow-hidden">City</th> {% endcomment %}
                                         <th class="narrow-hidden td-center">Booked</th>
                                         <th class="narrow-hidden td-center">Paid</th>
-                                        <th></th>
-                                        <th class="right-cell">
+                                        <th class="right-cell"></th>
+                                        <th class="right-cell"></th>
+                                        {% comment %} <th class="right-cell">
                                             <button class="btn btn-round-success-color btn-activity-create btn-round activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                 <i class="fas fa-plus" style="color:white;"></i> 
                                             </button>
-                                        </th>
+                                        </th> {% endcomment %}
                                     </thead>
                                     <tbody>
                                         {% for i in activities|dictsort:"start_time" %}
@@ -125,9 +126,19 @@
                                             {% endfor %}
                                             <tr>   
                                                 <td class="time-highlight fit-text-cell">{{ i.start_time|date:"g:i A" }}</td>
+
                                                 <td class="icon-cell">
-                                                    <i class="fas fa-{{ i.activity.icon }}" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
+                                                    {% if i.osm_key %} 
+                                                        {% if i.osm_key == 'tourism' %} 
+                                                            <i class="fas fa-binoculars" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
+                                                        {% comment %} {% elif %}
+                                                            <i class="fas fa-car" style="text-shadow: 0px 0px 3px black; color: white;"></i>
+                                                        {% else %}
+                                                            <i class="fas fa-binoculars" style="text-shadow: 0px 0px 3px black; color: white;"></i> {% endcomment %}
+                                                        {% endif %}
+                                                    {% endif %}
                                                 </td>
+
                                                 <td class="text-ellipsis">
                                                     {% comment %} {{ i.place_name }}   {% endcomment %}
                                                     {% comment %} <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
@@ -137,7 +148,7 @@
                                                         {{ i.place_name }}  
                                                     </a> 
                                                 </td>
-                                                {% comment %} <td class="special narrow-hidden right-cell">{{ i.itinerary_destination.city }}</td> {% endcomment %}
+
                                                 <td class="td-center narrow-hidden right-cell">
                                                     {% if i.booking_required %} 
                                                         {% if i.is_booked %}
@@ -151,6 +162,7 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
+
                                                 <td class="td-center narrow-hidden right-cell">
                                                     {% if i.pre_payment_required %} 
                                                         {% if i.is_paid %} 
@@ -164,9 +176,11 @@
                                                         {% endif %}
                                                     {% endif %}
                                                 </td>
-                                                <td>
+
+                                                <td class="td-center right-cell">
                                                     <img id="place-image-{{ i.id }}" class="item-image">
                                                 </td>
+
                                                 <td class="right-cell">
                                                     <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
                                                 </td>
