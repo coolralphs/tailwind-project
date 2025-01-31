@@ -3,8 +3,12 @@
 } 
 
 tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #F8F8F8;
+    border-bottom: .5pt solid lightgray;
 }
+/* tr {    
+    border-bottom: 1pt solid black;
+} */
 
 input[readonly] {
     background-color: #EBEBE4;
@@ -141,6 +145,49 @@ form label {
     margin-bottom:8px;    
 } */
 
+.btn-outline-pill {
+    float: left;
+    background-color: #ddd;
+    border: none;
+    color: black;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    /* display: inline-block; */
+    cursor: pointer;
+    border-radius: 16px;
+}
+
+.btn-outline-pill-transparent {
+    margin-left: -5px;
+    float: left;
+    background-color: transparent;
+    border: none;
+    color: black;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    /* display: inline-block; */
+    cursor: pointer;
+    border-radius: 16px;
+}
+
+.btn-outline-pill-right {
+    float: right;
+    background-color: #ddd;
+    border: none;
+    color: black;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+    /* display: inline-block; */
+    cursor: pointer;
+    border-radius: 16px;
+}
+
 .btn-round-primary {
     float: right;
     border-radius: 50%;  
@@ -191,10 +238,15 @@ form label {
     cursor: pointer;
 }
 
-.btn:focus {
-    outline: none;
+.btn-outline-success:hover,
+.btn-outline-success:focus,
+.btn-outline-success:active {
     box-shadow: none;
-}
+    outline: none;
+    background-color: transparent;
+    background: none;
+    color: #198754;
+ }
 
 .accordion-button:not(.collapsed){
     box-shadow: none;
@@ -312,16 +364,16 @@ input[type="search"] {
 }
 
 button#clear-btn {
-position: absolute;
-right: 5px;
-top: 50%;
-transform: translateY(-50%);
-background: none;
-border: none;
-cursor: pointer;
-font-size: 16px; /* Adjust size */
-line-height: 1;
-display: none; /* Hidden by default */
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px; /* Adjust size */
+    line-height: 1;
+    display: none; /* Hidden by default */
 }
 
 input[type="search"]:not(:placeholder-shown) + #clear-btn {
@@ -335,52 +387,156 @@ display: block; /* Show button when input has text */
     object-fit:cover; 
     object-position:center;
     border: 1px solid black;
+    cursor: pointer;
+    transition: 0.3s
+}
+.item-image:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+    margin-top:50px;
+    z-index: 1000
 }
 
-.leaflet-control-simplebutton {
-    background: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+/* Modal Content (Image) */
+.modal-content {
+    margin: auto;
     display: block;
-    overflow: hidden;
-    width: 30px;
-    height: 30px;
-    padding: 2px;
-  }
-  
-  .leaflet-control-simplebutton a {
-    color: #000;
-    cursor: pointer;
-    line-height: 150%;
-    white-space: nowrap;
+    width: 80%;
+    max-width: 700px;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
     text-align: center;
-    display: block;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+}
+
+/* Add Animation - Zoom in the Modal */
+.modal-content, #caption {
+    animation-name: zoom;
+    animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+from {transform:scale(0)}
+to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+    .modal-content {
+        width: 100%;
+        margin-top: -20px;
+    }
+    .close {
+        top: 10px;
+        right: 25px;
+    }
+}
+
+.icon-stack {
+    position: relative;
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    line-height: 2em;
+    vertical-align: middle;
+}
+.icon-stack-1x,
+.icon-stack-2x {
+    position: absolute;
+    left: 0;
     width: 100%;
-    height: 100%;
-    font-size: 18px;
-    text-decoration: none;
-    background: transparent;
-    opacity: 0.75;
-  }
-  
-  .leaflet-control-simplebutton a:hover {
-    opacity: 1;
-    text-decoration: none;
-  }
-  
-  .leaflet-control-simplebutton a i {
-    pointer-events: none;
-    font-size: inherit;
-  }
-  
-  /* TOUCH */
-  
-  .leaflet-touch .leaflet-control-simplebutton {
-    width: 35px;
-    height: 35px
-  }
-  
-  .leaflet-touch .leaflet-control-simplebutton a {
-    font-size: 22px;
-  }
+    text-align: center;
+}
+.icon-stack-1x {
+    line-height: inherit;
+}
+.icon-stack-2x {
+    font-size: 1.5em;
+}
+
+
+.leaflet-control-simplebutton {
+background: #fff;
+border-radius: 5px;
+cursor: pointer;
+box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+display: block;
+overflow: hidden;
+width: 30px;
+height: 30px;
+padding: 2px;
+}
+
+.leaflet-control-simplebutton a {
+color: #000;
+cursor: pointer;
+line-height: 150%;
+white-space: nowrap;
+text-align: center;
+display: block;
+width: 100%;
+height: 100%;
+font-size: 18px;
+text-decoration: none;
+background: transparent;
+opacity: 0.75;
+}
+
+.leaflet-control-simplebutton a:hover {
+opacity: 1;
+text-decoration: none;
+}
+
+.leaflet-control-simplebutton a i {
+pointer-events: none;
+font-size: inherit;
+}
+
+/* TOUCH */
+
+.leaflet-touch .leaflet-control-simplebutton {
+width: 35px;
+height: 35px
+}
+
+.leaflet-touch .leaflet-control-simplebutton a {
+font-size: 22px;
+}

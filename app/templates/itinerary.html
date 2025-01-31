@@ -108,7 +108,7 @@
                                         <th class="narrow-hidden td-center">Booked</th>
                                         <th class="narrow-hidden td-center">Paid</th>
                                         <th class="right-cell"></th>
-                                        <th class="right-cell"></th>
+                                        {% comment %} <th class="right-cell"></th> {% endcomment %}
                                         {% comment %} <th class="right-cell">
                                             <button class="btn btn-round-success-color btn-activity-create btn-round activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                 <i class="fas fa-plus" style="color:white;"></i> 
@@ -178,11 +178,34 @@
                                                 </td>
 
                                                 <td class="td-center right-cell">
-                                                    <img id="place-image-{{ i.id }}" class="item-image">
+                                                    <img id="place-image-{{ i.id }}" class="item-image" alt="{{ i.place_name }}">
                                                 </td>
 
-                                                <td class="right-cell">
+                                                {% comment %} <td class="right-cell">
                                                     <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
+                                                </td> {% endcomment %}
+                                            </tr>
+                                            <tr>
+                                                <td colspan="7" style="text-align: center;">
+                                                    {% comment %} <button class="btn btn-outline-pill btn-sm"> 
+                                                        <i class="fas fa-person-walking" style="color:gray;"></i>
+                                                        <i class="fas fa-car" style="color:gray;"></i>
+                                                        <i class="fas fa-plane" style="color:gray;"></i> &nbsp;
+                                                        <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i>
+                                                    </button> {% endcomment %}
+
+                                                     <button class="btn btn-outline-pill btn-sm"> 
+                                                        <i class="fas fa-person-walking" style="color:gray; margin-left:3px;"></i> &nbsp;
+                                                        <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i> 
+        
+                                                    </button>
+                                                    {% comment %} <button class="btn btn-outline-pill-transparent btn-sm">
+                                                        <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i>
+                                                    </button> {% endcomment %}
+                                                    
+                                                    <button class="btn btn-outline-pill-right btn-sm">
+                                                        <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
+                                                    </button>
                                                 </td>
                                             </tr>
                                         {% endfor %}                                            
@@ -292,7 +315,13 @@
     </div>
 
     <div id="scroll-up">
-        <i class="fa-solid fa-angle-up"></i>
+        <i class="fa-solid fa-angles-up"></i>
+    </div>
+
+    <div id="divImageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="idImageModal">
+        <div id="caption"></div>
     </div>
 
     {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Destination" aria-labelledby="offcanvasRightLabel_Destination">
@@ -335,6 +364,8 @@
         $('#scroll-up').click(function() {
             $('body,html').animate({scrollTop:0},"fast");
         });       
+
+
 
         var offcanvas = new bootstrap.Offcanvas($('#offcanvasRight'));
 
@@ -1163,64 +1194,138 @@
             searchInput.focus(); // Optional: return focus to the input
         });
 
+        var modal = document.getElementById("divImageModal");
 
+        // Get the image and insert it inside the modal - use its "alt" text as a caption
+        var modalImg = document.getElementById("idImageModal");
+        var captionText = document.getElementById("caption");
+        $(".item-image").click(function() {
+            var src = $(this).attr("src");
+            modal.style.display = "block";
+            modalImg.src = src;
+            captionText.innerHTML = this.alt;
+        });
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() { 
+            modal.style.display = "none";
+        }
+
+        $("#divImageModal").click(function() {
+            modal.style.display = "none";
+        });
 
         L.Control.SimpleButton = L.Control.extend({
-        _className: 'leaflet-control-simplebutton',
-        options: {
-            faIcon: 'fa-crosshairs',
-            position: 'topright',
-            text: "",
-            id: "",
-            click: function(){}
-        },
-        initialize: function (options) {
-            L.setOptions(this, options);
-        },
-        onAdd: function (map) {
-            this._map = map;
-            this._container = L.DomUtil.create('div',this._className);
-            this._buildButton();
-            return this._container;
-        },
-        onRemove: function (map) {
-            L.DomEvent.off(this._link, 'click', this.options.click);
-        },
-        _buildButton: function(){
-            this._link = L.DomUtil.create('a','simplebutton-action',this._container);
-            this._link.href = "#";
-            if(this.options.id) {
-            this._link.id = this.options.id;
+            _className: 'leaflet-control-simplebutton',
+            options: {
+                faIcon: 'fa-crosshairs',
+                position: 'topright',
+                text: "",
+                id: "",
+                click: function(){}
+            },
+            initialize: function (options) {
+                L.setOptions(this, options);
+            },
+            onAdd: function (map) {
+                this._map = map;
+                this._container = L.DomUtil.create('div',this._className);
+                this._buildButton();
+                return this._container;
+            },
+            onRemove: function (map) {
+                L.DomEvent.off(this._link, 'click', this.options.click);
+            },
+            _buildButton: function(){
+                this._link = L.DomUtil.create('a','simplebutton-action',this._container);
+                this._link.href = "#";
+                if(this.options.id) {
+                this._link.id = this.options.id;
+                }
+                if(this.options.text) {
+                this._link.innerHTML = this.options.text;
+                }else{
+                L.DomUtil.create('i','fa ' + this.options.faIcon, this._link);
+                }
+                L.DomEvent.on(this._link, 'click', this.options.click, this._link);
             }
-            if(this.options.text) {
-            this._link.innerHTML = this.options.text;
-            }else{
-            L.DomUtil.create('i','fa ' + this.options.faIcon, this._link);
-            }
-            L.DomEvent.on(this._link, 'click', this.options.click, this._link);
-        }
         });
 
         L.control.simplebutton = function (options) {
-        return new L.Control.SimpleButton(options);
+            return new L.Control.SimpleButton(options);
         };
 
-                var button = new L.Control.SimpleButton({
-        click: function(evt) {
-            if (markers.length > 0) {
+        var button = new L.Control.SimpleButton({
+            click: function(evt) {
+                if (markers.length > 0) {
 
-                    markers.forEach(function(marker, index) {
-                        var latLng = marker.getLatLng();
-                        console.log(latLng);
-                        bounds.extend(L.latLng([latLng.lat, latLng.lng])); 
-                    });
-                    //var cntr = bounds.getCenter();
-                    //map.setView(cntr, 10);
-                    map.fitBounds(bounds);
-                }
+                        markers.forEach(function(marker, index) {
+                            var latLng = marker.getLatLng();
+                            console.log(latLng);
+                            bounds.extend(L.latLng([latLng.lat, latLng.lng])); 
+                        });
+                        //var cntr = bounds.getCenter();
+                        //map.setView(cntr, 10);
+                        map.fitBounds(bounds);
+                    }
             }
         });
         button.addTo(map);
-            </script>
-        {% endblock %}
+
+        L.Control.SimpleButton = L.Control.extend({
+            _className: 'leaflet-control-simplebutton',
+            options: {
+                faIcon: 'fa-angles-down',
+                position: 'topright',
+                text: "",
+                id: "",
+                click: function(){}
+            },
+            initialize: function (options) {
+                L.setOptions(this, options);
+            },
+            onAdd: function (map) {
+                this._map = map;
+                this._container = L.DomUtil.create('div',this._className);
+                this._buildButton();
+                return this._container;
+            },
+            onRemove: function (map) {
+                L.DomEvent.off(this._link, 'click', this.options.click);
+            },
+            _buildButton: function(){
+                this._link = L.DomUtil.create('a','simplebutton-action',this._container);
+                this._link.href = "#";
+                if(this.options.id) {
+                this._link.id = this.options.id;
+                }
+                if(this.options.text) {
+                this._link.innerHTML = this.options.text;
+                }else{
+                L.DomUtil.create('i','fa ' + this.options.faIcon, this._link);
+                }
+                L.DomEvent.on(this._link, 'click', this.options.click, this._link);
+            }
+        });
+
+        L.control.simplebutton = function (options) {
+            return new L.Control.SimpleButton(options);
+        };
+
+        const targetElement = $("#accordion");
+        var button2 = new L.Control.SimpleButton({
+            click: function(evt) {                
+                $("html, body").animate(
+                {
+                    scrollTop: targetElement.offset().top - 58,
+                },
+                "fast"
+                );
+            }
+        });
+        button2.addTo(map);
+    </script>
+{% endblock %}
 
