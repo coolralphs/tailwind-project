@@ -135,6 +135,12 @@ form label {
     align-items: center;
 }
 
+.container-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .buttons-right{
     display: flex;
     justify-content: flex-end;

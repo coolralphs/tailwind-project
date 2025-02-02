@@ -62,7 +62,7 @@
                 <input id="h-country" hidden/>
                 <input id="h-latitude" hidden/>
                 <input id="h-longitude" hidden/>
-                <input class="form-control place-input" type="search" id="place-input" placeholder="Add a place" autocomplete="off"/>
+                <input class="form-control place-input" type="search" id="place-input" placeholder="Search a place" autocomplete="off"/>
                 <button type="button" id="clear-btn">&times;</button>
                 <i class="fas fa-magnifying-glass"></i> 
             </div>
@@ -73,7 +73,11 @@
             </div>
             
         </div>
+        
         <div id="suggestions"></div>
+    </div>
+    <div id="place-input-message" class="container-center" style="display: none;">
+        <label class="text-danger">** Not saved yet. Click the add (+) button to save.</label>
     </div>
     {% comment %} <div id="search-container">
         <i class="fas fa-location-dot" style="margin-right:2px;"></i><input type="text" id="place-input" placeholder="Add a place" />
@@ -146,7 +150,10 @@
                                                     </button>  {% endcomment %}
                                                     <a class="btn-activity-update" style="color: blue;" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                         {{ i.place_name }}  
-                                                    </a> 
+                                                    </a>
+                                                    {% comment %} <p> 
+                                                    <i class="fas fa-trash-can" style="text-shadow: 0px 0px 3px red; color: white;float: right;"></i> 
+                                                    </p> {% endcomment %}
                                                 </td>
 
                                                 <td class="td-center narrow-hidden right-cell">
@@ -203,7 +210,7 @@
                                                         <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i>
                                                     </button> {% endcomment %}
                                                     
-                                                    <button class="btn btn-outline-pill-right btn-sm">
+                                                    <button class="btn btn-outline-pill-right btn-sm options-ellipsis" name="{{i.id}}">
                                                         <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
                                                     </button>
                                                 </td>
@@ -295,8 +302,8 @@
 
                 <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
                 <div style="display: flex; margin-top:10px;">
-                    <button name="form_submit" class="btn btn-success btn-sm" type="submit" style="margin-right:3px;">Save</button>
-                    <button id="id_remove_marker" class="btn btn-danger btn-sm">Remove</button>
+                    <button name="form_submit" class="btn btn-success btn-sm" type="submit" style="width:100%;">Save</button>
+                    <button id="id_remove_marker" class="btn btn-danger btn-sm" style="display: none;">Remove</button>
                 </div>
             </form>
         </div>
@@ -304,12 +311,15 @@
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Directions" aria-labelledby="offcanvasRightLabel_Directions">
         <div class="offcanvas-header">
-            <h5 id="offcanvasRightLabel_Directions">Open Directions With:</h5>
+            <h5 id="offcanvasRightLabel_Directions">Options:</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <button class="open-map btn btn-outline-primary" type="button">
                 Google Maps
+            </button>
+            <button class="open-google btn btn-outline-primary" type="button">
+                Google Search
             </button>
         </div>
     </div>
@@ -398,14 +408,30 @@
             //console.log(locations[i][7]);
             var name = locations[i][4].replace(/\s/g, "+");
             var city = locations[i][0].replace(/\s/g, "+");
+            var city_comma = '';
             var state = locations[i][2].replace(/\s/g, "+");
+            console.log(locations[i][2]);
+            var state_comma = '';
             var zip = locations[i][1].replace(/\s/g, "+");
-            var fullAddress = `${name},+${city},+${state}+${zip}`;
-
+            var country = locations[i][3].replace(/\s/g, "+");
+            if (city.trim() != "") {
+                city_comma = city + ',';
+            }
+            if (city.trim() === "None") {
+                city_comma = '';
+            }
+            if (state.trim() != "") {
+                state_comma = state + ',';
+            }
+            if (state.trim() === "None") {
+                state_comma = '';
+            }
+            var fullAddress = `${name},+${city_comma},+${state_comma}+${zip}`;
+            
             bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
             marker = new L.marker([locations[i][5], locations[i][6]], { icon: markerIcon }) //{draggable:'true'}
             .bindPopup(`<b>${locations[i][4]}</b>
-                <br>${locations[i][0]}, ${locations[i][2]}
+                <br>${city_comma} ${state_comma} ${locations[i][3]}
                 <br><a href="#">Edit</a> | <a href="https://www.google.com/maps/dir/?api=1&destination=${fullAddress}" target="_blank">Directions</a>
                 `)
             .addTo(map);
@@ -724,7 +750,7 @@
                 var state_comma = '';
                 var postal_code = feature.properties.postcode || '';
                 var country = feature.properties.country || '';
-                
+
                 if (city.trim() != "") {
                     city_comma = city + ',';
                 }
@@ -774,8 +800,8 @@
                     if (searchMarker) map.removeLayer(searchMarker);
                     map.setView([latitude, longitude], 15);
                     searchMarker = L.marker([latitude, longitude]).addTo(map)
-                    .bindPopup(`<b>${name}</b><br>${city} ${country}`)
-                    .openPopup();
+                        .bindPopup(`<b>${name}</b><br>${city_comma} ${state_comma} ${country}`)
+                        .openPopup();
                     //markers.push(searchMarker);
                     var h_place_name = document.getElementById('place-input');
                     var h_osm_key = document.getElementById('h-osm-key');
@@ -800,6 +826,7 @@
                     h_country.value = country;
                     h_latitude.value = latitude;
                     h_longitude.value = longitude;
+                    $("#place-input-message").show();
                     //offcanvas.show();                    
                 });                
 
@@ -1098,13 +1125,73 @@
             var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
             $('#id_end_date').datepicker("setDate", dateObj);
         });
+
+        var googleSearch = '';
+        var directionsFullAddress = '';
+        $(".options-ellipsis").click(function() {
+            var itinerary_item_id = $(this).attr('name');
+            var inputs = $(".activity-update-input-" + itinerary_item_id);
+
+            var place = '';
+            var city = '';
+            var city_comma = '';
+            var state = '';
+            var state_comma = '';
+            var zip = '';
+            var country = '';
+
+            //set values
+            for(var i = 0; i < inputs.length; i++){
+                var val = $(inputs[i]).val();
+                var name = $(inputs[i]).attr('name');
+                if (val === 'None')
+                {
+                    val = '';
+                }
+                
+                switch(name) {
+                case "id_place_name":
+                    place = val;
+                case "id_city":
+                    city = val;
+                    break;
+                case "id_state":
+                    state = val;
+                    break;
+                case "id_postal_code":
+                    zip = val;
+                    break;
+                case "id_country":
+                    country = val;
+                    break;
+                default:                   
+
+                    break;
+                }                
+            }
+            if (city.trim() != "") {
+                city_comma = city + ',';
+            }
+            if (state.trim() != "") {
+                state_comma = state + ',';
+            }
+
+            directionsFullAddress = `${place},+${city_comma},+${state_comma}+${zip}+${country}`;
+            googleSearch = place;
+        });
+
         $(".open-map").click(function() {
-            var street = "Zion Park Blvd.".replace(/\s/g, "+");
-            var city = "Springdale".replace(/\s/g, "+");
-            var state = "UT".replace(/\s/g, "+");
-            var zip = "84767";
-            var fullAddress = `${street},+${city},+${state}+${zip}`;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${fullAddress}`, "_blank");
+            //var street = "Zion Park Blvd.".replace(/\s/g, "+");
+            //var city = "Springdale".replace(/\s/g, "+");
+            //var state = "UT".replace(/\s/g, "+");
+            //var zip = "84767";
+            //var fullAddress = `${street},+${city},+${state}+${zip}`;
+            console.log(directionsFullAddress);
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${directionsFullAddress}`, "_blank");
+        });
+        $(".open-google").click(function() {
+            var encodedSearch = encodeURIComponent(googleSearch);
+            window.open(`https://www.google.com/search?q=${encodedSearch}`, "_blank");
         });
         $("#id_remove_marker").click(function() {
             map.removeLayer(searchMarker);
@@ -1191,6 +1278,7 @@
             searchInput.value = '';
             clearButton.style.display = 'none';
             $('#suggestions').empty();
+            $("#place-input-message").hide();
             searchInput.focus(); // Optional: return focus to the input
         });
 
