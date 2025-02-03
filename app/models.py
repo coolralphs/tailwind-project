@@ -156,6 +156,9 @@ class ItineraryItem(models.Model):
     country = models.CharField(max_length=150, null=True, blank=True)
     latitude = models.CharField(max_length=150, null=True, blank=True)
     longitude = models.CharField(max_length=150, null=True, blank=True)
+
+    image_url = models.CharField(null=True, blank=True)
+
     start_date = models.DateField()
     end_date = models.DateField()
     start_time = models.TimeField()
@@ -202,6 +205,20 @@ class ItineraryItem(models.Model):
             return "star"
         else:
             return "warning"
+        
+
+class TransportType(models.Model):
+    description = models.CharField(max_length=150)
+    icon = models.CharField(max_length=150)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+
+class Transport(models.Model):
+    itinerary_item = models.ForeignKey(ItineraryItem, on_delete=models.CASCADE)
+    transport_type = models.ForeignKey(TransportType, on_delete=models.CASCADE)
+    start_time = models.TimeField()
+    end_time = models.TimeField()  
 
 
 class UserSurveyQuestionAnswer(models.Model):

@@ -128,6 +128,7 @@ class ItineraryItemForm(forms.ModelForm):
             'longitude': forms.HiddenInput(),
             'osm_key': forms.HiddenInput(),
             'osm_value': forms.HiddenInput(),
+            'image_url': forms.HiddenInput(),
             # 'activity_type': forms.HiddenInput(),
             # 'activity': forms.HiddenInput(),
         }

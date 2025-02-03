@@ -153,7 +153,9 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 item.is_paid = form.cleaned_data['is_paid']
                 item.url = form.cleaned_data['url']
                 item.rating = form.cleaned_data['rating']
-                item.notes = form.cleaned_data['notes']               
+                item.notes = form.cleaned_data['notes'] 
+
+                item.image_url = form.cleaned_data['image_url']              
 
                 item.save()
                 pass

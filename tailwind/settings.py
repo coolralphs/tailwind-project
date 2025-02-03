@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'tailwind.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DEBUG_USE_PROD_DB=True
+DEBUG_USE_PROD_DB=False
 
 if DEBUG:
     if DEBUG_USE_PROD_DB:

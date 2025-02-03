@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <div class="container-padding">
-        <div id="image-container"></div>
+
         {% comment %} <img id="place-image" style="width:100px; height:100px; object-fit:cover; object-position:center;"> {% endcomment %}
         <form id="form_update_itinerary" method="post" style="margin-bottom:10px;margin-top:10px;">
             {% csrf_token %}
@@ -62,6 +62,7 @@
                 <input id="h-country" hidden/>
                 <input id="h-latitude" hidden/>
                 <input id="h-longitude" hidden/>
+                <input id="h-image-url" hidden/>
                 <input class="form-control place-input" type="search" id="place-input" placeholder="Search a place" autocomplete="off"/>
                 <button type="button" id="clear-btn">&times;</button>
                 <i class="fas fa-magnifying-glass"></i> 
@@ -103,112 +104,93 @@
                             </button> {% endcomment %}
 
                             <div class="next-line" style="overflow-x:auto;">
+                                {% for i in activities|dictsort:"start_time" %}
+                                    {% for key, val in i|get_fields %}
+                                        <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
+                                    {% endfor %}
+                                    <ul id="list">
+                                        <li class="swipe-item">
+                                            <div class="content">
+                                                {{ i.place_name }}
+                                            </div>
+                                            <button class="delete-btn">Delete</button>
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                            </div>
+                            
+
+                            {% comment %} <div class="next-line" style="overflow-x:auto;">
                                 <table class="">
                                     <thead class="table-head">
                                         <th>Time</th>
                                         <th></th>
                                         <th class="text-ellipsis">Activity</th>
-                                        {% comment %} <th class="narrow-hidden">City</th> {% endcomment %}
                                         <th class="narrow-hidden td-center">Booked</th>
                                         <th class="narrow-hidden td-center">Paid</th>
                                         <th class="right-cell"></th>
-                                        {% comment %} <th class="right-cell"></th> {% endcomment %}
-                                        {% comment %} <th class="right-cell">
-                                            <button class="btn btn-round-success-color btn-activity-create btn-round activity-exising-date" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                <i class="fas fa-plus" style="color:white;"></i> 
-                                            </button>
-                                        </th> {% endcomment %}
                                     </thead>
                                     <tbody>
                                         {% for i in activities|dictsort:"start_time" %}
                                             {% for key, val in i|get_fields %}
-                                                {% comment %} {% if key != 'activity' %}
-                                                <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="" hidden/>
-                                                {% else %} {% endcomment %}
                                                 <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
-                                                {% comment %} {% endif %} {% endcomment %}
                                             {% endfor %}
-                                            <tr>   
-                                                <td class="time-highlight fit-text-cell">{{ i.start_time|date:"g:i A" }}</td>
+                                            <tr> 
+                                                        <td class="time-highlight fit-text-cell">{{ i.start_time|date:"g:i A" }}</td>
 
-                                                <td class="icon-cell">
-                                                    {% if i.osm_key %} 
-                                                        {% if i.osm_key == 'tourism' %} 
-                                                            <i class="fas fa-binoculars" style="text-shadow: 0px 0px 3px black; color: white;"></i> 
-                                                        {% comment %} {% elif %}
-                                                            <i class="fas fa-car" style="text-shadow: 0px 0px 3px black; color: white;"></i>
-                                                        {% else %}
-                                                            <i class="fas fa-binoculars" style="text-shadow: 0px 0px 3px black; color: white;"></i> {% endcomment %}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </td>
+                                                        <td class="icon-cell">
+                                                            {% if i.osm_key %} 
+                                                                {% if i.osm_key == 'tourism' %} 
+                                                                    <i class="fas fa-binoculars" style="text-shadow: 0px 0px 3px black; color: white;"></i>                                                               
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </td>
 
-                                                <td class="text-ellipsis">
-                                                    {% comment %} {{ i.place_name }}   {% endcomment %}
-                                                    {% comment %} <button class="btn btn-outline-primary btn-activity-update" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                        Update
-                                                    </button>  {% endcomment %}
-                                                    <a class="btn-activity-update" style="color: blue;" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                        {{ i.place_name }}  
-                                                    </a>
-                                                    {% comment %} <p> 
-                                                    <i class="fas fa-trash-can" style="text-shadow: 0px 0px 3px red; color: white;float: right;"></i> 
-                                                    </p> {% endcomment %}
-                                                </td>
+                                                        <td class="text-ellipsis">
+                                                            <a class="btn-activity-update" style="color: blue;" name="{{i.id}}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                                {{ i.place_name }}  
+                                                            </a>
+                                                        </td>
 
-                                                <td class="td-center narrow-hidden right-cell">
-                                                    {% if i.booking_required %} 
-                                                        {% if i.is_booked %}
-                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
-                                                        {% else %}
-                                                            <i class="bi bi-x-circle-fill" style="color:red;"></i> 
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {% if i.is_booked %}
-                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </td>
+                                                        <td class="td-center narrow-hidden right-cell">
+                                                            {% if i.booking_required %} 
+                                                                {% if i.is_booked %}
+                                                                    <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                                {% else %}
+                                                                    <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {% if i.is_booked %}
+                                                                    <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </td>
 
-                                                <td class="td-center narrow-hidden right-cell">
-                                                    {% if i.pre_payment_required %} 
-                                                        {% if i.is_paid %} 
-                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
-                                                        {% else %}                                                                
-                                                            <i class="bi bi-x-circle-fill" style="color:red;"></i> 
-                                                        {% endif %}
-                                                    {% else %}
-                                                        {% if i.is_paid %} 
-                                                            <i class="bi bi-check-circle" style="color:green;"></i> 
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </td>
+                                                        <td class="td-center narrow-hidden right-cell">
+                                                            {% if i.pre_payment_required %} 
+                                                                {% if i.is_paid %} 
+                                                                    <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                                {% else %}                                                                
+                                                                    <i class="bi bi-x-circle-fill" style="color:red;"></i> 
+                                                                {% endif %}
+                                                            {% else %}
+                                                                {% if i.is_paid %} 
+                                                                    <i class="bi bi-check-circle" style="color:green;"></i> 
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </td>
 
-                                                <td class="td-center right-cell">
-                                                    <img id="place-image-{{ i.id }}" class="item-image" alt="{{ i.place_name }}">
-                                                </td>
-
-                                                {% comment %} <td class="right-cell">
-                                                    <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
-                                                </td> {% endcomment %}
+                                                        <td class="td-center right-cell">
+                                                            <img id="place-image-{{ i.id }}" class="item-image" alt="{{ i.place_name }}" src="{{ i.image_url }}">
+                                                        </td>
                                             </tr>
                                             <tr>
                                                 <td colspan="7" style="text-align: center;">
-                                                    {% comment %} <button class="btn btn-outline-pill btn-sm"> 
-                                                        <i class="fas fa-person-walking" style="color:gray;"></i>
-                                                        <i class="fas fa-car" style="color:gray;"></i>
-                                                        <i class="fas fa-plane" style="color:gray;"></i> &nbsp;
-                                                        <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i>
-                                                    </button> {% endcomment %}
-
-                                                     <button class="btn btn-outline-pill btn-sm"> 
+                                                    <button class="btn btn-outline-pill btn-sm"> 
                                                         <i class="fas fa-person-walking" style="color:gray; margin-left:3px;"></i> &nbsp;
                                                         <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i> 
         
                                                     </button>
-                                                    {% comment %} <button class="btn btn-outline-pill-transparent btn-sm">
-                                                        <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i>
-                                                    </button> {% endcomment %}
                                                     
                                                     <button class="btn btn-outline-pill-right btn-sm options-ellipsis" name="{{i.id}}">
                                                         <i class="fas fa-ellipsis" style="color:gray;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight_Directions" aria-controls="offcanvasRight_Directions"></i> 
@@ -218,7 +200,7 @@
                                         {% endfor %}                                            
                                     </tbody>
                                 </table>
-                            </div>
+                            </div>  {% endcomment %}
                         </div> 
                     </div>
                 </div>    
@@ -334,6 +316,15 @@
         <div id="caption"></div>
     </div>
 
+    <!-- Modal Confirmation -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <p>Are you sure you want to delete this item?</p>
+            <button id="confirm-delete">Yes, Delete</button>
+            <button id="cancel-delete">Cancel</button>
+        </div>
+    </div>
+
     {% comment %} <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight_Destination" aria-labelledby="offcanvasRightLabel_Destination">
         <div class="offcanvas-header">
             <h5 id="offcanvasRightLabel_Destination">Add New Destination</h5>
@@ -399,21 +390,21 @@
         var locations = [];
         {% for date, activities in grouped_dates.items %}
             {% for i in activities|dictsort:"start_time" %}
-                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}", "{{ i.id }}"]);
+                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}", "{{ i.id }}", "{{ i.image_url }}"]);
                 //console.log("{{ i.id }}");
             {% endfor %}
         {% endfor %}
        
         for (var i = 0; i < locations.length; i++) {
-            //console.log(locations[i][7]);
+
             var name = locations[i][4].replace(/\s/g, "+");
             var city = locations[i][0].replace(/\s/g, "+");
             var city_comma = '';
             var state = locations[i][2].replace(/\s/g, "+");
-            console.log(locations[i][2]);
             var state_comma = '';
             var zip = locations[i][1].replace(/\s/g, "+");
             var country = locations[i][3].replace(/\s/g, "+");
+
             if (city.trim() != "") {
                 city_comma = city + ',';
             }
@@ -460,249 +451,17 @@
             map.setView([37.092, -95.7129], 3);
         }
     
-        var distinctFlags = [];
-        var distinctFlagUrls = [];
+        //function addIfNotExist(array, item, fieldIndex) {
+        //    // Check if the item exists in the array based on the specified field
+        //   findCountry = item[fieldIndex];
+        //   const countryExists = array.some(country => country === findCountry);
+        //    // If the item doesn't exist, add it to the array
+        //    if (countryExists == false) {
+        //        array.push(item[fieldIndex]);
+        //    }
 
-        $.when( setDistinctFlags() )
-            .then( func2 )
-            .then( func3 )
-            .catch(function(error) {
-                console.error("An error occurred:", error);
-        });
-
-        function setDistinctFlags() {
-            for (var i = 0; i < locations.length; i++) {
-                distinctFlags = addIfNotExist(distinctFlags, locations[i], 3);
-            }
-            return $.Deferred().resolve().promise();            
-        }
-
-        function func2() {
-            let apiUrl = "https://commons.wikimedia.org/w/api.php";
-
-            const emUsr = "coolralph_s";
-            const emDmn = "hotmail.com"
-            const request = `TailwindTravel (${emUsr}@${emDmn})`;
-            
-            for (var i = 0; i < distinctFlags.length; i++) {
-                let country = distinctFlags[i];
-                let titleSearch = `File:Flag of ${country}.svg`;
-                $.ajax({
-                    url: apiUrl,
-                    data: {
-                        action: "query",
-                        format: "json",
-                        origin: "*",
-                        titles: titleSearch,
-                        prop: "imageinfo",
-                        iiprop: "url"
-                    },
-                    dataType: "jsonp",
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader('User-Agent', request);
-                    },
-                    success: function(data) {
-                        let pages = data.query.pages;
-                        
-                        if (pages) {
-                            let flagUrl = null;
-
-                            // Loop through results to find the most relevant flag image
-                            $.each(pages, function(index, page) {
-                                if (page.imageinfo) {
-                                    flagUrl = page.imageinfo[0].url;
-                                    
-                                    return false; // Exit loop after getting the first valid image
-                                }
-                            });
-
-                            if (flagUrl) {
-                                //console.log(country);
-                                distinctFlagUrls.push([country, flagUrl]);
-                                //console.log(flagUrl);
-                            } else {
-                                console.log("Flag not found.");
-                            }
-                        }
-                    },
-                    error: function(err) {
-                        console.error('Error fetching data:', err);
-                    }
-                    
-                });
-            }
-            return $.Deferred().resolve().promise();    
-        }
-
-        function fetchFlags() {
-            console.log(distinctFlags);
-            return $.Deferred(function(deferred) {     
-                
-                let ajaxCalls = [];
-                for (var i = 0; i < distinctFlags.length; i++) {
-
-                    let apiUrl = "https://commons.wikimedia.org/w/api.php";
-                    let titleSearch = `File:Flag of ${distinctFlags[i]}.svg`;
-
-                    const emUsr = "coolralph_s";
-                    const emDmn = "hotmail.com"
-                    const request = `TailwindTravel (${emUsr}@${emDmn})`;
-                    
-                    ajaxCalls.push(
-                        $.ajax({
-                            url: apiUrl,
-                            data: {
-                                action: "query",
-                                format: "json",
-                                origin: "*",
-                                titles: titleSearch,
-                                prop: "imageinfo",
-                                iiprop: "url"
-                            },
-                            dataType: "jsonp",
-                            beforeSend: function(xhr) {
-                                xhr.setRequestHeader('User-Agent', request);
-                            },
-                            success: function(data) {
-                                let pages = data.query.pages;
-                                
-                                if (pages) {
-                                    let flagUrl = null;
-
-                                    // Loop through results to find the most relevant flag image
-                                    $.each(pages, function(index, page) {
-                                        if (page.imageinfo) {
-                                            flagUrl = page.imageinfo[0].url;
-                                            
-                                            return false; // Exit loop after getting the first valid image
-                                        }
-                                    });
-
-                                    if (flagUrl) {
-                                        //distinctFlagUrls.push([distinctFlags[i], flagUrl]);
-                                        console.log(flagUrl);
-                                    } else {
-                                        console.log("Flag not found.");
-                                    }
-                                }
-                            },
-                            error: function(err) {
-                                console.error('Error fetching data:', err);
-                            }
-                            
-                        })
-                    );
-                    
-                }
-                $.when(...ajaxCalls).done(() => {
-                    console.log('second func done');
-                    deferred.resolve();
-                });
-
-            }).promise();            
-        }
-
-        function func3() {
-
-            for (var i = 0; i < locations.length; i++) {
-                fetchImageForLocation(locations[i]);  
-            }
-            return $.Deferred().resolve().promise();            
-        }
-        
-        
-        //for (var i = 0; i < locations.length; i++) {
-        //    distinctFlags = addIfNotExist(distinctFlags, locations[i], 3);
-        //}
-        
-        //for (var i = 0; i < distinctFlags.length; i++) {
-        //    //console.log(distinctFlags[i]);
-        //    fetchFlags(distinctFlags[i]);
-        //}
-        function addIfNotExist(array, item, fieldIndex) {
-            // Check if the item exists in the array based on the specified field
-            findCountry = item[fieldIndex];
-            const countryExists = array.some(country => country === findCountry);
-            // If the item doesn't exist, add it to the array
-            if (countryExists == false) {
-                array.push(item[fieldIndex]);
-            }
-
-            return array;
-        }
-
-        //for (var i = 0; i < fetchFlags.length; i++) {
-        //    console.log(fetchFlags[i]);
-        //}
-
-        //for (var i = 0; i < locations.length; i++) {
-        //    fetchImageForLocation(locations[i]);
-        //}
-        
-        function fetchFlags(location) {
-            //const flagApiUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${encodeURIComponent(flagSearch)}&gsrlimit=5&prop=imageinfo&iiprop=url`;
-
-            
-        }
-
-        function fetchImageForLocation(location) {
-            //const placeName = "Eiffel Tower";
-
-            var locationId = location[7];
-            var placeName = location[4];
-
-            const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(placeName)}&prop=pageimages&format=json&pithumbsize=500&origin=*`;
-
-            //$.getJSON(wikiUrl, function (data) {
-            //    const objects = data.features;
-            //});
-            
-            const emUsr = "coolralph_s";
-            const emDmn = "hotmail.com"
-            const request = `TailwindTravel (${emUsr}@${emDmn})`;
-
-            $.ajax({
-                url: wikiUrl,
-                data: {
-                    action: "query",
-                    format: "json",
-                    origin: "*",
-                    titles: `${encodeURIComponent(placeName)}`,
-                    prop: "pageimages",
-                    pithumbsize: "500"
-                },
-                dataType: "jsonp",
-                method: 'GET',
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader('User-Agent', request);
-                },
-                success: function(response) {
-                    const pages = response.query.pages;
-                    for (const pageId in pages) {
-                        const page = pages[pageId];
-                        if (page.thumbnail) {
-                            const imageUrl = page.thumbnail.source;
-                            $("#place-image-" + locationId).attr('src', imageUrl);
-                        } else {
-                            console.log('No image found for this place.');
-                            try {
-                                //console.log(location[3]);
-                                //console.log(distinctFlagUrls);
-                                var result = distinctFlagUrls.filter(item => item[0] === location[3]);
-                                console.log(result[0][1]);
-                                $("#place-image-" + locationId).attr('src', result[0][1]);
-                            }
-                            catch (ex) {
-                                console.log('No flag found for this place either.');
-                            }
-                        }
-                    }
-                },
-                error: function(err) {
-                    console.error('Error fetching data:', err);
-                }
-            });
-        }
+        //    return array;
+        // }
 
         let searchMarker; // To store the marker
 
@@ -750,6 +509,7 @@
                 var state_comma = '';
                 var postal_code = feature.properties.postcode || '';
                 var country = feature.properties.country || '';
+                let itemFlagUrl = '';
 
                 if (city.trim() != "") {
                     city_comma = city + ',';
@@ -790,6 +550,100 @@
                 
                 // On click, update the map and input field
                 suggestion.on('click', function () {
+
+                    const wikiUrl = "https://en.wikipedia.org/w/api.php";
+                    const flagUrl = "https://commons.wikimedia.org/w/api.php";
+
+                    const emUsr = "coolralph_s";
+                    const emDmn = "hotmail.com"
+                    const request = `TailwindTravel (${emUsr}@${emDmn})`;     
+                    
+                    var h_image_url = document.getElementById('h-image-url');
+
+                    let titleSearch = `File:Flag of ${country}.svg`;
+
+                    $.ajax({
+                        url: wikiUrl,
+                        data: {
+                            action: "query",
+                            format: "json",
+                            origin: "*",
+                            titles: `${encodeURIComponent(name)}`,
+                            prop: "pageimages",
+                            pithumbsize: "500"
+                        },
+                        dataType: "jsonp",
+                        method: 'GET',
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('User-Agent', request);
+                        },
+                        success: function(response) {
+                            const pages = response.query.pages;
+                            for (const pageId in pages) {
+                                const page = pages[pageId];
+                                if (page.thumbnail) {
+                                    const imageUrl = page.thumbnail.source;
+                                    h_image_url.value = imageUrl;
+                                } else {
+                                    try {
+                                        
+                                        //second ajax
+                                        $.ajax({
+                                        url: flagUrl,
+                                        data: {
+                                            action: "query",
+                                            format: "json",
+                                            origin: "*",
+                                            titles: titleSearch,
+                                            prop: "imageinfo",
+                                            iiprop: "url"
+                                        },
+                                        dataType: "jsonp",
+                                        beforeSend: function(xhr) {
+                                            xhr.setRequestHeader('User-Agent', request);
+                                        },
+                                        success: function(data) {      
+                                            let flagPages = data.query.pages;
+                                            
+                                            if (flagPages) {
+                                                let flagUrl = null;
+
+                                                // Loop through results to find the most relevant flag image
+                                                $.each(flagPages, function(index, flagPage) {
+                                                    if (flagPage.imageinfo) {
+                                                        flagUrl = flagPage.imageinfo[0].url;
+                                                        
+                                                        return false; // Exit loop after getting the first valid image
+                                                    }
+                                                });
+
+                                                if (flagUrl) {
+                                                    h_image_url.value = flagUrl;
+                                                } else {
+                                                    console.log("Flag not found.");
+                                                }
+                                            }
+                                        },
+                                        error: function(err) {
+                                            console.error('Error fetching data:', err);
+                                        }
+                                        
+                                    });
+
+                                    }
+                                    catch (ex) {
+                                        console.log('No flag found for this place either.');
+                                    }
+                                }
+                            }
+                        },
+                        error: function(err) {
+                            console.error('Error fetching data:', err);
+                        }
+                    });
+
+                    
+                    //console.log(itemFlagUrl);
                     //console.log(feature);
                     //mapDiv.classList.toggle('active');
                     //$('#place-input').val(`${name}, ${city} ${country}`);
@@ -814,6 +668,7 @@
                     var h_country = document.getElementById('h-country');
                     var h_latitude = document.getElementById('h-latitude');
                     var h_longitude = document.getElementById('h-longitude');
+                    //var h_image_url = document.getElementById('h-image-url');
                     h_place_name.value = name;
                     h_place_name.focus();
                     h_osm_key.value = osm_key;
@@ -826,6 +681,8 @@
                     h_country.value = country;
                     h_latitude.value = latitude;
                     h_longitude.value = longitude;
+                    
+                    //h_image_url = itemFlagUrl;
                     $("#place-input-message").show();
                     //offcanvas.show();                    
                 });                
@@ -1247,7 +1104,6 @@
             offcanvas.show();
         });
         function setOffsetValues() {
-            console.log($('#street').val());
             $("#id_place_name").val($('#place-input').val());
             $("#id_osm_key").val($('#h-osm-key').val());
             $("#id_osm_value").val($('#h-osm-value').val());
@@ -1259,6 +1115,7 @@
             $("#id_country").val($('#h-country').val());
             $("#id_latitude").val($('#h-latitude').val());
             $("#id_longitude").val($('#h-longitude').val());
+            $("#id_image_url").val($('#h-image-url').val());
         }
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
@@ -1414,6 +1271,94 @@
             }
         });
         button2.addTo(map);
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+    let activeItem = null; // Tracks currently swiped item
+    let itemToDelete = null; // Tracks item to be deleted
+
+    const modal = document.getElementById("delete-modal");
+    const confirmDeleteBtn = document.getElementById("confirm-delete");
+    const cancelDeleteBtn = document.getElementById("cancel-delete");
+
+    document.querySelectorAll(".swipe-item").forEach(item => {
+        let startX = 0;
+        let moved = false;
+
+        // Touch events for mobile
+        item.addEventListener("touchstart", (e) => {
+            startX = e.touches[0].clientX;
+            moved = false;
+        });
+
+        item.addEventListener("touchmove", (e) => {
+            let diffX = e.touches[0].clientX - startX;
+            if (diffX < -30) { // Swipe left threshold
+                closeOtherItems();
+                item.classList.add("swiped");
+                activeItem = item;
+                moved = true;
+            }
+        });
+
+        // Click event for desktop users
+        item.addEventListener("mousedown", (e) => {
+            startX = e.clientX;
+        });
+
+        item.addEventListener("mousemove", (e) => {
+            let diffX = e.clientX - startX;
+            if (diffX < -30) { // Swipe left threshold
+                closeOtherItems();
+                item.classList.add("swiped");
+                activeItem = item;
+            }
+        });
+
+        // Tap on item to close delete button
+        item.addEventListener("click", (e) => {
+            if (!moved && activeItem === item) {
+                item.classList.remove("swiped");
+                activeItem = null;
+            }
+        });
+
+        // Show delete confirmation modal
+        item.querySelector(".delete-btn").addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent hiding when clicking delete
+            itemToDelete = item;
+            modal.style.display = "flex";
+        });
+    });
+
+    // Confirm delete action
+    confirmDeleteBtn.addEventListener("click", () => {
+        if (itemToDelete) {
+            itemToDelete.remove();
+            itemToDelete = null;
+        }
+        modal.style.display = "none";
+    });
+
+    // Cancel delete action
+    cancelDeleteBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+
+    // Close swipe when clicking outside
+    document.addEventListener("click", (e) => {
+        if (activeItem && !activeItem.contains(e.target) && !modal.contains(e.target)) {
+            activeItem.classList.remove("swiped");
+            activeItem = null;
+        }
+    });
+
+    function closeOtherItems() {
+        document.querySelectorAll(".swipe-item").forEach(el => {
+            if (el !== activeItem) el.classList.remove("swiped");
+        });
+    }
+});
     </script>
 {% endblock %}
 
