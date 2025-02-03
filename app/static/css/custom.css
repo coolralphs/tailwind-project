@@ -388,8 +388,8 @@ display: block; /* Show button when input has text */
 
 .item-image {
     border-radius:10px;
-    width:100px; 
-    height:100px; 
+    width:75px; 
+    height:75px; 
     object-fit:cover; 
     object-position:center;
     border: 1px solid black;
@@ -501,14 +501,14 @@ to {transform:scale(1)}
 
 ul {
     list-style: none;
+    /* margin-top: 16px; */
     padding: 0;
-    margin: 20px;
+    margin: 0;
 }
 
 .swipe-item {
     position: relative;
     background: #fff;
-    padding: 15px;
     border-bottom: 1px solid #ddd;
     overflow: hidden;
     transition: transform 0.3s ease-in-out;
@@ -516,6 +516,80 @@ ul {
     align-items: center;
     justify-content: space-between;
 }
+
+.transport-item {
+    position: relative;
+    background: #F8F8F8;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.item-container {
+    display: flex;
+    /* align-items: flex-start;
+    justify-content: flex-start; */
+    width: 100%;
+    padding: 5px;
+}
+
+.item-center {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.item-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.item-left-up {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.item-left-nowrap {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-items: center;
+    justify-content: flex-start;
+    max-width:200px;
+}
+
+.item-centered  {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-centered-200 {
+    display: flex;
+    width: 200px;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* width: 100%; */
+    width: 75px;
+}
+
+.item-container-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
 .delete-btn {
     position: absolute;
@@ -539,6 +613,7 @@ ul {
 
 .swiped {
     transform: translateX(-80px);
+    margin-right: -80px;
 }
 
 /* Modal Styles */
