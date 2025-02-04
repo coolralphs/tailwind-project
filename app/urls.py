@@ -30,6 +30,7 @@ urlpatterns = [
     path("create_itinerary/", ItineraryCreateView.as_view(), name="create_itinerary"),
     path("itinerary/<int:itinerary_id>/create_activity", ItineraryItemCreateView.as_view(), name="create_itinerary_activity"),
     path("itinerary/<int:itinerary_id>/update_activity/<int:pk>/", ItineraryItemUpdateView.as_view(), name="update_itinerary_activity"),
+    path("delete_itinerary_activity/", ItineraryItemDeleteView, name="delete_itinerary_activity"),
     # path("create_destination", ItineraryDestinationCreateView.as_view(), name="create_destination"),
     path("itinerary/<int:pk>/update/", ItineraryUpdateView.as_view(), name="update_itinerary"),
 

@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.forms import inlineformset_factory
 from django.db import IntegrityError
+from django.views.decorators.csrf import csrf_exempt
 import calendar
 
 def index(request):
@@ -360,6 +361,21 @@ class ItineraryItemUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('itinerary', kwargs={'itinerary_id': self.kwargs['itinerary_id']})
+
+@csrf_exempt
+def ItineraryItemDeleteView(request):
+    if request.method == "POST":
+        id = request.POST.get("id")
+
+        # Delete the item from your database using the item_id
+        try:
+            # Your deletion logic here (e.g., using Django ORM)
+            ItineraryItem.objects.get(pk=id).delete()
+            return JsonResponse({"success": True})
+        except ItineraryItem.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Item not found"})
+
+    return JsonResponse({"success": False, "error": "Invalid request method"})
 
 class ItineraryCreateView(CreateView):
     model = Itinerary    

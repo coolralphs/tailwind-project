@@ -109,7 +109,7 @@
                                         <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
                                     {% endfor %}
                                     <ul id="list">
-                                        <li class="swipe-item">
+                                        <li class="swipe-item" id="swipe_item_{{ i.id }}" name="{{ i.place_name }}">
                                             <div class="item-container">
                                                 <div class="item-left-up fw-bold fs-6">{{ i.start_time|date:"g:iA"|lower }}</div> &nbsp;
                                                 <div class="item-centered">
@@ -134,7 +134,7 @@
                                             </div>
                                             <button class="delete-btn">Delete</button>
                                         </li>
-                                        <li class="transport-item">
+                                        <li class="transport-item" id="transport_item_{{ i.id }}">
                                             <button class="btn btn-outline-pill btn-sm"> 
                                                 <i class="fas fa-person-walking" style="color:gray; margin-left:3px;"></i> &nbsp;
                                                 <i class="fas fa-caret-down" style="color:gray; size: 5px;"></i> 
@@ -450,7 +450,7 @@
             var fullAddress = `${name},+${city_comma},+${state_comma}+${zip}`;
             
             bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
-            marker = new L.marker([locations[i][5], locations[i][6]], { icon: markerIcon }) //{draggable:'true'}
+            marker = new L.marker([locations[i][5], locations[i][6]], { icon: markerIcon, name: name}) //{draggable:'true'}
             .bindPopup(`<b>${locations[i][4]}</b>
                 <br>${city_comma} ${state_comma} ${locations[i][3]}
                 <br><a href="#">Edit</a> | <a href="https://www.google.com/maps/dir/?api=1&destination=${fullAddress}" target="_blank">Directions</a>
@@ -580,7 +580,7 @@
                 
                 // On click, update the map and input field
                 suggestion.on('click', function () {
-
+                    
                     const wikiUrl = "https://en.wikipedia.org/w/api.php";
                     const flagUrl = "https://commons.wikimedia.org/w/api.php";
 
@@ -683,9 +683,11 @@
                     // Center the map and add a marker
                     if (searchMarker) map.removeLayer(searchMarker);
                     map.setView([latitude, longitude], 15);
-                    searchMarker = L.marker([latitude, longitude]).addTo(map)
+                    searchMarker = L.marker([latitude, longitude], {name: name}).addTo(map)
                         .bindPopup(`<b>${name}</b><br>${city_comma} ${state_comma} ${country}`)
                         .openPopup();
+
+                    bounds.extend(L.latLng([latitude, longitude])); 
                     //markers.push(searchMarker);
                     var h_place_name = document.getElementById('place-input');
                     var h_osm_key = document.getElementById('h-osm-key');
@@ -1081,7 +1083,16 @@
             window.open(`https://www.google.com/search?q=${encodedSearch}`, "_blank");
         });
         $("#id_remove_marker").click(function() {
+
+            var name = searchMarker.options.name.replace("+", " ");
             map.removeLayer(searchMarker);
+            
+            locations = locations.filter(loc => loc[4] != name);
+
+            bounds = L.latLngBounds(); 
+            locations.forEach(function(location) {
+                bounds.extend(L.latLng([location[5], location[6]]));
+            });
 
             //zoom-to-fit
             map.fitBounds(bounds);    
@@ -1162,10 +1173,22 @@
 
         // Clear the input when the clear button is clicked
         clearButton.addEventListener('click', () => {
+            var name = searchInput.value.toLowerCase();
+
             searchInput.value = '';
             clearButton.style.display = 'none';
             $('#suggestions').empty();
             $("#place-input-message").hide();
+
+            map.removeLayer(searchMarker);            
+            locations = locations.filter(loc => loc[4].toLowerCase() != name);
+            bounds = L.latLngBounds(); 
+            locations.forEach(function(location) {
+                bounds.extend(L.latLng([location[5], location[6]]));
+            });
+            //zoom-to-fit
+            map.fitBounds(bounds);    
+
             searchInput.focus(); // Optional: return focus to the input
         });
 
@@ -1289,7 +1312,7 @@
             return new L.Control.SimpleButton(options);
         };
 
-        const targetElement = $("#accordion");
+        const targetElement = $("#place-input");
         var button2 = new L.Control.SimpleButton({
             click: function(evt) {                
                 $("html, body").animate(
@@ -1304,95 +1327,134 @@
 
 
         document.addEventListener("DOMContentLoaded", () => {
-    let activeItem = null; // Tracks currently swiped item
-    let itemToDelete = null; // Tracks item to be deleted
+            let activeItem = null; // Tracks currently swiped item
+            let itemToDelete = null; // Tracks item to be deleted
 
-    const modal = document.getElementById("delete-modal");
-    const confirmDeleteBtn = document.getElementById("confirm-delete");
-    const cancelDeleteBtn = document.getElementById("cancel-delete");
+            const modal = document.getElementById("delete-modal");
+            const confirmDeleteBtn = document.getElementById("confirm-delete");
+            const cancelDeleteBtn = document.getElementById("cancel-delete");
 
-    document.querySelectorAll(".swipe-item").forEach(item => {
-        let startX = 0;
-        let moved = false;
+            document.querySelectorAll(".swipe-item").forEach(item => {
+                let startX = 0;
+                let moved = false;
 
-        // Touch events for mobile
-        item.addEventListener("touchstart", (e) => {
-            startX = e.touches[0].clientX;
-            moved = false;
+                // Touch events for mobile
+                item.addEventListener("touchstart", (e) => {
+                    startX = e.touches[0].clientX;
+                    moved = false;
+                });
+
+                item.addEventListener("touchmove", (e) => {
+                    let diffX = e.touches[0].clientX - startX;
+                    if (diffX < -30) { // Swipe left threshold
+                        closeOtherItems();
+                        item.classList.add("swiped");
+                        activeItem = item;
+                        moved = true;
+                    }
+                    if (diffX > 30) { // Swipe right threshold
+                        item.classList.remove("swiped");
+                    }
+                });
+
+                // Click event for desktop users
+                item.addEventListener("mousedown", (e) => {
+                    startX = e.clientX;
+                });
+
+                item.addEventListener("mousemove", (e) => {
+                    let diffX = e.clientX - startX;
+                    if (diffX < -30) { // Swipe left threshold
+                        closeOtherItems();
+                        item.classList.add("swiped");
+                        activeItem = item;
+                    }
+                });
+
+                // Tap on item to close delete button
+                item.addEventListener("click", (e) => {
+                    if (!moved && activeItem === item) {
+                        item.classList.remove("swiped");
+                        activeItem = null;
+                    }
+                });
+
+                // Show delete confirmation modal
+                item.querySelector(".delete-btn").addEventListener("click", (e) => {
+                    e.stopPropagation(); // Prevent hiding when clicking delete
+                    itemToDelete = item;
+                    modal.style.display = "flex";
+                });
+            });
+
+            // Confirm delete action
+            confirmDeleteBtn.addEventListener("click", () => {
+                if (itemToDelete) {
+                    
+                    let id = $(itemToDelete).attr("id").replace("swipe_item_","");
+                    let name = $(itemToDelete).attr("name").replace(" ","+");
+                    let name_plus = name.replace(" ","+");
+                    //ajax
+                    $.ajax({
+                        url: "/delete_itinerary_activity/", // Replace with your Django view URL
+                        type: "POST", 
+                        data: {
+                            "id": id,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}" // Important for CSRF protection
+                        },
+                        success: function(response) {
+                            // Handle successful deletion, e.g., remove the item from the DOM
+                            itemToDelete.remove();
+                            $("#transport_item_" + id).remove();
+                            
+                            markers.forEach(function(marker) {    
+                                if (marker.options.name && marker.options.name == name_plus)
+                                {
+                                    console.log(marker.options.name);
+                                    map.removeLayer(marker);
+                                }
+                            });
+                            
+                            locations = locations.filter(loc => loc[4] != name);
+
+                            bounds = L.latLngBounds(); 
+                            locations.forEach(function(location) {
+                                bounds.extend(L.latLng([location[5], location[6]]));
+                            });
+                            map.fitBounds(bounds);
+
+                            itemToDelete = null;
+                        },
+                        error: function(error) {
+                            // Handle errors, e.g., display an error message
+                            console.error(error);
+                        }
+                    });
+                }
+                modal.style.display = "none";
+            });
+
+            // Cancel delete action
+            cancelDeleteBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+                itemToDelete.classList.remove("swiped");
+            });
+
+            // Close swipe when clicking outside
+            document.addEventListener("click", (e) => {
+                if (activeItem && !activeItem.contains(e.target) && !modal.contains(e.target)) {
+                    activeItem.classList.remove("swiped");
+                    activeItem = null;
+                }
+            });
+
+            function closeOtherItems() {
+                document.querySelectorAll(".swipe-item").forEach(el => {
+                    if (el !== activeItem) 
+                    el.classList.remove("swiped");
+                });
+            }   
         });
-
-        item.addEventListener("touchmove", (e) => {
-            let diffX = e.touches[0].clientX - startX;
-            if (diffX < -30) { // Swipe left threshold
-                closeOtherItems();
-                item.classList.add("swiped");
-                activeItem = item;
-                moved = true;
-            }
-            if (diffX > 30) { // Swipe right threshold
-                item.classList.remove("swiped");
-            }
-        });
-
-        // Click event for desktop users
-        item.addEventListener("mousedown", (e) => {
-            startX = e.clientX;
-        });
-
-        item.addEventListener("mousemove", (e) => {
-            let diffX = e.clientX - startX;
-            if (diffX < -30) { // Swipe left threshold
-                closeOtherItems();
-                item.classList.add("swiped");
-                activeItem = item;
-            }
-        });
-
-        // Tap on item to close delete button
-        item.addEventListener("click", (e) => {
-            if (!moved && activeItem === item) {
-                item.classList.remove("swiped");
-                activeItem = null;
-            }
-        });
-
-        // Show delete confirmation modal
-        item.querySelector(".delete-btn").addEventListener("click", (e) => {
-            e.stopPropagation(); // Prevent hiding when clicking delete
-            itemToDelete = item;
-            modal.style.display = "flex";
-        });
-    });
-
-    // Confirm delete action
-    confirmDeleteBtn.addEventListener("click", () => {
-        if (itemToDelete) {
-            itemToDelete.remove();
-            itemToDelete = null;
-        }
-        modal.style.display = "none";
-    });
-
-    // Cancel delete action
-    cancelDeleteBtn.addEventListener("click", () => {
-        modal.style.display = "none";
-        itemToDelete.classList.remove("swiped");
-    });
-
-    // Close swipe when clicking outside
-    document.addEventListener("click", (e) => {
-        if (activeItem && !activeItem.contains(e.target) && !modal.contains(e.target)) {
-            activeItem.classList.remove("swiped");
-            activeItem = null;
-        }
-    });
-
-    function closeOtherItems() {
-        document.querySelectorAll(".swipe-item").forEach(el => {
-            if (el !== activeItem) el.classList.remove("swiped");
-        });
-    }
-});
     </script>
 {% endblock %}
 
