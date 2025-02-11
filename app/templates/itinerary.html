@@ -1,7 +1,7 @@
 {% extends "master.html" %}
 {% load filters %}
 {% load static %}
-{% load leaflet_tags %}
+
 
 {% block title %}
     Itinerary
@@ -16,11 +16,10 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/monim67/django-flatpickr@2.0.0/src/django_flatpickr/static/django_flatpickr/js/django-flatpickr.js"></script>
     <script src="https://github.com/jerroydmoore/leaflet-button/blob/master/L.Control.Button.js"></script>
-    {% leaflet_js %}
-    {% leaflet_css %}
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
+
     <div class="container-padding">
 
         {% comment %} <img id="place-image" style="width:100px; height:100px; object-fit:cover; object-position:center;"> {% endcomment %}
@@ -63,6 +62,7 @@
                 <input id="h-latitude" hidden/>
                 <input id="h-longitude" hidden/>
                 <input id="h-image-url" hidden/>
+                <input id="h-description" hidden/>
                 <input class="form-control place-input" type="search" id="place-input" placeholder="Search a place" autocomplete="off"/>
                 <button type="button" id="clear-btn">&times;</button>
                 <i class="fas fa-magnifying-glass"></i> 
@@ -71,11 +71,10 @@
                 <button class="btn-round-success-color" type="button" id="btn_add_activity" style="display: none;">
                     <i class="fas fa-plus" style="color: white;"></i>
                 </button>                    
-            </div>
-            
+            </div>            
         </div>
         
-        <div id="suggestions"></div>
+    <div id="suggestions"></div>
     </div>
     <div id="place-input-message" class="container-center" style="display: none;">
         <label class="text-danger">** Not saved yet. Click the add (+) button to save.</label>
@@ -88,12 +87,36 @@
     {% comment %} <a class="mt-3" href="{% url 'add_itinerary_destination' itinerary_id=itinerary_id %}"> Add Destination</a> |
     <a href="{% url 'update_itinerary' pk=itinerary_id %}"> Edit</a> {% endcomment %}
     {% if grouped_dates %}        
+        <ul class="nav nav-pills scroll-container" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button id="btn-collapse-accordion-items" class="btn-collapse-accordion-items btn-round-gray-sm" type="button" data-bs-toggle="pill">
+                    <i class="fas fa-compress"></i>
+                </button>                
+            </li>
+            {% for date, activities in grouped_dates.items %}      
+                <li class="nav-item" role="presentation">
+                    <button class="btn-nav-link btn btn-dark btn-xs" id="pills-tab-{{ date|date:"m-d-Y" }}" data-bs-toggle="pill" data-bs-target="date-button-{{forloop.counter}}" type="button" role="tab" aria-controls="date-button-{{forloop.counter}}" aria-selected="false">
+                        {{ date|date:"D" }} {{ date|date:"n/j" }}
+                    </button>
+                </li>
+            {% endfor %}
+      </ul>
+
         <div class="accordion next-line" id="accordion" style="margin-top:10px;">    
             {% for date, activities in grouped_dates.items %}   
                 <div class="accordion-item">                    
                     <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ date|date:"m-d-Y" }}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
-                            <div>{{ date }} - {{ date|date:"l" }}</div>
+                        <button class="accordion-button" id="accordion-button-{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ date|date:"m-d-Y" }}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
+                            <div>{{ date }} - {{ date|date:"l" }}</div>&nbsp;
+                            <span class="text-muted">(</span>
+                            {% for i in activities|unique_countries:"country" %}
+                                {% if not forloop.last %}
+                                    <div class="text-muted"><em>{{ i }},&nbsp;</em></div>
+                                {% else %}
+                                    <div class="text-muted"><em>{{ i }}</em></div>
+                                {% endif %}                            
+                            {% endfor %}
+                            <span class="text-muted">)</span>
                         </button>
                     </h2>
                     <div id="collapse_{{ date|date:"m-d-Y" }}" name="{{ date|date:"m-d-Y" }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
@@ -394,20 +417,18 @@
 
         $('#scroll-up').click(function() {
             $('body,html').animate({scrollTop:0},"fast");
-        });       
-
-
+        });  
 
         var offcanvas = new bootstrap.Offcanvas($('#offcanvasRight'));
 
-        const markerIcon = L.icon({
-            iconUrl: "{% static 'leaflet/images/marker-icon.png' %}",
-            shadowUrl: "{% static 'leaflet/images/marker-shadow.png' %}",
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-        })
+        // const markerIcon = L.icon({
+        //     iconUrl: '/static/markers/marker-icon-black.png',
+        //     shadowUrl: '/static/markers/marker-shadow.png',
+        //     iconSize: [25, 41],
+        //     iconAnchor: [12, 41],
+        //     popupAnchor: [1, -34],
+        //     shadowSize: [41, 41]
+        // })
         var map = L.map('map');
         var markers = [];
         L.tileLayer('https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png', {
@@ -420,7 +441,7 @@
         var locations = [];
         {% for date, activities in grouped_dates.items %}
             {% for i in activities|dictsort:"start_time" %}
-                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}", "{{ i.id }}", "{{ i.image_url }}"]);
+                locations.push(["{{ i.city }}", "{{ i.postal_code }}", "{{ i.state }}", "{{ i.country }}", "{{ i.place_name }}", "{{ i.latitude }}", "{{ i.longitude }}", "{{ i.id }}", "{{ i.image_url }}", "{{ date|date:'m-d-Y' }}"]);
                 //console.log("{{ i.id }}");
             {% endfor %}
         {% endfor %}
@@ -450,7 +471,51 @@
             var fullAddress = `${name},+${city_comma},+${state_comma}+${zip}`;
             
             bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
-            marker = new L.marker([locations[i][5], locations[i][6]], { icon: markerIcon, name: name}) //{draggable:'true'}
+
+            color = 'blue';
+            const date = new Date(locations[i][9]);
+            var intDay = date.getDay();
+            console.log(intDay);
+            switch(intDay) {
+                case 0:
+                    color = 'violet';    
+                    break;
+                case 1:
+                    color = 'gold';    
+                    break;
+                case 2:
+                    color = 'blue';    
+                    break;
+                case 3:
+                    color = 'gray';    
+                    break;
+                case 4:
+                    color = 'red';    
+                    break;
+                case 5:
+                    color = 'green'; 
+                    break;
+                case 6:
+                    color = 'orange'; 
+                    break;
+                default:
+                    color = 'blue'; 
+                    // code block
+            }
+
+
+            marker = new L.marker([locations[i][5], locations[i][6]], 
+                {
+                     icon: L.icon({
+                            iconUrl: `/static/markers/marker-icon-${color}.png`,
+                            shadowUrl: '/static/markers/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                    }), 
+                     name: name
+                }) //{draggable:'true'}
             .bindPopup(`<b>${locations[i][4]}</b>
                 <br>${city_comma} ${state_comma} ${locations[i][3]}
                 <br><a href="#">Edit</a> | <a href="https://www.google.com/maps/dir/?api=1&destination=${fullAddress}" target="_blank">Directions</a>
@@ -690,6 +755,7 @@
                     bounds.extend(L.latLng([latitude, longitude])); 
                     //markers.push(searchMarker);
                     var h_place_name = document.getElementById('place-input');
+                    var h_description = document.getElementById('h-description');
                     var h_osm_key = document.getElementById('h-osm-key');
                     var h_osm_value = document.getElementById('h-osm-value');
                     var h_house_number = document.getElementById('h-house-number');
@@ -713,7 +779,7 @@
                     h_country.value = country;
                     h_latitude.value = latitude;
                     h_longitude.value = longitude;
-                    
+                    h_description = "";
                     //h_image_url = itemFlagUrl;
                     $("#place-input-message").show();
                     //offcanvas.show();                    
@@ -815,9 +881,37 @@
         } );
         $('#accordion').on('show.bs.collapse', function (e) {
             var date = e.target.getAttribute('name');
+            bounds = L.latLngBounds();
+            // iterate through markers and set bounds
+            locations.forEach(function(location) {
+                if (location[9] == date)
+                {
+                    bounds.extend(L.latLng([location[5], location[6]]));
+                }
+            });
+
+            map.fitBounds(bounds);
+            
             SetDatePickers(date);
             SetExpandItem(date);
-        });        
+        });      
+        $('#accordion').on('hide.bs.collapse', function (e) { 
+            var id = $(this).attr('id');
+            console.log(id);
+            var accordionButton = id.replace('accordion-button-', 'pills-tab-');
+            var item = document.getElementById(accordionButton);
+            item.classList.remove("active");
+
+            SetAllBounds();
+        });
+        function SetAllBounds(){
+            bounds = L.latLngBounds();
+            // iterate through markers and set bounds
+            locations.forEach(function(location) {
+                bounds.extend(L.latLng([location[5], location[6]]));
+            });
+            map.fitBounds(bounds);
+        }
         function SetDatePickers(date){
             var parts = date.split('-');
             var dateObj = new Date(parts[2], parts[0] - 1, parts[1]); 
@@ -1089,13 +1183,7 @@
             
             locations = locations.filter(loc => loc[4] != name);
 
-            bounds = L.latLngBounds(); 
-            locations.forEach(function(location) {
-                bounds.extend(L.latLng([location[5], location[6]]));
-            });
-
-            //zoom-to-fit
-            map.fitBounds(bounds);    
+            SetAllBounds();
 
             //ajax delete from db if exists
             //close offcanvas
@@ -1157,11 +1245,12 @@
             $("#id_latitude").val($('#h-latitude').val());
             $("#id_longitude").val($('#h-longitude').val());
             $("#id_image_url").val($('#h-image-url').val());
+            $("#id_description").val($('#h-description').val());
         }
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
 
-        });
+        });        
 
         const searchInput = document.getElementById('place-input');
         const clearButton = document.getElementById('clear-btn');
@@ -1182,12 +1271,8 @@
 
             map.removeLayer(searchMarker);            
             locations = locations.filter(loc => loc[4].toLowerCase() != name);
-            bounds = L.latLngBounds(); 
-            locations.forEach(function(location) {
-                bounds.extend(L.latLng([location[5], location[6]]));
-            });
-            //zoom-to-fit
-            map.fitBounds(bounds);    
+
+            SetAllBounds();
 
             searchInput.focus(); // Optional: return focus to the input
         });
@@ -1258,16 +1343,8 @@
         var button = new L.Control.SimpleButton({
             click: function(evt) {
                 if (markers.length > 0) {
-
-                        markers.forEach(function(marker, index) {
-                            var latLng = marker.getLatLng();
-                            console.log(latLng);
-                            bounds.extend(L.latLng([latLng.lat, latLng.lng])); 
-                        });
-                        //var cntr = bounds.getCenter();
-                        //map.setView(cntr, 10);
-                        map.fitBounds(bounds);
-                    }
+                    SetAllBounds();
+                }
             }
         });
         button.addTo(map);
@@ -1417,11 +1494,7 @@
                             
                             locations = locations.filter(loc => loc[4] != name);
 
-                            bounds = L.latLngBounds(); 
-                            locations.forEach(function(location) {
-                                bounds.extend(L.latLng([location[5], location[6]]));
-                            });
-                            map.fitBounds(bounds);
+                            SetAllBounds();
 
                             itemToDelete = null;
                         },
@@ -1454,6 +1527,31 @@
                     el.classList.remove("swiped");
                 });
             }   
+        });
+        $(".btn-nav-link").click(function() {
+            var date = $(this).attr('id');
+            expand_date = date.replace('pills-tab-', '');
+            $("#collapse_"+expand_date).collapse("show");
+        });
+        $(".btn-collapse-accordion-items").click(function() {
+            $(".accordion-collapse").collapse("hide");
+            SetAllBounds();
+        });
+        $(".accordion-button").click(function() {
+            console.log(this);
+           if ($(this).hasClass("collapsed")) {
+                var id = $(this).attr('id');
+                var newId = id.replace('accordion-button-', 'pills-tab-');
+                var element = document.getElementById(newId)
+                element.classList.remove("active");
+           }
+           else
+           {
+                var id = $(this).attr('id');
+                var newId = id.replace('accordion-button-', 'pills-tab-');
+                var element = document.getElementById(newId)
+                element.classList.add("active");
+           }
         });
     </script>
 {% endblock %}

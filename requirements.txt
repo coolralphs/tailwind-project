@@ -15,7 +15,6 @@ django-datetime-widget==0.9.3
 django-flatpickr==2.0.3
 django-fontawesome==1.0
 django-formset==1.5.5
-django-leaflet==0.31.0
 django-tempus-dominus==5.1.2.17
 filelock==3.16.1
 fontawesome-free==5.15.4

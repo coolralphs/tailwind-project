@@ -151,6 +151,13 @@ form label {
     margin-bottom:8px;    
 } */
 
+.btn-group-xs > .btn, .btn-xs {
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
 .btn-outline-pill {
     float: left;
     background-color: #ddd;
@@ -237,6 +244,18 @@ form label {
     border-radius: 50%;  
     width: 38px;
     height: 38px;
+    border: 0px solid lightgray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-round-gray-sm {
+    float: right;
+    border-radius: 50%;  
+    width: 30px;
+    height: 30px;
     border: 0px solid lightgray;
     display: flex;
     align-items: center;
@@ -691,4 +710,46 @@ height: 35px
 
 .leaflet-touch .leaflet-control-simplebutton a {
 font-size: 22px;
+}
+
+.scroll-container {
+    display: flex !important;            /* Use flexbox for horizontal layout */
+    overflow-x: auto !important;         /* Enable horizontal scrolling */
+    white-space: nowrap !important;      /* Prevent wrapping of items */
+    gap: 5px !important;                /* Space between items */
+    max-width: 100% !important;          /* Ensure it doesn't exceed container width */
+    padding-left: 6px !important;          /* Optional: padding around the container */
+    box-sizing: border-box !important;   /* Ensures padding doesn’t affect layout */
+}
+
+/* Ensure nav items do not shrink */
+.scroll-container .nav-item {
+    flex-shrink: 0 !important;           /* Prevent shrinking of nav items */
+    list-style: none !important;         /* Remove default list styling */
+    margin: 0 !important;                /* Remove any margin added by default styles */
+    padding: 0 !important;               /* Remove padding if any */
+}
+
+/* Force the nav pills to display horizontally and not wrap */
+.nav-pills {
+    display: flex !important;            /* Force flex layout for pills */
+    flex-wrap: nowrap !important;         /* Prevent wrapping */
+    padding-top: 5px !important;               /* Remove default padding */
+    margin: 0 !important;                /* Remove margin */
+    width: auto !important;              /* Let the container take up its content width */
+}
+
+/* Ensure each nav-link is inline and doesn't shrink */
+.btn-nav-link {
+    flex: 0 0 auto !important;           /* Prevent shrinking */
+    display: inline-block !important;    /* Make sure it's inline */
+    width: auto !important;              /* Ensure width is based on content */
+    padding: 5px 9px !important;        /* Optional: Adjust button padding */
+}
+
+/* Optional: Make the active link stand out */
+.btn-nav-link.active {
+    white-space: nowrap !important;      /* Prevent text from breaking in active link */
+    background-color: white !important;
+    color:#000 !important;
 }
