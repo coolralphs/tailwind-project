@@ -472,10 +472,11 @@
             
             bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
 
-            color = 'red';
+            var color = 'blue';
             const date = new Date(locations[i][9]);
             var intDay = date.getDay();
             console.log(intDay);
+
             switch(intDay) {
                 case 0:
                     color = 'violet';    
@@ -499,7 +500,7 @@
                     color = 'orange'; 
                     break;
                 default:
-                    color = 'red'; 
+                    color = 'blue'; 
                     // code block
             }
 
