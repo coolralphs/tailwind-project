@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <input id="id_test_int"></input>
+
     <div class="container-padding">
 
         {% comment %} <img id="place-image" style="width:100px; height:100px; object-fit:cover; object-position:center;"> {% endcomment %}
@@ -445,7 +447,8 @@
                 //console.log("{{ i.id }}");
             {% endfor %}
         {% endfor %}
-       
+        
+        var all_string = '';
         for (var i = 0; i < locations.length; i++) {
 
             var name = locations[i][4].replace(/\s/g, "+");
@@ -475,8 +478,7 @@
             var color = 'blue';
             const date = new Date(locations[i][9]);
             var intDay = date.getDay();
-            console.log(intDay);
-
+            $('#id_test_int').val($('#id_test_int').val() + intDay);
             switch(intDay) {
                 case 0:
                     color = 'violet';    
@@ -1539,7 +1541,7 @@
             SetAllBounds();
         });
         $(".accordion-button").click(function() {
-            console.log(this);
+
            if ($(this).hasClass("collapsed")) {
                 var id = $(this).attr('id');
                 var newId = id.replace('accordion-button-', 'pills-tab-');
