@@ -108,7 +108,7 @@
             {% for date, activities in grouped_dates.items %}   
                 <div class="accordion-item">                    
                     <h2 class="accordion-header">
-                        <button class="accordion-button" id="accordion-button-{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ date|date:"m-d-Y" }}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
+                        <button class="accordion-button collapsed" id="accordion-button-{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ date|date:"m-d-Y" }}" aria-expanded="true" aria-controls="collapse{{forloop.counter}}">
                             <div>{{ date }} - {{ date|date:"l" }}</div>&nbsp;
                             <span class="text-muted">(</span>
                             {% for i in activities|unique_countries:"country" %}
@@ -476,9 +476,12 @@
             bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
 
             var color = 'blue';
-            const date = new Date(locations[i][9]);
+
+            const dateString = locations[i][9]; // MM-DD-YYYY format
+            const parts = dateString.split("-");
+            const date = new Date(parts[2], parts[0] - 1, parts[1]);
             var intDay = date.getDay();
-            $('#id_test_int').val($('#id_test_int').val() + intDay);
+
             switch(intDay) {
                 case 0:
                     color = 'violet';    
