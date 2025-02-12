@@ -20,8 +20,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <input id="id_test_int"></input>
-
     <div class="container-padding">
 
         {% comment %} <img id="place-image" style="width:100px; height:100px; object-fit:cover; object-position:center;"> {% endcomment %}
@@ -886,16 +884,16 @@
             }
         } );
         $('#accordion').on('show.bs.collapse', function (e) {
+
             var date = e.target.getAttribute('name');
-            bounds = L.latLngBounds();
-            // iterate through markers and set bounds
+
+            bounds = L.latLngBounds(); 
             locations.forEach(function(location) {
                 if (location[9] == date)
                 {
                     bounds.extend(L.latLng([location[5], location[6]]));
                 }
             });
-
             map.fitBounds(bounds);
             
             SetDatePickers(date);
@@ -903,16 +901,14 @@
         });      
         $('#accordion').on('hide.bs.collapse', function (e) { 
             var id = $(this).attr('id');
-            console.log(id);
             var accordionButton = id.replace('accordion-button-', 'pills-tab-');
             var item = document.getElementById(accordionButton);
             item.classList.remove("active");
-
-            SetAllBounds();
         });
         function SetAllBounds(){
             bounds = L.latLngBounds();
             // iterate through markers and set bounds
+            
             locations.forEach(function(location) {
                 bounds.extend(L.latLng([location[5], location[6]]));
             });
@@ -1001,7 +997,7 @@
         });
 
         $(".btn-activity-update").click(function() {
-            console.log('update clicked');
+            // console.log('update clicked');
             var itinerary_item_id = $(this).attr('name');
             $("#id_operation").val('update');
             $("#offcanvasRightLabel").text("Update Activity");
@@ -1175,7 +1171,7 @@
             //var state = "UT".replace(/\s/g, "+");
             //var zip = "84767";
             //var fullAddress = `${street},+${city},+${state}+${zip}`;
-            console.log(directionsFullAddress);
+            // console.log(directionsFullAddress);
             window.open(`https://www.google.com/maps/dir/?api=1&destination=${directionsFullAddress}`, "_blank");
         });
         $(".open-google").click(function() {
@@ -1493,7 +1489,7 @@
                             markers.forEach(function(marker) {    
                                 if (marker.options.name && marker.options.name == name_plus)
                                 {
-                                    console.log(marker.options.name);
+                                    // console.log(marker.options.name);
                                     map.removeLayer(marker);
                                 }
                             });
@@ -1534,8 +1530,19 @@
                 });
             }   
         });
-        $(".btn-nav-link").click(function() {
-            var date = $(this).attr('id');
+        $(".btn-nav-link").on("click", function() {
+            let classesBeforeClick = $(this).attr("class"); // Get class before modifying
+            console.log("Classes before click:", classesBeforeClick);
+        });
+        $(".btn-nav-link").click(function() {        
+            if ($(this).hasClass("active")) {
+                console.log('has active');
+            }
+            else{
+
+            }
+
+            var date = $(this).attr('id');           
             expand_date = date.replace('pills-tab-', '');
             $("#collapse_"+expand_date).collapse("show");
         });
@@ -1543,9 +1550,9 @@
             $(".accordion-collapse").collapse("hide");
             SetAllBounds();
         });
-        $(".accordion-button").click(function() {
 
-           if ($(this).hasClass("collapsed")) {
+        $(".accordion-button").click(function() {
+            if ($(this).hasClass("collapsed")) {
                 var id = $(this).attr('id');
                 var newId = id.replace('accordion-button-', 'pills-tab-');
                 var element = document.getElementById(newId)
@@ -1553,6 +1560,10 @@
            }
            else
            {
+                //get all class
+                document.querySelectorAll(".btn-nav-link").forEach(element => {
+                    element.classList.remove("active");
+                });
                 var id = $(this).attr('id');
                 var newId = id.replace('accordion-button-', 'pills-tab-');
                 var element = document.getElementById(newId)
