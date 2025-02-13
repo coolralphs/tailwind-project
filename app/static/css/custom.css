@@ -263,6 +263,20 @@ form label {
     cursor: pointer;
 }
 
+.btn-round-red-sm {
+    float: right;
+    border-radius: 50%;  
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    color:white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
 .btn-outline-success:hover,
 .btn-outline-success:focus,
 .btn-outline-success:active {
@@ -539,6 +553,19 @@ ul {
 .transport-item {
     position: relative;
     background: #F8F8F8;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.heading-item {
+    padding-top:5px;
+    padding-bottom:5px;
+    position: relative;
+    background: white;
     border-bottom: 1px solid #ddd;
     display: flex;
     align-items: center;

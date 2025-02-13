@@ -140,7 +140,7 @@ class ItineraryItem(models.Model):
     (5, 'Other'),
     ]
     # itinerary_destination = models.ForeignKey(ItineraryDestination, on_delete=models.CASCADE, null=True, blank=True)
-    # type = models.IntegerField(choices=TYPE_CHOICES)
+    type = models.IntegerField(choices=TYPE_CHOICES)
     itinerary = models.ForeignKey(Itinerary, on_delete=models.CASCADE)
     place_name = models.CharField(max_length=150)
     # activity_type = models.ForeignKey(ActivityType, on_delete=models.CASCADE)

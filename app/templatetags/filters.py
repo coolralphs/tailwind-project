@@ -35,20 +35,23 @@ def unique_countries(queryset, field_name):
     country_dict = {name.lower(): code for code, name in countries}
     
     for obj in queryset:
-        field_value = getattr(obj, field_name, "").strip().lower()  # Handle empty values
+        try:
+            field_value = getattr(obj, field_name, "").strip().lower()  # Handle empty values
 
-        # Try exact match first
-        if field_value == "united states":
-            country_code = "US"
-        elif field_value in country_dict:
-            country_code = country_dict[field_value]
-        else:
-            # If no match is found, return the full country name
-            country_code = field_value.title()  # Capitalize first letter of the country name
+            # Try exact match first
+            if field_value == "united states":
+                country_code = "US"
+            elif field_value in country_dict:
+                country_code = country_dict[field_value]
+            else:
+                # If no match is found, return the full country name
+                country_code = field_value.title()  # Capitalize first letter of the country name
 
-        # Add the country code or full name to the result if it's not already in the set
-        if country_code not in seen:
-            seen.add(country_code)
-            result.append(country_code)
+            # Add the country code or full name to the result if it's not already in the set
+            if country_code not in seen:
+                seen.add(country_code)
+                result.append(country_code)
+        except:
+            print("An exception occurred")
 
     return result

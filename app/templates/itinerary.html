@@ -29,10 +29,10 @@
             <div class="nowrap-container">
                 {{ form_update_itinerary.name }}
                 <div class="buttons-right">
-                    <button class="btn-activity-create btn-round-black" type="button" id="btn_itinerary_edit">
+                    <button class=" btn-round-black" type="button" id="btn_itinerary_edit">
                         <i class="fas fa-pencil"></i>
                     </button>
-                    <button class="btn-activity-create btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
+                    <button class=" btn-round-success" type="submit" id="btn_itinerary_save" name="btn_itinerary_save" hidden>
                         <i class="fas fa-pencil" style="color:#198754;"></i>
                     </button>
                     <button id="btn_map" class="btn-round-black" type="button">
@@ -63,6 +63,7 @@
                 <input id="h-longitude" hidden/>
                 <input id="h-image-url" hidden/>
                 <input id="h-description" hidden/>
+                <input id="h-type" hidden/>
                 <input class="form-control place-input" type="search" id="place-input" placeholder="Search a place" autocomplete="off"/>
                 <button type="button" id="clear-btn">&times;</button>
                 <i class="fas fa-magnifying-glass"></i> 
@@ -125,13 +126,26 @@
                             {% comment %} <button class="btn btn-outline-primary btn-round-primary btn-activity-create btn-round activity-exising-date mt-2" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 <i class="fas fa-plus"></i> 
                             </button> {% endcomment %}
-
+ 
                             <div style="overflow-x:auto;">
                                 {% for i in activities|dictsort:"start_time" %}
                                     {% for key, val in i|get_fields %}
                                         <input class="activity-update-input-{{i.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
                                     {% endfor %}
                                     <ul id="list">
+                                        {% if forloop.first %}
+                                            <li class="heading-item" id="item_heading_{{ i.id }}">
+                                                {% if i.type == 4 %}
+                                                    <button id="btn_hotel_{{ i.id }}" class="btn-activity-create hotel-activity btn btn-danger btn-xs activity-exising-date" name="{{ i.start_date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                        Hotel <i class="fas fa-triangle-exclamation" style="color:yellow;"></i>
+                                                    </button> 
+                                                {% elif i.type == 3 %}
+                                                    <button id="btn_hotel_{{ i.id }}" class="btn-activity-update hotel-activity btn btn-success btn-xs activity-exising-date" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                        Hotel <i class="fas fa-check" ></i>
+                                                    </button> 
+                                                {% endif %}                                                
+                                            </li>
+                                        {% endif %}
                                         <li class="swipe-item" id="swipe_item_{{ i.id }}" name="{{ i.place_name }}">
                                             <div class="item-container">
                                                 <div class="item-left-up fw-bold fs-6">{{ i.start_time|date:"g:iA"|lower }}</div> &nbsp;
@@ -152,7 +166,9 @@
                                                     </a>
                                                 </div>
                                                 <div class="item-right">
-                                                    <img id="place-image-{{ i.id }}" class="item-image" alt="{{ i.place_name }}" src="{{ i.image_url }}">
+                                                    {% if i.image_url %}
+                                                        <img id="place-image-{{ i.id }}" class="item-image" alt="{{ i.place_name }}" src="{{ i.image_url }}">
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                             <button class="delete-btn">Delete</button>
@@ -357,7 +373,7 @@
                 Google Search
             </button>
         </div>
-    </div>
+    </div>    
 
     <div id="scroll-up">
         <i class="fa-solid fa-angles-up"></i>
@@ -471,7 +487,9 @@
             }
             var fullAddress = `${name},+${city_comma},+${state_comma}+${zip}`;
             
-            bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
+            if (locations[i][5] != 'None' && locations[i][5] !== null && locations[i][5] !== undefined) {
+                bounds.extend(L.latLng([locations[i][5], locations[i][6]])); 
+            }
 
             var color = 'blue';
 
@@ -507,8 +525,8 @@
                     // code block
             }
 
-
-            marker = new L.marker([locations[i][5], locations[i][6]], 
+            if (locations[i][5] != 'None' && locations[i][5] !== null && locations[i][5] !== undefined) {
+                marker = new L.marker([locations[i][5], locations[i][6]], 
                 {
                      icon: L.icon({
                             iconUrl: `/static/markers/marker-icon-${color}.png`,
@@ -525,7 +543,9 @@
                 <br><a href="#">Edit</a> | <a href="https://www.google.com/maps/dir/?api=1&destination=${fullAddress}" target="_blank">Directions</a>
                 `)
             .addTo(map);
-            markers.push(marker);
+            markers.push(marker); 
+            }
+           
 
             //marker.on("dragend", function(e) {
             //    var marker = e.target;
@@ -566,17 +586,19 @@
 
         // Search and handle results
         $('#place-input').on('input', function () {
-        const query = $(this).val();
-        if (query.length < 3) {
-            $('#suggestions').empty();
-            return;
-        }
+            console.log('entered');
+            const query = $(this).val();
+            if (query.length < 3) {
+                $('#suggestions').empty();
+                return;
+            }
 
         // Photon API URL
         const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=5`;
 
-        // AJAX request to Photon API
+
         $.getJSON(url, function (data) {
+            // console.log('entered');
             const features = data.features;
             $('#suggestions').empty(); // Clear old suggestions
 
@@ -770,6 +792,7 @@
                     var h_country = document.getElementById('h-country');
                     var h_latitude = document.getElementById('h-latitude');
                     var h_longitude = document.getElementById('h-longitude');
+                    var h_type = document.getElementById('h-type');
                     //var h_image_url = document.getElementById('h-image-url');
                     h_place_name.value = name;
                     h_place_name.focus();
@@ -807,7 +830,7 @@
             });
         });
 
-        config_start_time = {
+        let config_start_time = {
             altInput: true,
             enableTime: true,
             noCalendar: true,
@@ -815,7 +838,7 @@
             dateFormat: "H:i:S",
             defaultDate: "12:00"
         }
-        config_end_time = {
+        let config_end_time = {
             altInput: true,
             enableTime: true,
             noCalendar: true,
@@ -889,9 +912,12 @@
 
             bounds = L.latLngBounds(); 
             locations.forEach(function(location) {
-                if (location[9] == date)
+                if (location[5] != null && location[5] != undefined && location[5] != 'None')
                 {
-                    bounds.extend(L.latLng([location[5], location[6]]));
+                    if (location[9] == date)
+                    {
+                        bounds.extend(L.latLng([location[5], location[6]]));
+                    }
                 }
             });
             map.fitBounds(bounds);
@@ -910,7 +936,10 @@
             // iterate through markers and set bounds
             
             locations.forEach(function(location) {
-                bounds.extend(L.latLng([location[5], location[6]]));
+                if (location[5] != null && location[5] != undefined && location[5] != 'None')
+                {
+                    bounds.extend(L.latLng([location[5], location[6]]));
+                }
             });
             map.fitBounds(bounds);
         }
@@ -997,7 +1026,6 @@
         });
 
         $(".btn-activity-update").click(function() {
-            // console.log('update clicked');
             var itinerary_item_id = $(this).attr('name');
             $("#id_operation").val('update');
             $("#offcanvasRightLabel").text("Update Activity");
@@ -1020,11 +1048,32 @@
                     $('#'+name).datepicker("setDate", newDateObj);
                     break;
                 case "id_start_time":
-                    //console.log(val);
-                    st.setDate(val)
+                    config_start_time = {
+                        altInput: true,
+                        enableTime: true,
+                        noCalendar: true,
+                        time_24hr: false,
+                        dateFormat: "H:i:S",
+                        defaultDate: val
+                    }
+
+                    //initialize time inputs
+                    st = flatpickr("#id_start_time", config_start_time);
+
                     break;
                 case "id_end_time":        
-                    et.setDate(val);
+                    // et.setDate(val);
+                    config_end_time = {
+                        altInput: true,
+                        enableTime: true,
+                        noCalendar: true,
+                        time_24hr: false,
+                        dateFormat: "H:i:S",
+                        defaultDate: val
+                    }
+
+                    //initialize time inputs
+                    st = flatpickr("#id_end_time", config_end_time);
                     break;
                 case "id_is_skip":                    
                 case "id_is_booked":
@@ -1056,8 +1105,18 @@
             }
         });
         $(".btn-activity-create").click(function() {
+
+            if ($(this).hasClass("hotel-activity")){
+                $("#offcanvasRightLabel").text("Add Hotel or Stay");
+                $("#id_type").val(3);
+            }
+            else{
+                $("#offcanvasRightLabel").text("Add New Activity");
+                $("#id_type").val(4);
+            }
+
             $("#id_operation").val('create');
-            $("#offcanvasRightLabel").text("Add New Activity");
+            
             //empty activities
             $("#id_activity").empty();
             //deselect all selects
@@ -1076,18 +1135,45 @@
                 } 
             }); 
             //reinitialize dates/times
-            st.setDate('12:00');
-            et.setDate('13:00');
+            config_start_time = {
+                altInput: true,
+                enableTime: true,
+                noCalendar: true,
+                time_24hr: false,
+                dateFormat: "H:i:S",
+                defaultDate: "15:00"
+            }
+            config_end_time = {
+                altInput: true,
+                enableTime: true,
+                noCalendar: true,
+                time_24hr: false,
+                dateFormat: "H:i:S",
+                defaultDate: "11:00"
+            }
+
+            //initialize time inputs
+            st = flatpickr("#id_start_time", config_start_time);
+            et = flatpickr("#id_end_time", config_end_time);
+            // st.setDate('12:00');
+            // et.setDate('13:00');
             if ($(this).hasClass("activity-exising-date")){
-                //console.log($(this).attr('name'));
                 var date = $(this).attr('name')
                 var parts = date.split('-');
+                console.log(parts);
                 var dateObj = new Date(parts[2], parts[0] - 1, parts[1]);
                 $('#id_start_date').datepicker("setDate", dateObj);
-                $('#id_end_date').datepicker("setDate", dateObj);
+                if ($(this).hasClass("hotel-activity")){
+                    dateObj.setDate(dateObj.getDate() + 1); 
+                    $('#id_end_date').datepicker("setDate", dateObj);
+                }
+                else
+                {
+                    $('#id_end_date').datepicker("setDate", dateObj);
+                }   
             }
             else
-            {                
+            {     
                 $('#id_start_date').datepicker("setDate", "today");
                 $('#id_end_date').datepicker("setDate", "today");
             }
@@ -1248,6 +1334,7 @@
             $("#id_longitude").val($('#h-longitude').val());
             $("#id_image_url").val($('#h-image-url').val());
             $("#id_description").val($('#h-description').val());
+            $("#id_type").val($('#h-type').val());
         }
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
@@ -1404,10 +1491,11 @@
         });
         button2.addTo(map);
 
-
         document.addEventListener("DOMContentLoaded", () => {
             let activeItem = null; // Tracks currently swiped item
             let itemToDelete = null; // Tracks item to be deleted
+            let isMouseDown = false; // Tracks if the mouse is pressed
+            let isDragging = false; // ✅ Tracks if dragging happened
 
             const modal = document.getElementById("delete-modal");
             const confirmDeleteBtn = document.getElementById("confirm-delete");
@@ -1415,12 +1503,11 @@
 
             document.querySelectorAll(".swipe-item").forEach(item => {
                 let startX = 0;
-                let moved = false;
 
                 // Touch events for mobile
                 item.addEventListener("touchstart", (e) => {
                     startX = e.touches[0].clientX;
-                    moved = false;
+                    isDragging = false;
                 });
 
                 item.addEventListener("touchmove", (e) => {
@@ -1429,30 +1516,43 @@
                         closeOtherItems();
                         item.classList.add("swiped");
                         activeItem = item;
-                        moved = true;
+                        isDragging = true;
                     }
                     if (diffX > 30) { // Swipe right threshold
                         item.classList.remove("swiped");
                     }
                 });
 
-                // Click event for desktop users
+                // Desktop: Start tracking on mouse down
                 item.addEventListener("mousedown", (e) => {
                     startX = e.clientX;
+                    isMouseDown = true;
+                    isDragging = false; // ✅ Reset dragging flag
                 });
 
                 item.addEventListener("mousemove", (e) => {
+                    if (!isMouseDown) return; // ✅ Prevent hover activation
+
                     let diffX = e.clientX - startX;
                     if (diffX < -30) { // Swipe left threshold
                         closeOtherItems();
                         item.classList.add("swiped");
                         activeItem = item;
+                        isDragging = true; // ✅ Mark as dragged
+                    }
+                    if (diffX > 30) { // Swipe right threshold
+                        item.classList.remove("swiped");
                     }
                 });
 
-                // Tap on item to close delete button
+                // ✅ Reset flags when mouse button is released
+                document.addEventListener("mouseup", () => {
+                    isMouseDown = false;
+                });
+
+                // ✅ Only close swipe if there was NO dragging
                 item.addEventListener("click", (e) => {
-                    if (!moved && activeItem === item) {
+                    if (!isDragging && activeItem === item) {
                         item.classList.remove("swiped");
                         activeItem = null;
                     }
@@ -1469,39 +1569,34 @@
             // Confirm delete action
             confirmDeleteBtn.addEventListener("click", () => {
                 if (itemToDelete) {
-                    
-                    let id = $(itemToDelete).attr("id").replace("swipe_item_","");
-                    let name = $(itemToDelete).attr("name").replace(" ","+");
-                    let name_plus = name.replace(" ","+");
-                    //ajax
+                    let id = $(itemToDelete).attr("id").replace("swipe_item_", "");
+                    let name = $(itemToDelete).attr("name").replace(" ", "+");
+                    let name_plus = name.replace(" ", "+");
+
+                    // Ajax request
                     $.ajax({
                         url: "/delete_itinerary_activity/", // Replace with your Django view URL
-                        type: "POST", 
+                        type: "POST",
                         data: {
                             "id": id,
                             "csrfmiddlewaretoken": "{{ csrf_token }}" // Important for CSRF protection
                         },
                         success: function(response) {
-                            // Handle successful deletion, e.g., remove the item from the DOM
                             itemToDelete.remove();
                             $("#transport_item_" + id).remove();
-                            
-                            markers.forEach(function(marker) {    
-                                if (marker.options.name && marker.options.name == name_plus)
-                                {
-                                    // console.log(marker.options.name);
+
+                            markers.forEach(function(marker) {
+                                if (marker.options.name && marker.options.name == name_plus) {
                                     map.removeLayer(marker);
                                 }
                             });
-                            
-                            locations = locations.filter(loc => loc[4] != name);
 
+                            locations = locations.filter(loc => loc[4] != name);
                             SetAllBounds();
 
                             itemToDelete = null;
                         },
                         error: function(error) {
-                            // Handle errors, e.g., display an error message
                             console.error(error);
                         }
                     });
@@ -1525,11 +1620,11 @@
 
             function closeOtherItems() {
                 document.querySelectorAll(".swipe-item").forEach(el => {
-                    if (el !== activeItem) 
-                    el.classList.remove("swiped");
+                    if (el !== activeItem) el.classList.remove("swiped");
                 });
-            }   
+            }
         });
+
         $(".btn-nav-link").on("click", function() {
             let classesBeforeClick = $(this).attr("class"); // Get class before modifying
             console.log("Classes before click:", classesBeforeClick);
@@ -1553,21 +1648,37 @@
 
         $(".accordion-button").click(function() {
             if ($(this).hasClass("collapsed")) {
+                try
+                {
                 var id = $(this).attr('id');
                 var newId = id.replace('accordion-button-', 'pills-tab-');
                 var element = document.getElementById(newId)
                 element.classList.remove("active");
+                }
+                catch(ex)
+                {
+                    console.log('no id');
+                }
            }
            else
            {
                 //get all class
-                document.querySelectorAll(".btn-nav-link").forEach(element => {
-                    element.classList.remove("active");
-                });
-                var id = $(this).attr('id');
-                var newId = id.replace('accordion-button-', 'pills-tab-');
-                var element = document.getElementById(newId)
-                element.classList.add("active");
+                try
+                {
+                    
+                    document.querySelectorAll(".btn-nav-link").forEach(element => {
+                        element.classList.remove("active");
+                    });
+                    var id = $(this).attr('id');
+                    console.log(id);
+                    var newId = id.replace('accordion-button-', 'pills-tab-');
+                    var element = document.getElementById(newId)
+                    element.classList.add("active");
+                }
+                catch(ex)
+                {
+                    console.log('no id');
+                }
            }
         });
     </script>
