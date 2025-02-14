@@ -158,6 +158,12 @@ form label {
     border-radius: 3px;
 }
 
+.hotel-info {
+    font-size: 12px;
+    margin-left: 5px;
+    float: left;
+}
+
 .btn-outline-pill {
     float: left;
     background-color: #ddd;
@@ -569,7 +575,7 @@ ul {
     border-bottom: 1px solid #ddd;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     padding-left: 5px;
     padding-right: 5px;
 }

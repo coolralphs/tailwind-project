@@ -282,10 +282,11 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         grouped_dates = defaultdict(list)
 
         if items:
-            for activity in items:
+            for activity in items.filter(type=4):
                 grouped_dates[activity.start_date].append(activity)
-                # if activity.itinerary_destination not in distinct_cities:
-                #     distinct_cities.append(activity.itinerary_destination)    
+        
+        hotels = items.filter(type=3)
+
 
         # for dest in destinations:
         #     items = ItineraryItem.objects.filter(itinerary_destination=dest).order_by('start_date')
@@ -301,8 +302,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         #     distinct_cities.append(u)
 
         sorted_dict = dict(sorted(grouped_dates.items()))
-        for i in sorted_dict:
-            print(i)
+
         form = ItineraryItemForm(initial= {'expand_item': expand_item, 'itinerary': itinerary})
         # form_destination = ItineraryDestinationForm()
         form_update_itinerary = ItineraryForm(initial= {'name': itinerary.name, 'user_survey': itinerary.user_survey})
@@ -328,6 +328,7 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             "map_center": map_center,
             "map_zoom": map_zoom,
             "address_field_list": address_field_list,
+            "hotels": hotels
         }
     return render(request, "itinerary.html", context)
 

@@ -102,7 +102,7 @@
                 </li>
             {% endfor %}
       </ul>
-
+      
         <div class="accordion next-line" id="accordion" style="margin-top:10px;">    
             {% for date, activities in grouped_dates.items %}   
                 <div class="accordion-item">                    
@@ -126,7 +126,8 @@
                             {% comment %} <button class="btn btn-outline-primary btn-round-primary btn-activity-create btn-round activity-exising-date mt-2" name="{{ date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 <i class="fas fa-plus"></i> 
                             </button> {% endcomment %}
- 
+                            
+                            
                             <div style="overflow-x:auto;">
                                 {% for i in activities|dictsort:"start_time" %}
                                     {% for key, val in i|get_fields %}
@@ -135,13 +136,31 @@
                                     <ul id="list">
                                         {% if forloop.first %}
                                             <li class="heading-item" id="item_heading_{{ i.id }}">
-                                                {% if i.type == 4 %}
-                                                    <button id="btn_hotel_{{ i.id }}" class="btn-activity-create hotel-activity btn btn-danger btn-xs activity-exising-date" name="{{ i.start_date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                {% if hotels %}
+                                                    
+                                                        {% for hotel in hotels %}
+                                                                {% if hotel|is_within_stay:date %}   
+                                                                  
+                                                                        {% for key, val in hotel|get_fields %}
+                                                                            <input class="activity-update-input-{{hotel.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
+                                                                        {% endfor %}                                             
+                                                                        <button id="btn_update_hotel" name="{{ hotel.id }}" class="btn-activity-update hotel-activity btn btn-success btn-xs activity-exising-date" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                                            Hotel <i class="fas fa-check" ></i>
+                                                                        </button>
+                                                                        <div class="hotel-info"><em>{{ hotel.place_name }} (Night {{ hotel.start_date|date_difference_plus_one:date }} of {{ hotel.start_date|date_difference:hotel.end_date }})</em></div>
+                                                                        {% with added_dates=added_dates|add:date %}
+                                                                        <div class="hotel-info"><em>  {{ added_dates }} </em></div>
+                                                                        {% endwith %}
+                                                                {% else %}
+                                                                    <button id="btn_add_hotel" class="btn-activity-create hotel-activity btn btn-danger btn-xs activity-exising-date" name="{{ i.start_date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                                        Hotel <i class="fas fa-triangle-exclamation" style="color:yellow;"></i>
+                                                                    </button>
+                                                                {% endif %} 
+                                                        {% endfor %}
+                                                    
+                                                {% else %}
+                                                    <button id="btn_add_hotel" class="btn-activity-create hotel-activity btn btn-danger btn-xs activity-exising-date" name="{{ i.start_date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                         Hotel <i class="fas fa-triangle-exclamation" style="color:yellow;"></i>
-                                                    </button> 
-                                                {% elif i.type == 3 %}
-                                                    <button id="btn_hotel_{{ i.id }}" class="btn-activity-update hotel-activity btn btn-success btn-xs activity-exising-date" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                        Hotel <i class="fas fa-check" ></i>
                                                     </button> 
                                                 {% endif %}                                                
                                             </li>
@@ -187,7 +206,7 @@
                                     </ul>
                                 {% endfor %}
                             </div>
-                            
+                           
 
                             {% comment %} <div class="next-line" style="overflow-x:auto;">
                                 <table class="">
@@ -274,7 +293,8 @@
                     </div>
                 </div>    
             {% endfor %}
-        </div>            
+        </div>  
+
     {% else %}
     <div class="accordion mt-2 container-padding">There are no destinations on this itinerary.</div>
     {% endif %}
@@ -509,7 +529,7 @@
                     color = 'blue';    
                     break;
                 case 3:
-                    color = 'gray';    
+                    color = 'grey';    
                     break;
                 case 4:
                     color = 'red';    
@@ -1105,14 +1125,16 @@
             }
         });
         $(".btn-activity-create").click(function() {
-
+            console.log('create');
             if ($(this).hasClass("hotel-activity")){
                 $("#offcanvasRightLabel").text("Add Hotel or Stay");
-                $("#id_type").val(3);
+                $("#id_type").val('3');
+                console.log($("#id_type").val());
             }
             else{
                 $("#offcanvasRightLabel").text("Add New Activity");
-                $("#id_type").val(4);
+                $("#id_type").val('4');
+                console.log($("#id_type").val());
             }
 
             $("#id_operation").val('create');
@@ -1155,8 +1177,7 @@
             //initialize time inputs
             st = flatpickr("#id_start_time", config_start_time);
             et = flatpickr("#id_end_time", config_end_time);
-            // st.setDate('12:00');
-            // et.setDate('13:00');
+
             if ($(this).hasClass("activity-exising-date")){
                 var date = $(this).attr('name')
                 var parts = date.split('-');
@@ -1317,7 +1338,14 @@
         });
         $("#btn_add_activity").click(function() {
             $("#id_operation").val('create');
-            setOffsetValues()
+            $("#id_type").val(4);
+            setOffsetValues();
+            offcanvas.show();
+        });
+        $("#btn_add_hotel").click(function() {
+            $("#id_operation").val('create');
+            $("#id_type").val(3);
+            // setOffsetValues();
             offcanvas.show();
         });
         function setOffsetValues() {
@@ -1334,7 +1362,6 @@
             $("#id_longitude").val($('#h-longitude').val());
             $("#id_image_url").val($('#h-image-url').val());
             $("#id_description").val($('#h-description').val());
-            $("#id_type").val($('#h-type').val());
         }
         var myOffcanvas = document.getElementById('offcanvasRight');
         myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {

@@ -1,5 +1,6 @@
 from django import template
 from django_countries import countries
+from datetime import date, timedelta
 
 register = template.Library()
 
@@ -55,3 +56,40 @@ def unique_countries(queryset, field_name):
             print("An exception occurred")
 
     return result
+
+@register.filter
+def is_within_stay(hotel, itinerary_date):
+    """Check if the itinerary date falls within the hotel's check-in and check-out dates"""
+    check_in = hotel.start_date
+    check_out = hotel.end_date
+    itinerary_date = itinerary_date
+
+    return check_in <= itinerary_date < check_out
+
+@register.filter
+def date_difference_plus_one(start_date, end_date):
+    """
+    Calculates the difference in days between two dates and adds 1.
+    """
+    if not isinstance(start_date, date) or not isinstance(end_date, date):
+        return "Invalid date"
+    
+    difference = abs((end_date - start_date).days)
+    return difference + 1
+
+@register.filter
+def date_difference(start_date, end_date):
+    """
+    Calculates the difference in days between two dates and adds 1.
+    """
+    if not isinstance(start_date, date) or not isinstance(end_date, date):
+        return "Invalid date"
+    
+    difference = abs((end_date - start_date).days)
+    return difference
+
+@register.filter(name='append_item')
+def append_item(value, arg):
+    temp = list(value)
+    temp.append(arg)
+    return temp
