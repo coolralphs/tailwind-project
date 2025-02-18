@@ -1,6 +1,6 @@
 from django import template
 from django_countries import countries
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 register = template.Library()
 
@@ -58,13 +58,24 @@ def unique_countries(queryset, field_name):
     return result
 
 @register.filter
-def is_within_stay(hotel, itinerary_date):
-    """Check if the itinerary date falls within the hotel's check-in and check-out dates"""
-    check_in = hotel.start_date
-    check_out = hotel.end_date
-    itinerary_date = itinerary_date
+def nights_count(hotels, itinerary_date):
+    """Check if the itinerary date falls within the hotel's check-in and check-out dates and return the night count"""
+    for stay in hotels:
+        check_in = stay.start_date
+        check_out = stay.end_date
+        itinerary_date = itinerary_date
 
-    return check_in <= itinerary_date < check_out
+        if check_in <= itinerary_date < check_out:
+            night_count = (itinerary_date - check_in).days + 1
+            total_nights = (check_out - check_in).days
+            return f"(Night {night_count} of {total_nights})"
+    return None  
+
+@register.filter(name='dict_key')
+def dict_key(dictionary, key):
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, "")
+    return ""
 
 @register.filter
 def date_difference_plus_one(start_date, end_date):

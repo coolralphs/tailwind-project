@@ -314,6 +314,8 @@ def ItineraryView(request, itinerary_id, expand_item=None):
         map_center = (40.7128, -74.0060)
         map_zoom = 12
 
+        hotel_nights = {date: is_within_stay(hotels, date) for date in sorted_dict}
+
         context = {
             # "formset": formset,
             "form": form,
@@ -328,10 +330,21 @@ def ItineraryView(request, itinerary_id, expand_item=None):
             "map_center": map_center,
             "map_zoom": map_zoom,
             "address_field_list": address_field_list,
-            "hotels": hotels
+            "hotels": hotels,
+            "hotel_nights": hotel_nights,
         }
     return render(request, "itinerary.html", context)
 
+def is_within_stay(hotels, itinerary_date):
+    """Check if the itinerary date falls within the hotel's check-in and check-out dates"""
+    for stay in hotels:
+        check_in = stay.start_date
+        check_out = stay.end_date
+        itinerary_date = itinerary_date
+
+        if check_in <= itinerary_date < check_out:
+            return stay
+    return None
 
 @method_decorator(login_required, name='dispatch')
 class ItineraryItemCreateView(CreateView):

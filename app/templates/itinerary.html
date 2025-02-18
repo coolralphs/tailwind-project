@@ -19,7 +19,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
+ 
     <div class="container-padding">
 
         {% comment %} <img id="place-image" style="width:100px; height:100px; object-fit:cover; object-position:center;"> {% endcomment %}
@@ -136,10 +136,31 @@
                                     <ul id="list">
                                         {% if forloop.first %}
                                             <li class="heading-item" id="item_heading_{{ i.id }}">
-                                                {% if hotels %}
-                                                    
-                                                        {% for hotel in hotels %}
-                                                                {% if hotel|is_within_stay:date %}   
+                                                {% if date in hotel_nights %}                                              
+                                                    {% with hotel=hotel_nights|dict_key:date %}
+                                                        {% if hotel %}    
+                                                            {% for night in hotel_nights %}
+                                                                {% if night == date %}
+                                                                    {% for key, val in hotel|get_fields %}
+                                                                        <input class="activity-update-input-{{hotel.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
+                                                                    {% endfor %}
+                                                                    <button id="btn_update_hotel" name="{{ hotel.id }}" class="btn-activity-update hotel-activity btn btn-success btn-xs activity-exising-date" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                                        Hotel <i class="fas fa-check" ></i>
+                                                                    </button>
+                                                                    <div class="hotel-info"><em>{{ hotel.place_name }} {{ hotels|nights_count:date }}
+                                                                        
+                                                                    </em></div>        
+                                                                {% endif %}
+                                                            {% endfor %}       
+                                                        {% else %}
+                                                            <button id="btn_add_hotel" class="btn-activity-create hotel-activity btn btn-danger btn-xs activity-exising-date" name="{{ i.start_date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                                Hotel <i class="fas fa-triangle-exclamation" style="color:yellow;"></i>
+                                                            </button>
+                                                        {% endif %}
+                                                    {% endwith %}                                               
+                                                {% endif %}
+                                                    {% comment %}{% for hotel in hotels %}
+                                                                 {% if hotel|is_within_stay:date %}   
                                                                   
                                                                         {% for key, val in hotel|get_fields %}
                                                                             <input class="activity-update-input-{{hotel.id}}" name="id_{{ key }}" value="{{ val }}" hidden/>
@@ -158,11 +179,11 @@
                                                                 {% endif %} 
                                                         {% endfor %}
                                                     
-                                                {% else %}
+                                               {% else %}
                                                     <button id="btn_add_hotel" class="btn-activity-create hotel-activity btn btn-danger btn-xs activity-exising-date" name="{{ i.start_date|date:"m-d-Y" }}" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                         Hotel <i class="fas fa-triangle-exclamation" style="color:yellow;"></i>
                                                     </button> 
-                                                {% endif %}                                                
+                                                {% endif %}  {% endcomment %}   
                                             </li>
                                         {% endif %}
                                         <li class="swipe-item" id="swipe_item_{{ i.id }}" name="{{ i.place_name }}">
