@@ -326,7 +326,7 @@
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body" style="margin-top:-20px;">
-            <form method="post" >
+            <form method="post" name="form_activity" >
                 {% csrf_token %} 
                 {{ form.media }}   
                 {% comment %} {{ form.as_p }} {% endcomment %}
@@ -393,9 +393,9 @@
                 {% comment %} {% include 'itinerary_item.html' %} {% endcomment %}
 
                 <input id="id_itinerary" name="itinerary" value="{{ itinerary_id }}" hidden>
-                <div style="display: flex; margin-top:10px;">
+                <div class="button-container">
                     <button name="form_submit" class="btn btn-success btn-sm" type="submit" style="width:100%;">Save</button>
-                    <button id="id_remove_marker" class="btn btn-danger btn-sm" style="display: none;">Remove</button>
+                        <i id="id_delete_activity" class="fas fa-trash-can delete-icon"></i> 
                 </div>
             </form>
         </div>
@@ -1067,10 +1067,12 @@
         });
 
         $(".btn-activity-update").click(function() {
+            console.log('hotel clicked too');
             var itinerary_item_id = $(this).attr('name');
             $("#id_operation").val('update');
             $("#offcanvasRightLabel").text("Update Activity");
             var inputs = $(".activity-update-input-" + itinerary_item_id);
+
             //set values
             for(var i = 0; i < inputs.length; i++){
                 var val = $(inputs[i]).val();
@@ -1125,6 +1127,7 @@
                     $("#"+name).prop('checked', isTrueSet);
                     break;
                 case "id_id":
+                    $("#id_delete_activity").attr('name',val);
                     //console.log(val);
                 case "id_activity":
                     var selectedTypeId = $('#id_activity_type').find(":selected").val();
@@ -1307,7 +1310,6 @@
             window.open(`https://www.google.com/search?q=${encodedSearch}`, "_blank");
         });
         $("#id_remove_marker").click(function() {
-
             var name = searchMarker.options.name.replace("+", " ");
             map.removeLayer(searchMarker);
             
@@ -1539,15 +1541,38 @@
         });
         button2.addTo(map);
 
+        // $("#id_delete_activity").click(function() {            
+        //     const modal = document.getElementById("delete-modal");
+        //     offcanvas.hide();
+        //     modal.style.display = "flex";
+        //     // Cancel delete action
+        //     confDeleteBtn.addEventListener("click", () => {
+        //         modal.style.display = "none";
+        //         itemToDelete.classList.remove("swiped");
+        //     });
+        // });
+
         document.addEventListener("DOMContentLoaded", () => {
             let activeItem = null; // Tracks currently swiped item
             let itemToDelete = null; // Tracks item to be deleted
             let isMouseDown = false; // Tracks if the mouse is pressed
             let isDragging = false; // ✅ Tracks if dragging happened
+            let deleteIconClicked = false;
+            let idToDelete = null;
 
             const modal = document.getElementById("delete-modal");
             const confirmDeleteBtn = document.getElementById("confirm-delete");
             const cancelDeleteBtn = document.getElementById("cancel-delete");
+            
+            document.querySelectorAll(".delete-icon").forEach(item => {
+                item.addEventListener("click", (e) => {
+                    idToDelete = $("#id_delete_activity").attr('name');
+                    console.log(idToDelete);
+                    deleteIconClicked = true;
+                    offcanvas.hide();
+                    modal.style.display = "flex";
+                });
+            });
 
             document.querySelectorAll(".swipe-item").forEach(item => {
                 let startX = 0;
@@ -1616,46 +1641,91 @@
 
             // Confirm delete action
             confirmDeleteBtn.addEventListener("click", () => {
-                if (itemToDelete) {
-                    let id = $(itemToDelete).attr("id").replace("swipe_item_", "");
-                    let name = $(itemToDelete).attr("name").replace(" ", "+");
-                    let name_plus = name.replace(" ", "+");
+                if (!deleteIconClicked) {
+                    if (itemToDelete) {
+                        let id = $(itemToDelete).attr("id").replace("swipe_item_", "");
+                        let name = $(itemToDelete).attr("name").replace(" ", "+");
+                        let name_plus = name.replace(" ", "+");
 
-                    // Ajax request
-                    $.ajax({
-                        url: "/delete_itinerary_activity/", // Replace with your Django view URL
-                        type: "POST",
-                        data: {
-                            "id": id,
-                            "csrfmiddlewaretoken": "{{ csrf_token }}" // Important for CSRF protection
-                        },
-                        success: function(response) {
-                            itemToDelete.remove();
-                            $("#transport_item_" + id).remove();
+                        // Ajax request
+                        $.ajax({
+                            url: "/delete_itinerary_activity/", // Replace with your Django view URL
+                            type: "POST",
+                            data: {
+                                "id": id,
+                                "csrfmiddlewaretoken": "{{ csrf_token }}" // Important for CSRF protection
+                            },
+                            success: function(response) {
+                                itemToDelete.remove();
+                                $("#transport_item_" + id).remove();
 
-                            markers.forEach(function(marker) {
-                                if (marker.options.name && marker.options.name == name_plus) {
-                                    map.removeLayer(marker);
-                                }
-                            });
+                                markers.forEach(function(marker) {
+                                    if (marker.options.name && marker.options.name == name_plus) {
+                                        map.removeLayer(marker);
+                                    }
+                                });
 
-                            locations = locations.filter(loc => loc[4] != name);
-                            SetAllBounds();
+                                locations = locations.filter(loc => loc[4] != name);
+                                SetAllBounds();
 
-                            itemToDelete = null;
-                        },
-                        error: function(error) {
-                            console.error(error);
-                        }
-                    });
+                                itemToDelete = null;
+                            },
+                            error: function(error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    $("#id_operation").val('delete');
+                    let formName = 'form_activity';
+                    const form = $(`form[name='${formName}']`);
+
+                    if (form.length) {
+                        form.submit();
+                    } else {
+                        console.error(`Form with name '${formName}' not found.`);
+                    }
+                    // let id = idToDelete;
+                    // // Ajax request
+                    // $.ajax({
+                    //         url: "/delete_itinerary_activity/", // Replace with your Django view URL
+                    //         type: "POST",
+                    //         data: {
+                    //             "id": id,
+                    //             "csrfmiddlewaretoken": "{{ csrf_token }}" // Important for CSRF protection
+                    //         },
+                    //         success: function(response) {
+                    //             //itemToDelete.remove();
+                    //             //$("#transport_item_" + id).remove();
+                                
+                    //             // markers.forEach(function(marker) {
+                    //             //     if (marker.options.name && marker.options.name == name_plus) {
+                    //             //         map.removeLayer(marker);
+                    //             //     }
+                    //             // });
+
+                    //             // locations = locations.filter(loc => loc[4] != name);
+                    //             // SetAllBounds();
+
+                    //             // itemToDelete = null;
+                    //         },
+                    //         error: function(error) {
+                    //             console.error(error);
+                    //         }
+                    //     });
                 }
                 modal.style.display = "none";
             });
 
             // Cancel delete action
             cancelDeleteBtn.addEventListener("click", () => {
+                if (!deleteIconClicked) {
+                    itemToDelete.classList.remove("swiped");
+                }
                 modal.style.display = "none";
-                itemToDelete.classList.remove("swiped");
+                deleteIconClicked = false;
             });
 
             // Close swipe when clicking outside

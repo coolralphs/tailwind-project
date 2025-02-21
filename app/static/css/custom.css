@@ -163,6 +163,22 @@ form label {
     margin-left: 5px;
     float: left;
 }
+/* style="display: flex; margin-top:10px;" */
+.button-container {
+    margin-top:10px;
+    display: flex;
+    align-items: center; /* Vertically center */
+    justify-content: center; /* Horizontally center */
+    gap: 5px; /* Space between icon and button */
+}
+
+.delete-icon {
+    color:red;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+}
 
 .btn-outline-pill {
     float: left;

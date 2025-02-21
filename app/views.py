@@ -119,6 +119,11 @@ def ItineraryView(request, itinerary_id, expand_item=None):
                 print('create')
                 form.save() 
                 pass
+            elif op == 'delete':
+                id = form.cleaned_data['id']                
+                item = ItineraryItem.objects.get(id=id)
+                item.delete()
+                pass
             else:
                 print('enter update')
                 #update
